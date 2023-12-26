@@ -37,23 +37,36 @@ impl OrbitalParameters {
             argument_of_periapsis: 0.0,
         }
     }
-
-    fn orbital_period(central_body: &CelestialBody, semi_major_axis: Distance) -> Time {
-        todo!("Calculate the orbital period");
-    }
-
-    fn eccentric_anomaly(&self, central_body: &CelestialBody, time: Time) -> Float {
-        todo!("Calculate the eccentric anomaly");
-    }
-
-    fn mean_anomaly(&self, central_body: &CelestialBody, time: Time) -> Float {
-        todo!("Calculate the mean anomaly");
-    }
-
-    fn true_anomaly(&self, central_body: &CelestialBody, time: Time) -> Float {
-        todo!("Calculate the true anomaly");
-    }
 }
+
+fn orbital_period(orbital_parameters: &OrbitalParameters, central_body: &CelestialBody) -> Time {
+    todo!("Calculate the orbital period");
+}
+
+fn eccentric_anomaly(
+    orbital_parameters: &OrbitalParameters,
+    central_body: &CelestialBody,
+    time: Time,
+) -> Float {
+    todo!("Calculate the eccentric anomaly");
+}
+
+fn mean_anomaly(
+    orbital_parameters: &OrbitalParameters,
+    central_body: &CelestialBody,
+    time: Time,
+) -> Float {
+    todo!("Calculate the mean anomaly");
+}
+
+fn true_anomaly(
+    orbital_parameters: &OrbitalParameters,
+    central_body: &CelestialBody,
+    time: Time,
+) -> Float {
+    todo!("Calculate the true anomaly");
+}
+
 pub(super) fn calculate_position(
     orbital_parameters: &OrbitalParameters,
     central_body: &CelestialBody,
@@ -85,19 +98,69 @@ mod tests {
         CelestialBody::new(sun_data, None, Time::from_days(0.0))
     }
 
-    #[test]
-    fn circular_orbit() {
-        let semi_major_axis = Distance::from_astronomical_units(1.0);
-        let eccentricity = 0.0;
-        let orbital_parameters =
-            OrbitalParameters::new(semi_major_axis, eccentricity, 0.0, 0.0, 0.0);
-        let expected_position = CartesianCoordinates {
-            x: Distance::from_astronomical_units(1.0),
-            y: Distance::from_astronomical_units(0.0),
-            z: Distance::from_astronomical_units(0.0),
-        };
+    fn earth() -> CelestialBody {
+        let earth_data: CelestialBodyData = CelestialBodyData::new(
+            String::from("Earth"),
+            Mass::from_earth_masses(1.0),
+            OrbitalParameters::new(Distance::from_astronomical_units(1.0), 0.0, 0.0, 0.0, 0.0),
+            RotationParameters::new(0.0, Time::from_days(1.0), 0.0),
+            Distance::from_earth_radii(1.0),
+            1.0,
+        );
 
-        let position = calculate_position(&orbital_parameters, &sun(), Time::from_days(0.0));
-        assert!(position.eq_within(&expected_position, TEST_ACCURACY));
+        CelestialBody::new(earth_data, Some(sun()), Time::from_days(0.0))
+    }
+
+    fn jupiter() -> CelestialBody {
+        let jupiter_data: CelestialBodyData = CelestialBodyData::new(
+            String::from("Jupiter"),
+            Mass::from_jupiter_masses(1.0),
+            OrbitalParameters::new(
+                Distance::from_astronomical_units(5.2),
+                0.048,
+                0.022,
+                100.464,
+                14.753,
+            ),
+            RotationParameters::new(0.0, Time::from_days(0.41354), 0.0),
+            Distance::from_earth_radii(10.97),
+            1.0,
+        );
+
+        CelestialBody::new(jupiter_data, Some(sun()), Time::from_days(0.0))
+    }
+
+    fn moon() -> CelestialBody {
+        let moon_data: CelestialBodyData = CelestialBodyData::new(
+            String::from("Moon"),
+            Mass::from_earth_masses(0.0123),
+            OrbitalParameters::new(Distance::from_kilometers(384399.0), 0.0, 0.0, 0.0, 0.0),
+            RotationParameters::new(0.0, Time::from_days(27.321), 0.0),
+            Distance::from_earth_radii(0.273),
+            1.0,
+        );
+
+        CelestialBody::new(moon_data, Some(earth()), Time::from_days(0.0))
+    }
+
+    #[test]
+    fn orbital_period_of_earth() {
+        let expected_orbital_period = Time::from_days(365.256);
+        let orbital_period = orbital_period(earth().get_orbital_parameters(), &sun());
+        assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
+    }
+
+    #[test]
+    fn orbital_period_of_jupiter() {
+        let expected_orbital_period = Time::from_days(4332.59);
+        let orbital_period = orbital_period(jupiter().get_orbital_parameters(), &sun());
+        assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
+    }
+
+    #[test]
+    fn orbital_period_of_moon() {
+        let expected_orbital_period = Time::from_days(27.321);
+        let orbital_period = orbital_period(moon().get_orbital_parameters(), &sun());
+        assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
     }
 }

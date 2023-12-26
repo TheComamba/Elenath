@@ -42,6 +42,10 @@ impl CelestialBodyData {
         }
     }
 
+    pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
+        &self.orbital_parameters
+    }
+
     pub(crate) fn add_orbiting_body(&mut self, body_data: CelestialBodyData) {
         self.orbiting_bodies.push(body_data);
     }
@@ -54,5 +58,9 @@ impl CelestialBody {
             None => CartesianCoordinates::zero(),
         };
         CelestialBody { data, position }
+    }
+
+    pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
+        &self.data.orbital_parameters
     }
 }
