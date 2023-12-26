@@ -1,3 +1,5 @@
+use astro_utils::{distance::Distance, time::Time, Float};
+
 use super::{
     coordinates::CartesianCoordinates, orbital_parameters::OrbitalParameters,
     rotation_parameters::RotationParameters,
@@ -8,8 +10,8 @@ pub(crate) struct CelestialBodyData {
     name: String,
     orbital_parameters: OrbitalParameters,
     rotation_parameters: RotationParameters,
-    radius: f32,
-    albedo: f32,
+    radius: Distance,
+    albedo: Float,
 }
 
 pub(crate) struct CelestialBody {
@@ -22,8 +24,8 @@ impl CelestialBodyData {
         name: String,
         orbital_parameters: OrbitalParameters,
         rotation_parameters: RotationParameters,
-        radius: f32,
-        albedo: f32,
+        radius: Distance,
+        albedo: Float,
     ) -> Self {
         CelestialBodyData {
             name,
@@ -36,7 +38,7 @@ impl CelestialBodyData {
 }
 
 impl CelestialBody {
-    pub(crate) fn new(data: CelestialBodyData, time: f64) -> Self {
+    pub(crate) fn new(data: CelestialBodyData, time: Time) -> Self {
         let position = data.orbital_parameters.current_position(time);
         CelestialBody { data, position }
     }

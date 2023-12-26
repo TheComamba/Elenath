@@ -1,12 +1,14 @@
+use astro_utils::{time::Time, Float};
+
 #[derive(Debug, Clone)]
 pub(crate) struct RotationParameters {
-    axis_tilt: f32,
-    rotation_period: f32,
-    initial_angle: f32,
+    axis_tilt: Float,
+    rotation_period: Time,
+    initial_angle: Float,
 }
 
 impl RotationParameters {
-    pub(super) fn new(axis_tilt: f32, rotation_period: f32, initial_angle: f32) -> Self {
+    pub(super) fn new(axis_tilt: Float, rotation_period: Time, initial_angle: Float) -> Self {
         RotationParameters {
             axis_tilt,
             rotation_period,

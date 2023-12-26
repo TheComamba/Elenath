@@ -121,6 +121,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "astro_utils"
+version = "0.1.0"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#ce53d3f63db35c371a99485efa80f99be1bf3e5a"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -453,6 +458,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 name = "elenath"
 version = "0.1.0"
 dependencies = [
+ "astro_utils",
  "iced",
 ]
 
@@ -1170,9 +1176,9 @@ dependencies = [
 
 [[package]]
 name = "lyon_geom"
-version = "1.0.4"
+version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74df1ff0a0147282eb10699537a03baa7d31972b58984a1d44ce0624043fe8ad"
+checksum = "edecfb8d234a2b0be031ab02ebcdd9f3b9ee418fb35e265f7a540a48d197bff9"
 dependencies = [
  "arrayvec",
  "euclid",

@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 iced = { version = "0.10.0", features=["canvas"] }
+astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="main" }
