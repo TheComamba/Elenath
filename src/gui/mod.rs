@@ -1,12 +1,17 @@
+use crate::model::{celestial_body::CelestialBody, example::solar_system_example};
 use iced::{widget::Column, Length, Sandbox};
 
-pub(crate) struct Gui {}
+pub(crate) struct Gui {
+    celestial_bodies: Vec<CelestialBody>,
+}
 
 impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        Gui {}
+        Gui {
+            celestial_bodies: solar_system_example(),
+        }
     }
 
     fn title(&self) -> String {

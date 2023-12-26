@@ -1,6 +1,6 @@
-mod celestial_body;
-mod orbital_parameters;
+pub(super) mod celestial_body;
+pub(super) mod example;
+pub(super) mod orbital_parameters;
 mod polar_coordinates;
-mod rotation_parameters;
-mod solar_system;
-mod star;
+pub(super) mod rotation_parameters;
+pub(super) mod star;
