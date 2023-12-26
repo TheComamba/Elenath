@@ -1,4 +1,4 @@
-use crate::model::celestial_body::CelestialBody;
+use crate::model::celestial_body::CelestialBodyData;
 use iced::{
     widget::canvas::{self, Cache, Path},
     Color, Size,
@@ -7,11 +7,11 @@ use iced::{
 pub(super) struct TopViewState {
     topview_background_cache: Cache,
     topview_bodies_cache: Cache,
-    celestial_bodies: Vec<CelestialBody>,
+    celestial_bodies: Vec<CelestialBodyData>,
 }
 
 impl TopViewState {
-    pub(super) fn new(celestial_bodies: Vec<CelestialBody>) -> Self {
+    pub(super) fn new(celestial_bodies: Vec<CelestialBodyData>) -> Self {
         TopViewState {
             topview_background_cache: Cache::default(),
             topview_bodies_cache: Cache::default(),
@@ -41,6 +41,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
             .draw(renderer, bounds.size(), |frame| {
                 let bodies = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
+                        //TODO: do something meaningful here
                         let radius = 3.0;
                         let pos = frame.center();
                         path_builder.circle(pos, radius);

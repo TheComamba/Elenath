@@ -1,4 +1,4 @@
-use super::polar_coordinates::PolarCoordinates;
+use super::coordinates::PolarCoordinates;
 
 struct Star {
     name: Option<String>,

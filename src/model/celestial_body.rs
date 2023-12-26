@@ -1,7 +1,10 @@
-use super::{orbital_parameters::OrbitalParameters, rotation_parameters::RotationParameters};
+use super::{
+    coordinates::CartesianCoordinates, orbital_parameters::OrbitalParameters,
+    rotation_parameters::RotationParameters,
+};
 
 #[derive(Debug, Clone)]
-pub(crate) struct CelestialBody {
+pub(crate) struct CelestialBodyData {
     name: String,
     orbital_parameters: OrbitalParameters,
     rotation_parameters: RotationParameters,
@@ -9,7 +12,12 @@ pub(crate) struct CelestialBody {
     albedo: f32,
 }
 
-impl CelestialBody {
+pub(crate) struct CelestialBody {
+    data: CelestialBodyData,
+    position: CartesianCoordinates,
+}
+
+impl CelestialBodyData {
     pub(crate) fn new(
         name: String,
         orbital_parameters: OrbitalParameters,
@@ -17,12 +25,19 @@ impl CelestialBody {
         radius: f32,
         albedo: f32,
     ) -> Self {
-        CelestialBody {
+        CelestialBodyData {
             name,
             orbital_parameters,
             rotation_parameters,
             radius,
             albedo,
         }
+    }
+}
+
+impl CelestialBody {
+    pub(crate) fn new(data: CelestialBodyData, time: f64) -> Self {
+        let position = data.orbital_parameters.current_position(time);
+        CelestialBody { data, position }
     }
 }

@@ -1,12 +1,12 @@
 use self::topview::TopViewState;
-use crate::model::{celestial_body::CelestialBody, example::solar_system_example};
+use crate::model::{celestial_body::CelestialBodyData, example::solar_system_example};
 use iced::{widget::canvas, Sandbox};
 
 mod topview;
 
 pub(crate) struct Gui {
     topview_state: TopViewState,
-    celestial_bodies: Vec<CelestialBody>,
+    celestial_bodies: Vec<CelestialBodyData>,
 }
 
 impl Sandbox for Gui {
