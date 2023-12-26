@@ -17,6 +17,14 @@ pub(super) struct CartesianCoordinates {
 }
 
 impl CartesianCoordinates {
+    pub(super) fn zero() -> Self {
+        CartesianCoordinates {
+            x: Distance::from_astronomical_units(0.0),
+            y: Distance::from_astronomical_units(0.0),
+            z: Distance::from_astronomical_units(0.0),
+        }
+    }
+
     pub(super) fn eq_within(&self, other: &CartesianCoordinates, accuracy: Float) -> bool {
         self.x.eq_within(other.x, accuracy)
             && self.y.eq_within(other.y, accuracy)

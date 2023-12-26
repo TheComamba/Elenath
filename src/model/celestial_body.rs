@@ -1,17 +1,20 @@
-use astro_utils::{distance::Distance, time::Time, Float};
+use astro_utils::{distance::Distance, mass::Mass, time::Time, Float};
 
 use super::{
-    coordinates::CartesianCoordinates, orbital_parameters::OrbitalParameters,
+    coordinates::CartesianCoordinates,
+    orbital_parameters::{calculate_position, OrbitalParameters},
     rotation_parameters::RotationParameters,
 };
 
 #[derive(Debug, Clone)]
 pub(crate) struct CelestialBodyData {
     name: String,
-    orbital_parameters: OrbitalParameters,
-    rotation_parameters: RotationParameters,
+    mass: Mass,
     radius: Distance,
     albedo: Float,
+    orbital_parameters: OrbitalParameters,
+    rotation_parameters: RotationParameters,
+    orbiting_bodies: Vec<CelestialBodyData>,
 }
 
 pub(crate) struct CelestialBody {
@@ -22,6 +25,7 @@ pub(crate) struct CelestialBody {
 impl CelestialBodyData {
     pub(crate) fn new(
         name: String,
+        mass: Mass,
         orbital_parameters: OrbitalParameters,
         rotation_parameters: RotationParameters,
         radius: Distance,
@@ -29,17 +33,26 @@ impl CelestialBodyData {
     ) -> Self {
         CelestialBodyData {
             name,
+            mass,
             orbital_parameters,
             rotation_parameters,
             radius,
             albedo,
+            orbiting_bodies: Vec::new(),
         }
+    }
+
+    pub(crate) fn add_orbiting_body(&mut self, body_data: CelestialBodyData) {
+        self.orbiting_bodies.push(body_data);
     }
 }
 
 impl CelestialBody {
-    pub(crate) fn new(data: CelestialBodyData, time: Time) -> Self {
-        let position = data.orbital_parameters.current_position(time);
+    pub(crate) fn new(data: CelestialBodyData, central_body: Option<Self>, time: Time) -> Self {
+        let position = match central_body {
+            Some(central_body) => calculate_position(&data.orbital_parameters, &central_body, time),
+            None => CartesianCoordinates::zero(),
+        };
         CelestialBody { data, position }
     }
 }
