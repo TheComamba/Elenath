@@ -46,6 +46,10 @@ impl CelestialBodyData {
         &self.orbital_parameters
     }
 
+    pub(crate) fn get_mass(&self) -> &Mass {
+        &self.mass
+    }
+
     pub(crate) fn add_orbiting_body(&mut self, body_data: CelestialBodyData) {
         self.orbiting_bodies.push(body_data);
     }
@@ -60,7 +64,15 @@ impl CelestialBody {
         CelestialBody { data, position }
     }
 
+    pub(crate) fn get_data(&self) -> &CelestialBodyData {
+        &self.data
+    }
+
     pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
-        &self.data.orbital_parameters
+        &self.data.get_orbital_parameters()
+    }
+
+    pub(crate) fn get_mass(&self) -> &Mass {
+        &self.data.get_mass()
     }
 }

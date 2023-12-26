@@ -1,6 +1,9 @@
 use astro_utils::{distance::Distance, time::Time, Float};
 
-use super::{celestial_body::CelestialBody, coordinates::CartesianCoordinates};
+use super::{
+    celestial_body::{CelestialBody, CelestialBodyData},
+    coordinates::CartesianCoordinates,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {
@@ -39,8 +42,21 @@ impl OrbitalParameters {
     }
 }
 
-fn orbital_period(orbital_parameters: &OrbitalParameters, central_body: &CelestialBody) -> Time {
-    todo!("Calculate the orbital period");
+/*
+ * The orbital period is the time it takes for a given object to make one full orbit around another object.
+ * https://en.wikipedia.org/wiki/Orbital_period
+ */
+fn orbital_period(
+    orbital_parameters: &OrbitalParameters,
+    central_body: &CelestialBodyData,
+) -> Time {
+    const G: Float = 6.67430e-11;
+    const PI: Float = std::f32::consts::PI;
+    let semi_major_axis = orbital_parameters.semi_major_axis.as_meters();
+    let semi_major_axis_cubed = semi_major_axis.powi(3);
+    let mass = central_body.get_mass().as_kilograms();
+    let orbital_period = 2.0 * PI * (semi_major_axis_cubed / mass / G).sqrt();
+    Time::from_seconds(orbital_period)
 }
 
 fn eccentric_anomaly(
@@ -72,7 +88,8 @@ pub(super) fn calculate_position(
     central_body: &CelestialBody,
     time: Time,
 ) -> CartesianCoordinates {
-    todo!("Calculate the current position");
+    //todo!("Calculate the current position");
+    CartesianCoordinates::zero()
 }
 
 #[cfg(test)]
@@ -146,21 +163,27 @@ mod tests {
     #[test]
     fn orbital_period_of_earth() {
         let expected_orbital_period = Time::from_days(365.256);
-        let orbital_period = orbital_period(earth().get_orbital_parameters(), &sun());
+        let orbital_period = orbital_period(earth().get_orbital_parameters(), sun().get_data());
+        println!("Expected orbital period: {}", expected_orbital_period);
+        println!("Calculated orbital period: {}", orbital_period);
         assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
     }
 
     #[test]
     fn orbital_period_of_jupiter() {
         let expected_orbital_period = Time::from_days(4332.59);
-        let orbital_period = orbital_period(jupiter().get_orbital_parameters(), &sun());
+        let orbital_period = orbital_period(jupiter().get_orbital_parameters(), sun().get_data());
+        println!("Expected orbital period: {}", expected_orbital_period);
+        println!("Calculated orbital period: {}", orbital_period);
         assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
     }
 
     #[test]
     fn orbital_period_of_moon() {
         let expected_orbital_period = Time::from_days(27.321);
-        let orbital_period = orbital_period(moon().get_orbital_parameters(), &sun());
+        let orbital_period = orbital_period(moon().get_orbital_parameters(), earth().get_data());
+        println!("Expected orbital period: {}", expected_orbital_period);
+        println!("Calculated orbital period: {}", orbital_period);
         assert!(orbital_period.eq_within(expected_orbital_period, TEST_ACCURACY));
     }
 }
