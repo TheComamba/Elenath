@@ -1,9 +1,6 @@
 use astro_utils::{distance::Distance, mass::Mass, time::Time, Float};
 
-use super::{
-    celestial_body::{CelestialBody, CelestialBodyData},
-    coordinates::CartesianCoordinates,
-};
+use super::{celestial_body::CelestialBody, coordinates::CartesianCoordinates};
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {
@@ -96,70 +93,9 @@ pub(super) fn calculate_position(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::{
-        celestial_body::CelestialBodyData, rotation_parameters::RotationParameters,
-    };
-    use astro_utils::mass::Mass;
+    use crate::model::example::*;
 
     static TEST_ACCURACY: Float = 1e-2;
-
-    fn sun() -> CelestialBody {
-        let sun_data: CelestialBodyData = CelestialBodyData::new(
-            String::from("Sun"),
-            Mass::from_solar_masses(1.0),
-            OrbitalParameters::central(),
-            RotationParameters::new(0.0, Time::from_days(0.0), 0.0),
-            Distance::from_sun_radii(1.0),
-            1.0,
-        );
-
-        CelestialBody::new(sun_data, None, Time::from_days(0.0))
-    }
-
-    fn earth() -> CelestialBody {
-        let earth_data: CelestialBodyData = CelestialBodyData::new(
-            String::from("Earth"),
-            Mass::from_earth_masses(1.0),
-            OrbitalParameters::new(Distance::from_astronomical_units(1.0), 0.0, 0.0, 0.0, 0.0),
-            RotationParameters::new(0.0, Time::from_days(1.0), 0.0),
-            Distance::from_earth_radii(1.0),
-            1.0,
-        );
-
-        CelestialBody::new(earth_data, Some(sun()), Time::from_days(0.0))
-    }
-
-    fn jupiter() -> CelestialBody {
-        let jupiter_data: CelestialBodyData = CelestialBodyData::new(
-            String::from("Jupiter"),
-            Mass::from_jupiter_masses(1.0),
-            OrbitalParameters::new(
-                Distance::from_astronomical_units(5.2),
-                0.048,
-                0.022,
-                100.464,
-                14.753,
-            ),
-            RotationParameters::new(0.0, Time::from_days(0.41354), 0.0),
-            Distance::from_earth_radii(10.97),
-            1.0,
-        );
-
-        CelestialBody::new(jupiter_data, Some(sun()), Time::from_days(0.0))
-    }
-
-    fn moon() -> CelestialBody {
-        let moon_data: CelestialBodyData = CelestialBodyData::new(
-            String::from("Moon"),
-            Mass::from_earth_masses(0.0123),
-            OrbitalParameters::new(Distance::from_kilometers(384399.0), 0.0, 0.0, 0.0, 0.0),
-            RotationParameters::new(0.0, Time::from_days(27.321), 0.0),
-            Distance::from_earth_radii(0.273),
-            1.0,
-        );
-
-        CelestialBody::new(moon_data, Some(earth()), Time::from_days(0.0))
-    }
 
     #[test]
     fn orbital_period_of_earth() {
