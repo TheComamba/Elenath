@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {
     semi_major_axis: f64,
     eccentricity: f64,

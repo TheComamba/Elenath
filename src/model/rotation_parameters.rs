@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub(crate) struct RotationParameters {
     axis_tilt: f32,
     rotation_period: f32,

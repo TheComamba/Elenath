@@ -1,7 +1,11 @@
+use self::topview::TopViewState;
 use crate::model::{celestial_body::CelestialBody, example::solar_system_example};
-use iced::{widget::Column, Length, Sandbox};
+use iced::{widget::canvas, Sandbox};
+
+mod topview;
 
 pub(crate) struct Gui {
+    topview_state: TopViewState,
     celestial_bodies: Vec<CelestialBody>,
 }
 
@@ -9,8 +13,10 @@ impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
+        let celestial_bodies = solar_system_example();
         Gui {
-            celestial_bodies: solar_system_example(),
+            topview_state: TopViewState::new(celestial_bodies.clone()),
+            celestial_bodies,
         }
     }
 
@@ -21,10 +27,9 @@ impl Sandbox for Gui {
     fn update(&mut self, _message: Self::Message) {}
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        Column::new()
-            .align_items(iced::Alignment::Center)
-            .width(Length::Fill)
-            .height(Length::Fill)
+        canvas(&self.topview_state)
+            .width(iced::Length::Fill)
+            .height(iced::Length::Fill)
             .into()
     }
 }
