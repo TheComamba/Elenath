@@ -69,35 +69,53 @@ impl Sandbox for Gui {
 
 impl Gui {
     fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
-        let m_per_px = self.topview_state.get_meter_per_pixel();
+        Column::new()
+            .push(self.time_control_field())
+            .push(self.time_step_control_field())
+            .push(self.length_scale_control_field())
+            .width(iced::Length::Fill)
+            .into()
+    }
 
+    fn time_control_field(&self) -> Row<'_, GuiMessage> {
         let decrease_time_button = Button::new(Text::new("<<"))
             .on_press(GuiMessage::UpdateTime(self.time - self.time_step));
         let increase_time_button = Button::new(Text::new(">>"))
             .on_press(GuiMessage::UpdateTime(self.time + self.time_step));
-        let decrease_time_step_button =
-            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateTimeStep(self.time_step / 2.));
-        let increase_time_step_button =
-            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateTimeStep(self.time_step * 2.));
-        let decrease_length_scale_button =
-            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateLengthScale(m_per_px / 2.));
-        let increase_length_scale_button =
-            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateLengthScale(m_per_px * 2.));
         Row::new()
             .push(Text::new("Time: "))
             .push(decrease_time_button)
             .push(Text::new(format!("{}", self.time)))
             .push(increase_time_button)
+            .width(iced::Length::Fill)
+    }
+
+    fn time_step_control_field(&self) -> Row<'_, GuiMessage> {
+        let decrease_time_step_button =
+            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateTimeStep(self.time_step / 2.));
+        let increase_time_step_button =
+            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateTimeStep(self.time_step * 2.));
+        Row::new()
             .push(Text::new("Time step: "))
             .push(decrease_time_step_button)
             .push(Text::new(format!("{}", self.time_step)))
             .push(increase_time_step_button)
+            .width(iced::Length::Fill)
+    }
+
+    fn length_scale_control_field(&self) -> Row<'_, GuiMessage> {
+        let m_per_px = self.topview_state.get_meter_per_pixel();
+        let decrease_length_scale_button =
+            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateLengthScale(m_per_px / 2.));
+        let increase_length_scale_button =
+            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateLengthScale(m_per_px * 2.));
+        let length_scale_control_field = Row::new()
             .push(Text::new("Length scale: "))
             .push(decrease_length_scale_button)
             .push(Text::new(format!("{}", Length::from_meters(m_per_px))))
             .push(increase_length_scale_button)
-            .width(iced::Length::Fill)
-            .into()
+            .width(iced::Length::Fill);
+        length_scale_control_field
     }
 }
 
