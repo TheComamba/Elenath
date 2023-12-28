@@ -46,7 +46,7 @@ impl Sandbox for Gui {
         match message {
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
-                self.celestial_bodies = self.central_body_data.system(self.time);
+                self.update_bodies();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
@@ -166,6 +166,17 @@ impl Gui {
             .push(pick_list)
             .align_items(Alignment::Center)
             .into()
+    }
+
+    fn update_bodies(&mut self) {
+        self.celestial_bodies = self.central_body_data.system(self.time);
+        if let Some(focus) = &self.selected_focus {
+            self.selected_focus = self
+                .celestial_bodies
+                .iter()
+                .find(|body| body.get_name() == focus.get_name())
+                .cloned();
+        }
     }
 }
 
