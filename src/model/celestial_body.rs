@@ -1,8 +1,7 @@
-use astro_utils::{distance::Distance, mass::Mass, time::Time, Float};
+use astro_utils::{length::Length, mass::Mass, time::Time, Float};
 
 use super::{
-    coordinates::CartesianCoordinates,
-    orbital_parameters::{calculate_position, OrbitalParameters},
+    coordinates::CartesianCoordinates, orbital_parameters::OrbitalParameters,
     rotation_parameters::RotationParameters,
 };
 
@@ -10,7 +9,7 @@ use super::{
 pub(crate) struct CelestialBodyData {
     name: String,
     mass: Mass,
-    radius: Distance,
+    radius: Length,
     albedo: Float,
     orbital_parameters: OrbitalParameters,
     rotation_parameters: RotationParameters,
@@ -28,7 +27,7 @@ impl CelestialBodyData {
         mass: Mass,
         orbital_parameters: OrbitalParameters,
         rotation_parameters: RotationParameters,
-        radius: Distance,
+        radius: Length,
         albedo: Float,
     ) -> Self {
         CelestialBodyData {
@@ -50,7 +49,7 @@ impl CelestialBodyData {
         self.mass
     }
 
-    pub(crate) fn get_semi_major_axis(&self) -> Distance {
+    pub(crate) fn get_semi_major_axis(&self) -> Length {
         self.orbital_parameters.get_semi_major_axis()
     }
 
@@ -62,7 +61,9 @@ impl CelestialBodyData {
 impl CelestialBody {
     pub(crate) fn new(data: CelestialBodyData, central_body: Option<Self>, time: Time) -> Self {
         let position = match central_body {
-            Some(central_body) => calculate_position(&data.orbital_parameters, &central_body, time),
+            Some(central_body) => data
+                .orbital_parameters
+                .calculate_position(&central_body, time),
             None => CartesianCoordinates::zero(),
         };
         CelestialBody { data, position }
@@ -76,7 +77,7 @@ impl CelestialBody {
         &self.data.get_orbital_parameters()
     }
 
-    pub(crate) fn get_semi_major_axis(&self) -> Distance {
+    pub(crate) fn get_semi_major_axis(&self) -> Length {
         self.data.get_semi_major_axis()
     }
 

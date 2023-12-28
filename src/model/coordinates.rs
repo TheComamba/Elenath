@@ -1,4 +1,4 @@
-use astro_utils::{distance::Distance, Float};
+use astro_utils::{length::Length, Float};
 
 /*  The "absolute" reference we use for polar coordiantes is heliocentric ecliptic coordinates:
  * Longitude denotes the angle between the vernal equinox and the body, measured in the ecliptic plane.
@@ -11,17 +11,17 @@ pub(super) struct PolarCoordinates {
 }
 
 pub(super) struct CartesianCoordinates {
-    pub(super) x: Distance,
-    pub(super) y: Distance,
-    pub(super) z: Distance,
+    pub(super) x: Length,
+    pub(super) y: Length,
+    pub(super) z: Length,
 }
 
 impl CartesianCoordinates {
     pub(super) fn zero() -> Self {
         CartesianCoordinates {
-            x: Distance::from_astronomical_units(0.0),
-            y: Distance::from_astronomical_units(0.0),
-            z: Distance::from_astronomical_units(0.0),
+            x: Length::from_astronomical_units(0.0),
+            y: Length::from_astronomical_units(0.0),
+            z: Length::from_astronomical_units(0.0),
         }
     }
 

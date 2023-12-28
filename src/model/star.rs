@@ -1,10 +1,10 @@
 use super::coordinates::PolarCoordinates;
-use astro_utils::distance::Distance;
+use astro_utils::length::Length;
 
 struct Star {
     name: Option<String>,
     polar_coordinates: PolarCoordinates,
-    distance: Distance,
+    distance: Length,
     brightness: f32,
     temperature: f32,
 }
