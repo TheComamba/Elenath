@@ -7,8 +7,9 @@ use iced::{
 };
 
 pub(super) struct TopViewState {
-    topview_bodies_cache: Cache,
-    topview_scale_cache: Cache,
+    background_cache: Cache,
+    bodies_cache: Cache,
+    scale_cache: Cache,
     celestial_bodies: Vec<CelestialBody>,
     meter_per_pixel: Float,
 }
@@ -16,8 +17,9 @@ pub(super) struct TopViewState {
 impl TopViewState {
     pub(super) fn new(celestial_bodies: Vec<CelestialBody>) -> Self {
         TopViewState {
-            topview_bodies_cache: Cache::default(),
-            topview_scale_cache: Cache::default(),
+            background_cache: Cache::default(),
+            bodies_cache: Cache::default(),
+            scale_cache: Cache::default(),
             celestial_bodies,
             meter_per_pixel: 1e10,
         }
@@ -38,8 +40,8 @@ impl TopViewState {
     }
 
     pub(super) fn redraw(&mut self) {
-        self.topview_bodies_cache.clear();
-        self.topview_scale_cache.clear();
+        self.bodies_cache.clear();
+        self.scale_cache.clear();
     }
 }
 
@@ -54,55 +56,57 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
         bounds: iced::Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
-        let bodies = self
-            .topview_bodies_cache
+        let background = self
+            .background_cache
             .draw(renderer, bounds.size(), |frame| {
-                let bodies = Path::new(|path_builder| {
-                    for body in self.celestial_bodies.iter() {
-                        let x = body.get_position().x().as_meters() / self.meter_per_pixel;
-                        let y = body.get_position().y().as_meters() / self.meter_per_pixel;
-                        let radius = 3.0;
-                        let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
-                        path_builder.circle(pos, radius);
-
-                        let mut name_widget = Text::default();
-                        name_widget.color = Color::WHITE;
-                        name_widget.content = body.get_name().to_string();
-                        name_widget.position = pos;
-                        frame.fill_text(name_widget);
-                    }
-                });
-                frame.fill(&bodies, Color::WHITE);
+                let background = Path::rectangle(bounds.position(), bounds.size());
+                frame.fill(&background, Color::BLACK);
             });
-        let scale = self
-            .topview_scale_cache
-            .draw(renderer, bounds.size(), |frame| {
-                const LENGTH: f32 = 200.0;
-                let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
-                let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
-                let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
-                let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
+        let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
+            let bodies = Path::new(|path_builder| {
+                for body in self.celestial_bodies.iter() {
+                    let x = body.get_position().x().as_meters() / self.meter_per_pixel;
+                    let y = body.get_position().y().as_meters() / self.meter_per_pixel;
+                    let radius = 3.0;
+                    let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
+                    path_builder.circle(pos, radius);
 
-                let scale = Path::new(|path_builder| {
-                    path_builder.move_to(start_pos + delimitor_vec);
-                    path_builder.line_to(start_pos - delimitor_vec);
-                    path_builder.move_to(start_pos);
-                    path_builder.line_to(end_pos);
-                    path_builder.move_to(end_pos + delimitor_vec);
-                    path_builder.line_to(end_pos - delimitor_vec);
-                });
-                let mut stroke = canvas::Stroke::default();
-                stroke.style = Style::Solid(Color::WHITE);
-
-                frame.stroke(&scale, stroke);
-
-                let mut text = Text::default();
-                text.color = Color::WHITE;
-                text.content = format!("{}", Length::from_meters(LENGTH * self.meter_per_pixel));
-                text.position = middle_pos;
-                text.horizontal_alignment = Horizontal::Center;
-                frame.fill_text(text);
+                    let mut name_widget = Text::default();
+                    name_widget.color = Color::WHITE;
+                    name_widget.content = body.get_name().to_string();
+                    name_widget.position = pos;
+                    frame.fill_text(name_widget);
+                }
             });
-        vec![bodies, scale]
+            frame.fill(&bodies, Color::WHITE);
+        });
+        let scale = self.scale_cache.draw(renderer, bounds.size(), |frame| {
+            const LENGTH: f32 = 200.0;
+            let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
+            let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
+            let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
+            let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
+
+            let scale = Path::new(|path_builder| {
+                path_builder.move_to(start_pos + delimitor_vec);
+                path_builder.line_to(start_pos - delimitor_vec);
+                path_builder.move_to(start_pos);
+                path_builder.line_to(end_pos);
+                path_builder.move_to(end_pos + delimitor_vec);
+                path_builder.line_to(end_pos - delimitor_vec);
+            });
+            let mut stroke = canvas::Stroke::default();
+            stroke.style = Style::Solid(Color::WHITE);
+
+            frame.stroke(&scale, stroke);
+
+            let mut text = Text::default();
+            text.color = Color::WHITE;
+            text.content = format!("{}", Length::from_meters(LENGTH * self.meter_per_pixel));
+            text.position = middle_pos;
+            text.horizontal_alignment = Horizontal::Center;
+            frame.fill_text(text);
+        });
+        vec![background, bodies, scale]
     }
 }
