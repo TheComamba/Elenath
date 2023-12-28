@@ -1,6 +1,6 @@
 use astro_utils::{angle::Angle, length::Length, time::Time, Float};
 
-use super::{celestial_body::CelestialBody, coordinates::CartesianCoordinates};
+use super::celestial_body::CelestialBody;
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {

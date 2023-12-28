@@ -1,9 +1,6 @@
 use astro_utils::{length::Length, mass::Mass, time::Time, Float};
 
-use super::{
-    coordinates::CartesianCoordinates, orbital_parameters::OrbitalParameters,
-    rotation_parameters::RotationParameters,
-};
+use super::{orbital_parameters::OrbitalParameters, rotation_parameters::RotationParameters};
 
 #[derive(Debug, Clone)]
 pub(crate) struct CelestialBodyData {

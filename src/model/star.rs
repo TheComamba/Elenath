@@ -1,4 +1,3 @@
-use super::coordinates::PolarCoordinates;
 use astro_utils::length::Length;
 
 struct Star {
