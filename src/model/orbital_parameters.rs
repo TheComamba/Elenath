@@ -1,4 +1,4 @@
-use astro_utils::{length::Length, time::Time, Float};
+use astro_utils::{angle::Angle, length::Length, time::Time, Float};
 
 use super::{celestial_body::CelestialBody, coordinates::CartesianCoordinates};
 
@@ -6,18 +6,18 @@ use super::{celestial_body::CelestialBody, coordinates::CartesianCoordinates};
 pub(crate) struct OrbitalParameters {
     semi_major_axis: Length, // The greatest distance to the central body
     eccentricity: Float,     // The shape of the orbit, deviation from a perfect circle
-    inclination: Float,      // The angle between the orbital plane and the reference plane
-    longitude_of_ascending_node: Float, // The angle between the reference plane and the ascending node
-    argument_of_periapsis: Float,       // The angle between the ascending node and the periapsis
+    inclination: Angle,      // The angle between the orbital plane and the reference plane
+    longitude_of_ascending_node: Angle, // The angle between the reference plane and the ascending node
+    argument_of_periapsis: Angle,       // The angle between the ascending node and the periapsis
 }
 
 impl OrbitalParameters {
     pub(super) fn new(
         semi_major_axis: Length,
         eccentricity: Float,
-        inclination: Float,
-        longitude_of_ascending_node: Float,
-        argument_of_periapsis: Float,
+        inclination: Angle,
+        longitude_of_ascending_node: Angle,
+        argument_of_periapsis: Angle,
     ) -> Self {
         OrbitalParameters {
             semi_major_axis,
@@ -32,9 +32,9 @@ impl OrbitalParameters {
         OrbitalParameters {
             semi_major_axis: Length::from_astronomical_units(0.0),
             eccentricity: 0.0,
-            inclination: 0.0,
-            longitude_of_ascending_node: 0.0,
-            argument_of_periapsis: 0.0,
+            inclination: Angle::from_radians(0.0),
+            longitude_of_ascending_node: Angle::from_radians(0.0),
+            argument_of_periapsis: Angle::from_radians(0.0),
         }
     }
 

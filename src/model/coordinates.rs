@@ -1,4 +1,4 @@
-use astro_utils::{length::Length, Float};
+use astro_utils::{angle::Angle, length::Length, Float};
 
 /*  The "absolute" reference we use for polar coordiantes is heliocentric ecliptic coordinates:
  * Longitude denotes the angle between the vernal equinox and the body, measured in the ecliptic plane.
@@ -6,8 +6,8 @@ use astro_utils::{length::Length, Float};
  * https://en.wikipedia.org/wiki/Ecliptic_coordinate_system
  */
 pub(super) struct PolarCoordinates {
-    pub(super) longitude: Float,
-    pub(super) latitude: Float,
+    pub(super) longitude: Angle,
+    pub(super) latitude: Angle,
 }
 
 pub(super) struct CartesianCoordinates {
