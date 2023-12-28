@@ -1,4 +1,4 @@
-use astro_utils::{angle::Angle, time::Time, Float};
+use astro_utils::units::{angle::Angle, time::Time};
 
 #[derive(Debug, Clone)]
 pub(crate) struct RotationParameters {

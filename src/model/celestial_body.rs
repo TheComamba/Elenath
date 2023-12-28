@@ -1,4 +1,8 @@
-use astro_utils::{length::Length, mass::Mass, time::Time, Float};
+use astro_utils::{
+    coordinates::cartesian::{CartesianCoordinates, ORIGIN},
+    units::{length::Length, mass::Mass, time::Time},
+    Float,
+};
 
 use super::{orbital_parameters::OrbitalParameters, rotation_parameters::RotationParameters};
 
@@ -61,7 +65,7 @@ impl CelestialBody {
             Some(central_body) => data
                 .orbital_parameters
                 .calculate_position(&central_body, time),
-            None => CartesianCoordinates::zero(),
+            None => ORIGIN,
         };
         CelestialBody { data, position }
     }

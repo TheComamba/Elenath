@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#027f1717ee3cdf6293f7aa0ad0fa477650cfec50"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#1a735ebed0ec07c9726c2c6e798a898c3010eb02"
 
 [[package]]
 name = "autocfg"

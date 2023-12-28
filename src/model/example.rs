@@ -4,14 +4,12 @@ use crate::model::{
     rotation_parameters::RotationParameters,
 };
 use astro_utils::{
-    angle::Angle,
-    length::Length,
-    mass::Mass,
+    orbit_orientation::OrbitOrientation,
     solar_system_data::{
         EARTH_MASS, EARTH_RADIUS, EARTH_SEMI_MAJOR_AXIS, JUPITER_SEMI_MAJOR_AXIS, MOON_MASS,
         MOON_RADIUS, MOON_SEMI_MAJOR_AXIS, SUN_MASS, SUN_RADIUS,
     },
-    time::Time,
+    units::{angle::Angle, length::Length, mass::Mass, time::Time},
 };
 
 pub(crate) fn sun() -> CelestialBody {
@@ -38,9 +36,11 @@ pub(crate) fn earth() -> CelestialBody {
         OrbitalParameters::new(
             EARTH_SEMI_MAJOR_AXIS,
             0.0167086,
-            Angle::from_degrees(0.0),
-            Angle::from_degrees(-11.26064),
-            Angle::from_degrees(114.20783),
+            OrbitOrientation::new(
+                Angle::from_degrees(0.0),
+                Angle::from_degrees(-11.26064),
+                Angle::from_degrees(114.20783),
+            ),
         ),
         RotationParameters::new(
             Angle::from_degrees(0.0),
@@ -61,9 +61,11 @@ pub(crate) fn jupiter() -> CelestialBody {
         OrbitalParameters::new(
             JUPITER_SEMI_MAJOR_AXIS,
             0.0489,
-            Angle::from_degrees(1.303),
-            Angle::from_degrees(100.464),
-            Angle::from_degrees(273.867),
+            OrbitOrientation::new(
+                Angle::from_degrees(1.303),
+                Angle::from_degrees(100.464),
+                Angle::from_degrees(273.867),
+            ),
         ),
         RotationParameters::new(
             Angle::from_degrees(0.0),
@@ -84,9 +86,11 @@ pub(crate) fn moon() -> CelestialBody {
         OrbitalParameters::new(
             MOON_SEMI_MAJOR_AXIS,
             0.0549,
-            Angle::from_degrees(5.145),
-            Angle::from_degrees(0.0),
-            Angle::from_degrees(0.0),
+            OrbitOrientation::new(
+                Angle::from_degrees(5.145),
+                Angle::from_degrees(0.0),
+                Angle::from_degrees(0.0),
+            ),
         ),
         RotationParameters::new(
             Angle::from_degrees(0.0),
