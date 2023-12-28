@@ -5,6 +5,8 @@ use iced::{
     Color,
 };
 
+use crate::model::celestial_body::CelestialBody;
+
 use super::Gui;
 
 pub(super) struct TopViewState {
@@ -42,6 +44,12 @@ impl TopViewState {
 }
 
 impl Gui {
+    fn canvas_position(&self, body: &CelestialBody) -> iced::Vector {
+        let x = body.get_position().x().as_meters() / self.topview_state.meter_per_pixel;
+        let y = -body.get_position().y().as_meters() / self.topview_state.meter_per_pixel; // y axis is inverted
+        iced::Vector::new(x as f32, y as f32)
+    }
+
     pub(super) fn topview_canvas(
         &self,
         renderer: &iced::Renderer,
@@ -58,14 +66,14 @@ impl Gui {
             .topview_state
             .bodies_cache
             .draw(renderer, bounds.size(), |frame| {
+                let offset = match &self.selected_focus {
+                    Some(focus) => self.canvas_position(focus),
+                    None => iced::Vector::new(0.0 as f32, 0.0 as f32),
+                };
                 let bodies = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
-                        let x = body.get_position().x().as_meters()
-                            / self.topview_state.meter_per_pixel;
-                        let y = -body.get_position().y().as_meters()
-                            / self.topview_state.meter_per_pixel; // y axis is inverted
                         let radius = 3.0;
-                        let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
+                        let pos = frame.center() + self.canvas_position(body) - offset;
                         path_builder.circle(pos, radius);
 
                         let mut name_widget = canvas::Text::default();

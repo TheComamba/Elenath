@@ -47,19 +47,18 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
                 self.celestial_bodies = self.central_body_data.system(self.time);
-                self.topview_state.redraw();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
-                self.topview_state.redraw();
             }
             GuiMessage::FocusedBodySelected(planet_name) => {
                 self.selected_focus = Some(planet_name);
             }
         }
+        self.topview_state.redraw();
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
