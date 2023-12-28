@@ -62,13 +62,13 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
                         path_builder.circle(pos, radius);
 
                         let mut name_widget = Text::default();
-                        name_widget.color = Color::BLACK;
+                        name_widget.color = Color::WHITE;
                         name_widget.content = body.get_name().to_string();
                         name_widget.position = pos;
                         frame.fill_text(name_widget);
                     }
                 });
-                frame.fill(&bodies, Color::BLACK);
+                frame.fill(&bodies, Color::WHITE);
             });
         vec![bodies]
     }

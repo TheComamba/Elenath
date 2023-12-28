@@ -65,6 +65,10 @@ impl Sandbox for Gui {
             .height(iced::Length::Fill)
             .into()
     }
+
+    fn theme(&self) -> iced::Theme {
+        iced::Theme::Dark
+    }
 }
 
 impl Gui {
