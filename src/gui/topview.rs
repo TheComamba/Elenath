@@ -78,10 +78,10 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
             .topview_scale_cache
             .draw(renderer, bounds.size(), |frame| {
                 const LENGTH: f32 = 200.0;
-                let start_pos = frame.center() + iced::Vector::new(0. as f32, 0. as f32);
+                let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
                 let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
                 let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
-                let delimitor_vec = iced::Vector::new(0.0 as f32, 5.0 as f32);
+                let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
 
                 let scale = Path::new(|path_builder| {
                     path_builder.move_to(start_pos + delimitor_vec);
@@ -103,6 +103,6 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
                 text.horizontal_alignment = Horizontal::Center;
                 frame.fill_text(text);
             });
-        vec![scale]
+        vec![bodies, scale]
     }
 }
