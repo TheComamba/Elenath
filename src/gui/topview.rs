@@ -1,6 +1,7 @@
 use crate::model::celestial_body::CelestialBody;
 use astro_utils::{units::length::Length, Float};
 use iced::{
+    alignment::Horizontal,
     widget::canvas::{self, Cache, Path, Style, Text},
     Color,
 };
@@ -76,13 +77,19 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
         let scale = self
             .topview_scale_cache
             .draw(renderer, bounds.size(), |frame| {
-                const LENGTH: f32 = 100.0;
+                const LENGTH: f32 = 200.0;
                 let start_pos = frame.center() + iced::Vector::new(0. as f32, 0. as f32);
+                let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
                 let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
+                let delimitor_vec = iced::Vector::new(0.0 as f32, 5.0 as f32);
 
                 let scale = Path::new(|path_builder| {
+                    path_builder.move_to(start_pos + delimitor_vec);
+                    path_builder.line_to(start_pos - delimitor_vec);
                     path_builder.move_to(start_pos);
                     path_builder.line_to(end_pos);
+                    path_builder.move_to(end_pos + delimitor_vec);
+                    path_builder.line_to(end_pos - delimitor_vec);
                 });
                 let mut stroke = canvas::Stroke::default();
                 stroke.style = Style::Solid(Color::WHITE);
@@ -92,7 +99,8 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
                 let mut text = Text::default();
                 text.color = Color::WHITE;
                 text.content = format!("{}", Length::from_meters(LENGTH * self.meter_per_pixel));
-                text.position = start_pos;
+                text.position = middle_pos;
+                text.horizontal_alignment = Horizontal::Center;
                 frame.fill_text(text);
             });
         vec![scale]
