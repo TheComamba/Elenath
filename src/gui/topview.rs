@@ -67,7 +67,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
             let bodies = Path::new(|path_builder| {
                 for body in self.celestial_bodies.iter() {
                     let x = body.get_position().x().as_meters() / self.meter_per_pixel;
-                    let y = body.get_position().y().as_meters() / self.meter_per_pixel;
+                    let y = -body.get_position().y().as_meters() / self.meter_per_pixel; // y axis is inverted
                     let radius = 3.0;
                     let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
                     path_builder.circle(pos, radius);
