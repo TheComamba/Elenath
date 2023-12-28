@@ -19,7 +19,7 @@ pub(crate) struct Gui {
     topview_state: TopViewState,
     central_body_data: CelestialBodyData,
     celestial_bodies: Vec<CelestialBody>,
-    selected_planet: Option<String>,
+    selected_focus: Option<CelestialBody>,
 }
 
 impl Sandbox for Gui {
@@ -34,7 +34,7 @@ impl Sandbox for Gui {
             topview_state: TopViewState::new(),
             central_body_data,
             celestial_bodies,
-            selected_planet: None,
+            selected_focus: None,
         }
     }
 
@@ -56,8 +56,8 @@ impl Sandbox for Gui {
                 self.topview_state.set_meter_per_pixel(m_per_px);
                 self.topview_state.redraw();
             }
-            GuiMessage::PlanetSelected(planet_name) => {
-                self.selected_planet = Some(planet_name);
+            GuiMessage::FocusedBodySelected(planet_name) => {
+                self.selected_focus = Some(planet_name);
             }
         }
     }
@@ -155,16 +155,11 @@ impl Gui {
     }
 
     fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {
-        let text = Text::new("Planet picker:").width(150.);
-        let options: Vec<String> = self
-            .celestial_bodies
-            .iter()
-            .map(|body| body.get_name().to_string())
-            .collect();
+        let text = Text::new("Focused body:").width(150.);
         let pick_list = PickList::new(
-            options,
-            self.selected_planet.clone(),
-            GuiMessage::PlanetSelected,
+            self.celestial_bodies.clone(),
+            self.selected_focus.clone(),
+            GuiMessage::FocusedBodySelected,
         )
         .width(200.);
         Row::new()
@@ -180,5 +175,5 @@ pub(crate) enum GuiMessage {
     UpdateTime(Time),
     UpdateTimeStep(Time),
     UpdateLengthScale(Float),
-    PlanetSelected(String),
+    FocusedBodySelected(CelestialBody),
 }
