@@ -1,19 +1,17 @@
-use crate::model::celestial_body::CelestialBodyData;
+use crate::model::celestial_body::CelestialBody;
 use iced::{
     widget::canvas::{self, Cache, Path},
-    Color, Size,
+    Color,
 };
 
 pub(super) struct TopViewState {
-    topview_background_cache: Cache,
     topview_bodies_cache: Cache,
-    celestial_bodies: Vec<CelestialBodyData>,
+    celestial_bodies: Vec<CelestialBody>,
 }
 
 impl TopViewState {
-    pub(super) fn new(celestial_bodies: Vec<CelestialBodyData>) -> Self {
+    pub(super) fn new(celestial_bodies: Vec<CelestialBody>) -> Self {
         TopViewState {
-            topview_background_cache: Cache::default(),
             topview_bodies_cache: Cache::default(),
             celestial_bodies,
         }
@@ -31,19 +29,17 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
         bounds: iced::Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
-        let background = self
-            .topview_background_cache
-            .draw(renderer, bounds.size(), |frame| {
-                frame.fill_rectangle(frame.center(), Size::UNIT, Color::BLACK)
-            });
+        const LENGTH_SCALE: f32 = 100.0;
+
         let bodies = self
             .topview_bodies_cache
             .draw(renderer, bounds.size(), |frame| {
                 let bodies = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
-                        //TODO: do something meaningful here
+                        let x = body.get_position().x().as_astronomical_units() * LENGTH_SCALE;
+                        let y = body.get_position().y().as_astronomical_units() * LENGTH_SCALE;
                         let radius = 3.0;
-                        let pos = frame.center();
+                        let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
                         path_builder.circle(pos, radius);
                     }
                 });

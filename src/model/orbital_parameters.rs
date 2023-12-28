@@ -1,7 +1,11 @@
 use astro_utils::{
-    coordinates::cartesian::{CartesianCoordinates, ORIGIN},
+    coordinates::cartesian::CartesianCoordinates,
+    kepler_orbit::{
+        eccentric_anomaly, mean_anomaly, orbital_period, position_relative_to_central_body,
+        true_anomaly,
+    },
     orbit_orientation::OrbitOrientation,
-    units::{angle::Angle, length::Length, time::Time},
+    units::{angle::Angle, length::Length, mass::Mass, time::Time},
     Float,
 };
 
@@ -45,10 +49,23 @@ impl OrbitalParameters {
 
     pub(super) fn calculate_position(
         &self,
+        body_mass: Mass,
         central_body: &CelestialBody,
         time: Time,
     ) -> CartesianCoordinates {
-        //todo!("Calculate the current position");
-        ORIGIN
+        let central_body_position = central_body.get_position();
+
+        let orbital_period =
+            orbital_period(self.semi_major_axis, body_mass, central_body.get_mass());
+        let mean_anomaly = mean_anomaly(orbital_period, time);
+        let eccentric_anomaly = eccentric_anomaly(mean_anomaly, self.eccentricity);
+        let true_anomaly = true_anomaly(eccentric_anomaly, self.eccentricity);
+        let position = position_relative_to_central_body(
+            self.semi_major_axis,
+            self.eccentricity,
+            true_anomaly,
+            &self.orientation,
+        );
+        central_body_position + position
     }
 }

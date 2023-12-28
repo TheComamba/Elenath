@@ -1,22 +1,23 @@
 use self::topview::TopViewState;
-use crate::model::{celestial_body::CelestialBodyData, example::solar_system_example};
+use crate::model::{celestial_body::CelestialBodyData, example::sun};
+use astro_utils::units::time::Time;
 use iced::{widget::canvas, Sandbox};
 
 mod topview;
 
 pub(crate) struct Gui {
     topview_state: TopViewState,
-    celestial_bodies: Vec<CelestialBodyData>,
+    central_body_data: CelestialBodyData,
 }
 
 impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let celestial_bodies = solar_system_example();
+        let central_body_data = sun();
         Gui {
-            topview_state: TopViewState::new(celestial_bodies.clone()),
-            celestial_bodies,
+            topview_state: TopViewState::new(central_body_data.system(Time::from_days(0.0))),
+            central_body_data,
         }
     }
 

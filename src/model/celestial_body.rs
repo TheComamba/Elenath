@@ -57,14 +57,29 @@ impl CelestialBodyData {
     pub(crate) fn add_orbiting_body(&mut self, body_data: CelestialBodyData) {
         self.orbiting_bodies.push(body_data);
     }
+
+    pub(crate) fn system(&self, time: Time) -> Vec<CelestialBody> {
+        let mut system = Vec::new();
+        let central_body = CelestialBody::new(self.clone(), None, time);
+        for body_data in &self.orbiting_bodies {
+            system.push(CelestialBody::new(
+                body_data.clone(),
+                Some(&central_body),
+                time,
+            ));
+        }
+        system.push(central_body);
+        system
+    }
 }
 
 impl CelestialBody {
-    pub(crate) fn new(data: CelestialBodyData, central_body: Option<Self>, time: Time) -> Self {
+    pub(crate) fn new(data: CelestialBodyData, central_body: Option<&Self>, time: Time) -> Self {
         let position = match central_body {
-            Some(central_body) => data
-                .orbital_parameters
-                .calculate_position(&central_body, time),
+            Some(central_body) => {
+                data.orbital_parameters
+                    .calculate_position(data.get_mass(), &central_body, time)
+            }
             None => ORIGIN,
         };
         CelestialBody { data, position }
@@ -84,5 +99,9 @@ impl CelestialBody {
 
     pub(crate) fn get_mass(&self) -> Mass {
         self.data.get_mass()
+    }
+
+    pub(crate) fn get_position(&self) -> CartesianCoordinates {
+        self.position
     }
 }
