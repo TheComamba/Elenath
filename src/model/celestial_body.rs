@@ -32,8 +32,7 @@ pub(crate) struct CelestialBody {
 
 impl PartialEq for CelestialBody {
     fn eq(&self, other: &Self) -> bool {
-        const ACCURACY: Length = Length::from_meters(100.);
-        self.data == other.data && self.position.eq_within(&other.position, ACCURACY)
+        self.data == other.data
     }
 }
 
