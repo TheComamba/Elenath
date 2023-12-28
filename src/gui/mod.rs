@@ -5,6 +5,8 @@ use astro_utils::{
     units::{length::Length, time::Time},
     Float,
 };
+use iced::widget::canvas::{Path, Style};
+use iced::Color;
 use iced::{
     alignment::Horizontal,
     widget::{canvas, Button, Column, Container, PickList, Row, Text},
@@ -31,7 +33,7 @@ impl Sandbox for Gui {
         Gui {
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
-            topview_state: TopViewState::new(celestial_bodies.clone()),
+            topview_state: TopViewState::new(),
             central_body_data,
             celestial_bodies,
             selected_planet: None,
@@ -46,8 +48,7 @@ impl Sandbox for Gui {
         match message {
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
-                self.topview_state
-                    .set_celestial_bodies(self.central_body_data.system(self.time));
+                self.celestial_bodies = self.central_body_data.system(self.time);
                 self.topview_state.redraw();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
@@ -67,7 +68,7 @@ impl Sandbox for Gui {
         Column::new()
             .push(self.topview_control_field())
             .push(
-                canvas(&self.topview_state)
+                canvas(self)
                     .width(iced::Length::Fill)
                     .height(iced::Length::Fill),
             )
@@ -78,6 +79,84 @@ impl Sandbox for Gui {
 
     fn theme(&self) -> iced::Theme {
         iced::Theme::Dark
+    }
+}
+
+impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        renderer: &iced::Renderer,
+        _theme: &iced::theme::Theme,
+        bounds: iced::Rectangle,
+        _cursor: iced::mouse::Cursor,
+    ) -> Vec<canvas::Geometry> {
+        let background =
+            self.topview_state
+                .background_cache
+                .draw(renderer, bounds.size(), |frame| {
+                    let background = Path::rectangle(bounds.position(), bounds.size());
+                    frame.fill(&background, Color::BLACK);
+                });
+        let bodies = self
+            .topview_state
+            .bodies_cache
+            .draw(renderer, bounds.size(), |frame| {
+                let bodies = Path::new(|path_builder| {
+                    for body in self.celestial_bodies.iter() {
+                        let x = body.get_position().x().as_meters()
+                            / self.topview_state.meter_per_pixel;
+                        let y = -body.get_position().y().as_meters()
+                            / self.topview_state.meter_per_pixel; // y axis is inverted
+                        let radius = 3.0;
+                        let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
+                        path_builder.circle(pos, radius);
+
+                        let mut name_widget = canvas::Text::default();
+                        name_widget.color = Color::WHITE;
+                        name_widget.content = body.get_name().to_string();
+                        name_widget.position = pos;
+                        frame.fill_text(name_widget);
+                    }
+                });
+                frame.fill(&bodies, Color::WHITE);
+            });
+        let scale = self
+            .topview_state
+            .scale_cache
+            .draw(renderer, bounds.size(), |frame| {
+                const LENGTH: f32 = 200.0;
+                let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
+                let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
+                let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
+                let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
+
+                let scale = Path::new(|path_builder| {
+                    path_builder.move_to(start_pos + delimitor_vec);
+                    path_builder.line_to(start_pos - delimitor_vec);
+                    path_builder.move_to(start_pos);
+                    path_builder.line_to(end_pos);
+                    path_builder.move_to(end_pos + delimitor_vec);
+                    path_builder.line_to(end_pos - delimitor_vec);
+                });
+                let mut stroke = canvas::Stroke::default();
+                stroke.style = Style::Solid(Color::WHITE);
+
+                frame.stroke(&scale, stroke);
+
+                let mut text = canvas::Text::default();
+                text.color = Color::WHITE;
+                text.content = format!(
+                    "{}",
+                    Length::from_meters(LENGTH * self.topview_state.meter_per_pixel)
+                );
+                text.position = middle_pos;
+                text.horizontal_alignment = Horizontal::Center;
+                frame.fill_text(text);
+            });
+        vec![background, bodies, scale]
     }
 }
 
@@ -143,8 +222,7 @@ impl Gui {
     fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {
         let text = Text::new("Planet picker:").width(150.);
         let options: Vec<String> = self
-            .topview_state
-            .get_celestial_bodies()
+            .celestial_bodies
             .iter()
             .map(|body| body.get_name().to_string())
             .collect();
