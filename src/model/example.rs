@@ -1,7 +1,4 @@
-use crate::model::{
-    celestial_body::CelestialBodyData, orbital_parameters::OrbitalParameters,
-    rotation_parameters::RotationParameters,
-};
+use crate::model::{celestial_body::CelestialBodyData, orbital_parameters::OrbitalParameters};
 use astro_utils::{
     orbit_orientation::OrbitOrientation,
     solar_system_data::{
@@ -16,11 +13,6 @@ pub(crate) fn sun() -> CelestialBodyData {
         String::from("Sun"),
         SUN_MASS,
         OrbitalParameters::central(),
-        RotationParameters::new(
-            Angle::from_degrees(0.0),
-            Time::from_days(0.0),
-            Angle::from_degrees(0.0),
-        ),
         SUN_RADIUS,
         1.0,
     );
@@ -42,11 +34,6 @@ pub(crate) fn earth() -> CelestialBodyData {
                 Angle::from_degrees(114.20783),
             ),
         ),
-        RotationParameters::new(
-            Angle::from_degrees(0.0),
-            Time::from_days(1.0),
-            Angle::from_degrees(0.0),
-        ),
         EARTH_RADIUS,
         1.0,
     );
@@ -67,11 +54,6 @@ pub(crate) fn jupiter() -> CelestialBodyData {
                 Angle::from_degrees(273.867),
             ),
         ),
-        RotationParameters::new(
-            Angle::from_degrees(0.0),
-            Time::from_days(0.41354),
-            Angle::from_degrees(0.0),
-        ),
         Length::from_earth_radii(10.97),
         1.0,
     )
@@ -89,11 +71,6 @@ pub(crate) fn moon() -> CelestialBodyData {
                 Angle::from_degrees(0.0),
                 Angle::from_degrees(0.0),
             ),
-        ),
-        RotationParameters::new(
-            Angle::from_degrees(0.0),
-            Time::from_days(27.321),
-            Angle::from_degrees(0.0),
         ),
         MOON_RADIUS,
         1.0,

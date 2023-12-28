@@ -4,7 +4,7 @@ use astro_utils::{
     Float,
 };
 
-use super::{orbital_parameters::OrbitalParameters, rotation_parameters::RotationParameters};
+use super::orbital_parameters::OrbitalParameters;
 
 #[derive(Debug, Clone)]
 pub(crate) struct CelestialBodyData {
@@ -13,7 +13,6 @@ pub(crate) struct CelestialBodyData {
     radius: Length,
     albedo: Float,
     orbital_parameters: OrbitalParameters,
-    rotation_parameters: RotationParameters,
     orbiting_bodies: Vec<CelestialBodyData>,
 }
 
@@ -27,7 +26,6 @@ impl CelestialBodyData {
         name: String,
         mass: Mass,
         orbital_parameters: OrbitalParameters,
-        rotation_parameters: RotationParameters,
         radius: Length,
         albedo: Float,
     ) -> Self {
@@ -35,7 +33,6 @@ impl CelestialBodyData {
             name,
             mass,
             orbital_parameters,
-            rotation_parameters,
             radius,
             albedo,
             orbiting_bodies: Vec::new(),
