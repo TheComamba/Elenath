@@ -40,6 +40,10 @@ impl TopViewState {
         self.celestial_bodies = celestial_bodies;
     }
 
+    pub(super) fn get_celestial_bodies(&self) -> &Vec<CelestialBody> {
+        &self.celestial_bodies
+    }
+
     pub(super) fn redraw(&mut self) {
         self.bodies_cache.clear();
         self.scale_cache.clear();

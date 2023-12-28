@@ -6,7 +6,7 @@ use astro_utils::{
 };
 use iced::{
     alignment::Horizontal,
-    widget::{canvas, Button, Column, Container, Row, Text},
+    widget::{canvas, Button, Column, Container, PickList, Row, Text},
     Alignment, Sandbox,
 };
 
@@ -17,6 +17,7 @@ pub(crate) struct Gui {
     time_step: Time,
     topview_state: TopViewState,
     central_body_data: CelestialBodyData,
+    selected_planet: Option<String>,
 }
 
 impl Sandbox for Gui {
@@ -29,6 +30,7 @@ impl Sandbox for Gui {
             time_step: Time::from_days(1.0),
             topview_state: TopViewState::new(central_body_data.system(Time::from_days(0.0))),
             central_body_data,
+            selected_planet: None,
         }
     }
 
@@ -50,6 +52,9 @@ impl Sandbox for Gui {
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
                 self.topview_state.redraw();
+            }
+            GuiMessage::PlanetSelected(planet_name) => {
+                self.selected_planet = Some(planet_name);
             }
         }
     }
@@ -93,10 +98,12 @@ impl Gui {
             GuiMessage::UpdateLengthScale(m_per_px / 2.),
             GuiMessage::UpdateLengthScale(m_per_px * 2.),
         );
+        let planet_picker = self.planet_picker();
         Column::new()
             .push(time_control_field)
             .push(time_step_control_field)
             .push(length_scale_control_field)
+            .push(planet_picker)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .into()
@@ -117,8 +124,7 @@ impl Gui {
             .width(iced::Length::Fixed(50.));
         let value = Container::new(Text::new(value))
             .width(iced::Length::Fixed(100.))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(100.));
+            .align_x(Horizontal::Center);
         let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase))
             .align_x(Horizontal::Center)
             .width(iced::Length::Fixed(50.));
@@ -127,14 +133,35 @@ impl Gui {
             .push(decrease_button)
             .push(value)
             .push(increase_button)
-            //.width(iced::Length::Fill)
             .align_items(Alignment::Center)
+    }
+
+    fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {
+        let text = Text::new("Planet picker:").width(150.);
+        let options: Vec<String> = self
+            .topview_state
+            .get_celestial_bodies()
+            .iter()
+            .map(|body| body.get_name().to_string())
+            .collect();
+        let pick_list = PickList::new(
+            options,
+            self.selected_planet.clone(),
+            GuiMessage::PlanetSelected,
+        )
+        .width(200.);
+        Row::new()
+            .push(text)
+            .push(pick_list)
+            .align_items(Alignment::Center)
+            .into()
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
     UpdateTime(Time),
     UpdateTimeStep(Time),
     UpdateLengthScale(Float),
+    PlanetSelected(String),
 }
