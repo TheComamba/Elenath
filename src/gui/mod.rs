@@ -1,4 +1,5 @@
 use self::topview::TopViewState;
+use crate::model::celestial_body::CelestialBody;
 use crate::model::{celestial_body::CelestialBodyData, example::sun};
 use astro_utils::{
     units::{length::Length, time::Time},
@@ -17,6 +18,7 @@ pub(crate) struct Gui {
     time_step: Time,
     topview_state: TopViewState,
     central_body_data: CelestialBodyData,
+    celestial_bodies: Vec<CelestialBody>,
     selected_planet: Option<String>,
 }
 
@@ -25,11 +27,13 @@ impl Sandbox for Gui {
 
     fn new() -> Self {
         let central_body_data = sun();
+        let celestial_bodies = central_body_data.system(Time::from_days(0.0));
         Gui {
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
-            topview_state: TopViewState::new(central_body_data.system(Time::from_days(0.0))),
+            topview_state: TopViewState::new(celestial_bodies.clone()),
             central_body_data,
+            celestial_bodies,
             selected_planet: None,
         }
     }

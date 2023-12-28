@@ -16,6 +16,7 @@ pub(crate) struct CelestialBodyData {
     orbiting_bodies: Vec<CelestialBodyData>,
 }
 
+#[derive(Debug, Clone)]
 pub(crate) struct CelestialBody {
     data: CelestialBodyData,
     position: CartesianCoordinates,
