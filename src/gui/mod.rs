@@ -5,8 +5,9 @@ use astro_utils::{
     Float,
 };
 use iced::{
-    widget::{canvas, Button, Column, Row, Text},
-    Sandbox,
+    alignment::Horizontal,
+    widget::{canvas, Button, Column, Container, Row, Text},
+    Alignment, Sandbox,
 };
 
 mod topview;
@@ -73,53 +74,61 @@ impl Sandbox for Gui {
 
 impl Gui {
     fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
+        let time_control_field = self.control_field(
+            "Time:",
+            format!("{}", self.time),
+            GuiMessage::UpdateTime(self.time - self.time_step),
+            GuiMessage::UpdateTime(self.time + self.time_step),
+        );
+        let time_step_control_field = self.control_field(
+            "Time step:",
+            format!("{}", self.time_step),
+            GuiMessage::UpdateTimeStep(self.time_step / 2.),
+            GuiMessage::UpdateTimeStep(self.time_step * 2.),
+        );
+        let m_per_px = self.topview_state.get_meter_per_pixel();
+        let length_scale_control_field = self.control_field(
+            "Length per 100px:",
+            format!("{}", Length::from_meters(100. * m_per_px)),
+            GuiMessage::UpdateLengthScale(m_per_px / 2.),
+            GuiMessage::UpdateLengthScale(m_per_px * 2.),
+        );
         Column::new()
-            .push(self.time_control_field())
-            .push(self.time_step_control_field())
-            .push(self.length_scale_control_field())
+            .push(time_control_field)
+            .push(time_step_control_field)
+            .push(length_scale_control_field)
             .width(iced::Length::Fill)
+            .align_items(Alignment::Center)
             .into()
     }
 
-    fn time_control_field(&self) -> Row<'_, GuiMessage> {
-        let decrease_time_button = Button::new(Text::new("<<"))
-            .on_press(GuiMessage::UpdateTime(self.time - self.time_step));
-        let increase_time_button = Button::new(Text::new(">>"))
-            .on_press(GuiMessage::UpdateTime(self.time + self.time_step));
+    fn control_field<'a>(
+        &self,
+        label: &'a str,
+        value: String,
+        decrease: GuiMessage,
+        increase: GuiMessage,
+    ) -> Row<'a, GuiMessage> {
+        let label = Container::new(Text::new(label))
+            .align_x(Horizontal::Center)
+            .width(iced::Length::Fixed(150.));
+        let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease))
+            .align_x(Horizontal::Center)
+            .width(iced::Length::Fixed(50.));
+        let value = Container::new(Text::new(value))
+            .width(iced::Length::Fixed(100.))
+            .align_x(Horizontal::Center)
+            .width(iced::Length::Fixed(100.));
+        let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase))
+            .align_x(Horizontal::Center)
+            .width(iced::Length::Fixed(50.));
         Row::new()
-            .push(Text::new("Time: "))
-            .push(decrease_time_button)
-            .push(Text::new(format!("{}", self.time)))
-            .push(increase_time_button)
-            .width(iced::Length::Fill)
-    }
-
-    fn time_step_control_field(&self) -> Row<'_, GuiMessage> {
-        let decrease_time_step_button =
-            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateTimeStep(self.time_step / 2.));
-        let increase_time_step_button =
-            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateTimeStep(self.time_step * 2.));
-        Row::new()
-            .push(Text::new("Time step: "))
-            .push(decrease_time_step_button)
-            .push(Text::new(format!("{}", self.time_step)))
-            .push(increase_time_step_button)
-            .width(iced::Length::Fill)
-    }
-
-    fn length_scale_control_field(&self) -> Row<'_, GuiMessage> {
-        let m_per_px = self.topview_state.get_meter_per_pixel();
-        let decrease_length_scale_button =
-            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateLengthScale(m_per_px / 2.));
-        let increase_length_scale_button =
-            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateLengthScale(m_per_px * 2.));
-        let length_scale_control_field = Row::new()
-            .push(Text::new("Length scale: "))
-            .push(decrease_length_scale_button)
-            .push(Text::new(format!("{}", Length::from_meters(m_per_px))))
-            .push(increase_length_scale_button)
-            .width(iced::Length::Fill);
-        length_scale_control_field
+            .push(label)
+            .push(decrease_button)
+            .push(value)
+            .push(increase_button)
+            //.width(iced::Length::Fill)
+            .align_items(Alignment::Center)
     }
 }
 

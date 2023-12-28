@@ -16,12 +16,13 @@ pub(super) struct TopViewState {
 
 impl TopViewState {
     pub(super) fn new(celestial_bodies: Vec<CelestialBody>) -> Self {
+        let m_per_au = Length::from_astronomical_units(1.).as_meters();
         TopViewState {
             background_cache: Cache::default(),
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             celestial_bodies,
-            meter_per_pixel: 1e10,
+            meter_per_pixel: 0.01 * m_per_au,
         }
     }
 }
