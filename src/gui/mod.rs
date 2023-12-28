@@ -1,6 +1,9 @@
 use self::topview::TopViewState;
 use crate::model::{celestial_body::CelestialBodyData, example::sun};
-use astro_utils::units::time::Time;
+use astro_utils::{
+    units::{length::Length, time::Time},
+    Float,
+};
 use iced::{
     widget::{canvas, Button, Column, Row, Text},
     Sandbox,
@@ -36,10 +39,16 @@ impl Sandbox for Gui {
         match message {
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
-                self.topview_state = TopViewState::new(self.central_body_data.system(self.time));
+                self.topview_state
+                    .set_celestial_bodies(self.central_body_data.system(self.time));
+                self.topview_state.redraw();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
+            }
+            GuiMessage::UpdateLengthScale(m_per_px) => {
+                self.topview_state.set_meter_per_pixel(m_per_px);
+                self.topview_state.redraw();
             }
         }
     }
@@ -60,6 +69,8 @@ impl Sandbox for Gui {
 
 impl Gui {
     fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
+        let m_per_px = self.topview_state.get_meter_per_pixel();
+
         let decrease_time_button = Button::new(Text::new("<<"))
             .on_press(GuiMessage::UpdateTime(self.time - self.time_step));
         let increase_time_button = Button::new(Text::new(">>"))
@@ -68,6 +79,10 @@ impl Gui {
             Button::new(Text::new("<<")).on_press(GuiMessage::UpdateTimeStep(self.time_step / 2.));
         let increase_time_step_button =
             Button::new(Text::new(">>")).on_press(GuiMessage::UpdateTimeStep(self.time_step * 2.));
+        let decrease_length_scale_button =
+            Button::new(Text::new("<<")).on_press(GuiMessage::UpdateLengthScale(m_per_px / 2.));
+        let increase_length_scale_button =
+            Button::new(Text::new(">>")).on_press(GuiMessage::UpdateLengthScale(m_per_px * 2.));
         Row::new()
             .push(Text::new("Time: "))
             .push(decrease_time_button)
@@ -77,6 +92,11 @@ impl Gui {
             .push(decrease_time_step_button)
             .push(Text::new(format!("{}", self.time_step)))
             .push(increase_time_step_button)
+            .push(Text::new("Length scale: "))
+            .push(decrease_length_scale_button)
+            .push(Text::new(format!("{}", Length::from_meters(m_per_px))))
+            .push(increase_length_scale_button)
+            .width(iced::Length::Fill)
             .into()
     }
 }
@@ -85,4 +105,5 @@ impl Gui {
 pub(crate) enum GuiMessage {
     UpdateTime(Time),
     UpdateTimeStep(Time),
+    UpdateLengthScale(Float),
 }
