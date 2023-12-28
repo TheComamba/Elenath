@@ -1,6 +1,6 @@
 use crate::model::celestial_body::CelestialBody;
 use iced::{
-    widget::canvas::{self, Cache, Path},
+    widget::canvas::{self, Cache, Path, Text},
     Color,
 };
 
@@ -41,6 +41,12 @@ impl<GuiMessage> canvas::Program<GuiMessage> for TopViewState {
                         let radius = 3.0;
                         let pos = frame.center() + iced::Vector::new(x as f32, y as f32);
                         path_builder.circle(pos, radius);
+
+                        let mut name_widget = Text::default();
+                        name_widget.color = Color::BLACK;
+                        name_widget.content = body.get_name().to_string();
+                        name_widget.position = pos;
+                        frame.fill_text(name_widget);
                     }
                 });
                 frame.fill(&bodies, Color::BLACK);

@@ -101,4 +101,8 @@ impl CelestialBody {
     pub(crate) fn get_position(&self) -> CartesianCoordinates {
         self.position
     }
+
+    pub(crate) fn get_name(&self) -> &str {
+        &self.data.name
+    }
 }
