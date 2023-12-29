@@ -5,10 +5,10 @@ use astro_utils::{
         EARTH_MASS, EARTH_RADIUS, EARTH_SEMI_MAJOR_AXIS, JUPITER_SEMI_MAJOR_AXIS, MOON_MASS,
         MOON_RADIUS, MOON_SEMI_MAJOR_AXIS, SUN_MASS, SUN_RADIUS,
     },
-    units::{angle::Angle, length::Length, mass::Mass, time::Time},
+    units::{angle::Angle, length::Length, mass::Mass},
 };
 
-pub(crate) fn sun() -> CelestialBodyData {
+fn sun() -> CelestialBodyData {
     let mut sun_data = CelestialBodyData::new(
         String::from("Sun"),
         SUN_MASS,
@@ -16,12 +16,12 @@ pub(crate) fn sun() -> CelestialBodyData {
         SUN_RADIUS,
         1.0,
     );
-    sun_data.add_orbiting_body(earth());
-    sun_data.add_orbiting_body(jupiter());
+    sun_data.add_orbiting_body(&"Earth".to_string());
+    sun_data.add_orbiting_body(&"Jupiter".to_string());
     sun_data
 }
 
-pub(crate) fn earth() -> CelestialBodyData {
+fn earth() -> CelestialBodyData {
     let mut earth_data = CelestialBodyData::new(
         String::from("Earth"),
         EARTH_MASS,
@@ -37,11 +37,11 @@ pub(crate) fn earth() -> CelestialBodyData {
         EARTH_RADIUS,
         1.0,
     );
-    earth_data.add_orbiting_body(moon());
+    earth_data.add_orbiting_body(&"Moon".to_string());
     earth_data
 }
 
-pub(crate) fn jupiter() -> CelestialBodyData {
+fn jupiter() -> CelestialBodyData {
     CelestialBodyData::new(
         String::from("Jupiter"),
         Mass::from_jupiter_masses(1.0),
@@ -59,7 +59,7 @@ pub(crate) fn jupiter() -> CelestialBodyData {
     )
 }
 
-pub(crate) fn moon() -> CelestialBodyData {
+fn moon() -> CelestialBodyData {
     CelestialBodyData::new(
         String::from("Moon"),
         MOON_MASS,
@@ -75,4 +75,7 @@ pub(crate) fn moon() -> CelestialBodyData {
         MOON_RADIUS,
         1.0,
     )
+}
+pub(crate) fn solar_system() -> Vec<CelestialBodyData> {
+    vec![sun(), earth(), moon(), jupiter()]
 }

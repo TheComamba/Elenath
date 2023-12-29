@@ -15,7 +15,7 @@ pub(crate) struct CelestialBodyData {
     radius: Length,
     albedo: Float,
     orbital_parameters: OrbitalParameters,
-    orbiting_bodies: Vec<CelestialBodyData>,
+    orbiting_bodies: Vec<String>,
 }
 
 impl PartialEq for CelestialBodyData {
@@ -74,23 +74,21 @@ impl CelestialBodyData {
         self.orbital_parameters.get_semi_major_axis()
     }
 
-    pub(crate) fn add_orbiting_body(&mut self, body_data: CelestialBodyData) {
-        self.orbiting_bodies.push(body_data);
+    pub(crate) fn add_orbiting_body(&mut self, body_name: &String) {
+        self.orbiting_bodies.push(body_name.clone());
     }
+}
 
-    pub(crate) fn system(&self, time: Time) -> Vec<CelestialBody> {
-        let mut system = Vec::new();
-        let central_body = CelestialBody::new(self.clone(), None, time);
-        for body_data in &self.orbiting_bodies {
-            system.push(CelestialBody::new(
-                body_data.clone(),
-                Some(&central_body),
-                time,
-            ));
-        }
-        system.push(central_body);
-        system
+pub(crate) fn system(data: &Vec<CelestialBodyData>, time: Time) -> Vec<CelestialBody> {
+    let mut system = Vec::new();
+    for body_data in data {
+        system.push(CelestialBody::new(
+            body_data.clone(),
+            None, //TODO: this is temporary
+            time,
+        ));
     }
+    system
 }
 
 impl CelestialBody {
