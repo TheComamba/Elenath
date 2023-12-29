@@ -78,7 +78,7 @@ impl Sandbox for Gui {
                         .height(iced::Length::Fill),
                 )
             }
-            GuiMode::TableView => (),
+            GuiMode::TableView => col = col.push(self.table_view()),
         }
 
         col.width(iced::Length::Fill)
