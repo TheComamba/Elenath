@@ -1,6 +1,6 @@
 use iced::{
     alignment::Horizontal,
-    widget::{Button, Container, PickList, Row, Text},
+    widget::{Button, Column, Container, PickList, Row, Text},
     Alignment,
 };
 
@@ -47,6 +47,27 @@ impl Gui {
             .push(value)
             .push(increase_button)
             .align_items(Alignment::Center)
+    }
+
+    pub(super) fn time_control_fields(&self) -> iced::Element<'_, GuiMessage> {
+        let time_control_field = self.control_field(
+            "Time:",
+            format!("{}", self.time),
+            GuiMessage::UpdateTime(self.time - self.time_step),
+            GuiMessage::UpdateTime(self.time + self.time_step),
+        );
+        let time_step_control_field = self.control_field(
+            "Time step:",
+            format!("{}", self.time_step),
+            GuiMessage::UpdateTimeStep(self.time_step / 2.),
+            GuiMessage::UpdateTimeStep(self.time_step * 2.),
+        );
+        Column::new()
+            .push(time_control_field)
+            .push(time_step_control_field)
+            .width(iced::Length::Fill)
+            .align_items(Alignment::Center)
+            .into()
     }
 
     pub(super) fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {

@@ -48,18 +48,6 @@ impl TopViewState {
 
 impl Gui {
     pub(super) fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
-        let time_control_field = self.control_field(
-            "Time:",
-            format!("{}", self.time),
-            GuiMessage::UpdateTime(self.time - self.time_step),
-            GuiMessage::UpdateTime(self.time + self.time_step),
-        );
-        let time_step_control_field = self.control_field(
-            "Time step:",
-            format!("{}", self.time_step),
-            GuiMessage::UpdateTimeStep(self.time_step / 2.),
-            GuiMessage::UpdateTimeStep(self.time_step * 2.),
-        );
         let m_per_px = self.topview_state.get_meter_per_pixel();
         let length_scale_control_field = self.control_field(
             "Length per 100px:",
@@ -69,8 +57,7 @@ impl Gui {
         );
         let planet_picker = self.planet_picker();
         Column::new()
-            .push(time_control_field)
-            .push(time_step_control_field)
+            .push(self.time_control_fields())
             .push(length_scale_control_field)
             .push(planet_picker)
             .width(iced::Length::Fill)

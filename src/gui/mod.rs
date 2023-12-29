@@ -66,15 +66,21 @@ impl Sandbox for Gui {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        Column::new()
-            .push(self.gui_mode_tabs())
-            .push(self.topview_control_field())
-            .push(
-                canvas(self)
-                    .width(iced::Length::Fill)
-                    .height(iced::Length::Fill),
-            )
-            .width(iced::Length::Fill)
+        let mut col = Column::new().push(self.gui_mode_tabs());
+
+        match self.mode {
+            GuiMode::LocalView => (),
+            GuiMode::TopView => {
+                col = col.push(self.topview_control_field()).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
+            }
+            GuiMode::TableView => (),
+        }
+
+        col.width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
