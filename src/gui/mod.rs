@@ -1,6 +1,6 @@
 use std::vec;
 
-use self::topview::TopViewState;
+use self::top_view::TopViewState;
 use crate::model::celestial_body::CelestialBody;
 use crate::model::{celestial_body::CelestialBodyData, example::sun};
 use astro_utils::{units::time::Time, Float};
@@ -9,8 +9,10 @@ use iced::{
     Sandbox,
 };
 
+mod local_view;
 mod shared_widgets;
-mod topview;
+mod table_view;
+mod top_view;
 
 pub(crate) struct Gui {
     mode: GuiMode,
@@ -69,7 +71,7 @@ impl Sandbox for Gui {
         let mut col = Column::new().push(self.gui_mode_tabs());
 
         match self.mode {
-            GuiMode::LocalView => (),
+            GuiMode::LocalView => col = col.push(self.local_view_control_field()),
             GuiMode::TopView => {
                 col = col.push(self.topview_control_field()).push(
                     canvas(self)
