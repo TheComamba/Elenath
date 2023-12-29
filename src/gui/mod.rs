@@ -65,15 +65,27 @@ impl Sandbox for Gui {
                 if self.opened_file.is_none() {
                     self.opened_file = file_dialog::new();
                 }
-                todo!();
+                if let Some(path) = &self.opened_file {
+                    self.celestial_system
+                        .write_to_file(path.clone())
+                        .expect("Failed to write to file");
+                }
             }
             GuiMessage::SaveToNewFile => {
                 self.opened_file = file_dialog::new();
-                todo!();
+                if let Some(path) = &self.opened_file {
+                    self.celestial_system
+                        .write_to_file(path.clone())
+                        .expect("Failed to write to file");
+                }
             }
             GuiMessage::OpenFile => {
                 self.opened_file = file_dialog::open();
-                todo!();
+                if let Some(path) = &self.opened_file {
+                    self.celestial_system = CelestialSystem::read_from_file(path.clone())
+                        .expect("Failed to read from file");
+                    self.update_bodies();
+                }
             }
             GuiMessage::ModeSelected(mode) => {
                 self.mode = mode;

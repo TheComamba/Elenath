@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use super::celestial_body::CelestialBody;
 use super::celestial_body_data::CelestialBodyData;
 use astro_utils::units::time::Time;
@@ -15,6 +17,20 @@ impl CelestialSystem {
             central_body,
             planets: vec![],
         }
+    }
+
+    pub(crate) fn write_to_file(&self, path: PathBuf) -> Result<(), std::io::Error> {
+        let file = std::fs::File::create(path)?;
+        let writer = std::io::BufWriter::new(file);
+        serde_json::to_writer(writer, self)?;
+        Ok(())
+    }
+
+    pub(crate) fn read_from_file(path: PathBuf) -> Result<Self, std::io::Error> {
+        let file = std::fs::File::open(path)?;
+        let reader = std::io::BufReader::new(file);
+        let celestial_system = serde_json::from_reader(reader)?;
+        Ok(celestial_system)
     }
 
     pub(crate) fn get_current_data(&self, time: Time) -> Vec<CelestialBody> {
