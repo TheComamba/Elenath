@@ -1,21 +1,36 @@
 use super::{Gui, GuiMessage};
 use crate::model::celestial_body_data::CelestialBodyData;
 use iced::{
-    widget::{Button, Column, Container, Row, Rule, Text},
+    widget::{
+        scrollable::{Direction, Properties},
+        Button, Column, Container, Row, Rule, Scrollable, Text,
+    },
     Alignment, Element,
 };
 
-const CELL_WIDTH: f32 = 150.;
+const CELL_WIDTH: f32 = 250.;
 
 impl Gui {
     pub(super) fn table_view(&self) -> Element<'_, GuiMessage> {
+        let direction = Direction::Both {
+            vertical: Properties::default(),
+            horizontal: Properties::default(),
+        };
+        Scrollable::new(self.table())
+            .direction(direction)
+            .width(iced::Length::Fill)
+            .height(iced::Length::Fill)
+            .into()
+    }
+
+    fn table(&self) -> Element<'_, GuiMessage> {
         let mut col = Column::new()
             .push(Self::table_header())
             .push(Rule::horizontal(10));
         for body in self.celestial_system.get_bodies_data() {
             col = col.push(Self::table_row(body));
         }
-        col.width(iced::Length::Fill).into()
+        col.into()
     }
 
     fn table_header() -> Row<'static, GuiMessage> {
