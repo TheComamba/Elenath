@@ -1,7 +1,9 @@
 use super::celestial_body::CelestialBody;
 use super::celestial_body_data::CelestialBodyData;
 use astro_utils::units::time::Time;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
     central_body: CelestialBodyData,
     planets: Vec<CelestialBodyData>,

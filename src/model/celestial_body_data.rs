@@ -3,8 +3,9 @@ use astro_utils::{
     units::{length::Length, mass::Mass},
     Float,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct CelestialBodyData {
     name: String,
     mass: Mass,
