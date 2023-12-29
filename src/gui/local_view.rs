@@ -1,6 +1,5 @@
-use iced::{widget::Column, Alignment};
-
 use super::{Gui, GuiMessage};
+use iced::{widget::Column, Alignment};
 
 impl Gui {
     pub(super) fn local_view_control_field(&self) -> iced::Element<'_, GuiMessage> {

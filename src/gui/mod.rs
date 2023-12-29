@@ -1,5 +1,3 @@
-use std::vec;
-
 use self::top_view::TopViewState;
 use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
@@ -8,6 +6,7 @@ use iced::{
     widget::{canvas, Column},
     Sandbox,
 };
+use std::vec;
 
 mod local_view;
 mod shared_widgets;

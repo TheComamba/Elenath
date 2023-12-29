@@ -1,10 +1,9 @@
+use super::{Gui, GuiMessage, GuiMode};
 use iced::{
     alignment::Horizontal,
     widget::{Button, Column, Container, PickList, Row, Text},
     Alignment,
 };
-
-use super::{Gui, GuiMessage, GuiMode};
 
 impl Gui {
     pub(super) fn gui_mode_tabs(&self) -> iced::Element<'_, GuiMessage> {

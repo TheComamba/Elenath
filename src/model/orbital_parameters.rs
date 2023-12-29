@@ -1,3 +1,4 @@
+use super::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     kepler_orbit::{
@@ -8,8 +9,6 @@ use astro_utils::{
     units::{angle::Angle, length::Length, mass::Mass, time::Time},
     Float,
 };
-
-use super::celestial_body::CelestialBody;
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {

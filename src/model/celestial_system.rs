@@ -29,4 +29,13 @@ impl CelestialSystem {
     pub(crate) fn add_planet(&mut self, planet: CelestialBodyData) {
         self.planets.push(planet);
     }
+
+    pub(crate) fn get_bodies_data(&self) -> Vec<&CelestialBodyData> {
+        let mut bodies = Vec::new();
+        bodies.push(&self.central_body);
+        for planet in &self.planets {
+            bodies.push(planet);
+        }
+        bodies
+    }
 }

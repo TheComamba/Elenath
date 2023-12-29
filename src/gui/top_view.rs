@@ -1,3 +1,5 @@
+use super::{Gui, GuiMessage};
+use crate::model::celestial_body::CelestialBody;
 use astro_utils::{units::length::Length, Float};
 use iced::{
     alignment::Horizontal,
@@ -7,10 +9,6 @@ use iced::{
     },
     Alignment, Color,
 };
-
-use crate::model::celestial_body::CelestialBody;
-
-use super::{Gui, GuiMessage};
 
 pub(super) struct TopViewState {
     pub(super) background_cache: Cache,
