@@ -21,6 +21,20 @@ impl Gui {
             .into()
     }
 
+    pub(super) fn file_buttons(&self) -> iced::Element<'_, GuiMessage> {
+        let save_to_file_button =
+            Button::new(Text::new("Save to file")).on_press(GuiMessage::SaveToFile);
+        let save_to_new_file_button =
+            Button::new(Text::new("Save to new file")).on_press(GuiMessage::SaveToNewFile);
+        let open_file_button = Button::new(Text::new("Open file")).on_press(GuiMessage::OpenFile);
+        Row::new()
+            .push(save_to_file_button)
+            .push(save_to_new_file_button)
+            .push(open_file_button)
+            .align_items(Alignment::Center)
+            .into()
+    }
+
     pub(super) fn control_field<'a>(
         &self,
         label: &'a str,

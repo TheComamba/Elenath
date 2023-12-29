@@ -1,4 +1,5 @@
 use self::top_view::TopViewState;
+use crate::file_dialog;
 use crate::gui::table_col_data::TableColData;
 use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
@@ -7,6 +8,7 @@ use iced::{
     widget::{canvas, Column},
     Sandbox,
 };
+use std::path::PathBuf;
 use std::vec;
 
 mod local_view;
@@ -16,6 +18,7 @@ mod table_view;
 mod top_view;
 
 pub(crate) struct Gui {
+    opened_file: Option<PathBuf>,
     mode: GuiMode,
     time: Time,
     time_step: Time,
@@ -38,6 +41,7 @@ impl Sandbox for Gui {
             .find(|body| body.get_name() == central_body_data.get_name())
             .cloned();
         let mut gui = Gui {
+            opened_file: None,
             mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
@@ -57,6 +61,20 @@ impl Sandbox for Gui {
 
     fn update(&mut self, message: Self::Message) {
         match message {
+            GuiMessage::SaveToFile => {
+                if self.opened_file.is_none() {
+                    self.opened_file = file_dialog::new();
+                }
+                todo!();
+            }
+            GuiMessage::SaveToNewFile => {
+                self.opened_file = file_dialog::new();
+                todo!();
+            }
+            GuiMessage::OpenFile => {
+                self.opened_file = file_dialog::open();
+                todo!();
+            }
             GuiMessage::ModeSelected(mode) => {
                 self.mode = mode;
             }
@@ -78,7 +96,9 @@ impl Sandbox for Gui {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        let mut col = Column::new().push(self.gui_mode_tabs());
+        let mut col = Column::new()
+            .push(self.gui_mode_tabs())
+            .push(self.file_buttons());
 
         match self.mode {
             GuiMode::LocalView => col = col.push(self.local_view_control_field()),
@@ -139,6 +159,9 @@ impl Gui {
 
 #[derive(Debug, Clone)]
 pub(super) enum GuiMessage {
+    SaveToFile,
+    SaveToNewFile,
+    OpenFile,
     ModeSelected(GuiMode),
     UpdateTime(Time),
     UpdateTimeStep(Time),
