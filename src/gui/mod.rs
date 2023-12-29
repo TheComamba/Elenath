@@ -1,8 +1,8 @@
 use std::vec;
 
 use self::top_view::TopViewState;
-use crate::model::celestial_body::CelestialBodyData;
-use crate::model::celestial_body::{system, CelestialBody};
+use crate::model::celestial_body::CelestialBody;
+use crate::model::celestial_body::{CelestialBodyData, CelestialSystem};
 use crate::model::example::solar_system;
 use astro_utils::{units::time::Time, Float};
 use iced::{
@@ -20,7 +20,7 @@ pub(crate) struct Gui {
     time: Time,
     time_step: Time,
     topview_state: TopViewState,
-    celestial_bodies_data: Vec<CelestialBodyData>,
+    celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
     selected_focus: Option<CelestialBody>,
 }
@@ -29,14 +29,14 @@ impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let celestial_bodies_data = solar_system();
-        let celestial_bodies = system(&celestial_bodies_data, Time::from_days(0.0));
+        let celestial_system = solar_system();
+        let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
         Gui {
             mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             topview_state: TopViewState::new(),
-            celestial_bodies_data,
+            celestial_system,
             celestial_bodies,
             selected_focus: None,
         }
@@ -117,7 +117,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 
 impl Gui {
     fn update_bodies(&mut self) {
-        self.celestial_bodies = system(&self.celestial_bodies_data, self.time);
+        self.celestial_bodies = self.celestial_system.get_current_data(self.time);
         if let Some(focus) = &self.selected_focus {
             self.selected_focus = self
                 .celestial_bodies

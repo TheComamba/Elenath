@@ -8,6 +8,8 @@ use astro_utils::{
     units::{angle::Angle, length::Length, mass::Mass},
 };
 
+use super::celestial_body::CelestialSystem;
+
 fn sun() -> CelestialBodyData {
     let mut sun_data = CelestialBodyData::new(
         String::from("Sun"),
@@ -76,6 +78,7 @@ fn moon() -> CelestialBodyData {
         1.0,
     )
 }
-pub(crate) fn solar_system() -> Vec<CelestialBodyData> {
-    vec![sun(), earth(), moon(), jupiter()]
+pub(crate) fn solar_system() -> CelestialSystem {
+    CelestialSystem::new(sun())
+    //vec![sun(), earth(), moon(), jupiter()]
 }

@@ -8,6 +8,11 @@ use astro_utils::{
 
 use super::orbital_parameters::OrbitalParameters;
 
+pub(crate) struct CelestialSystem {
+    bodies: Vec<CelestialBodyData>,
+    central_body_name: String,
+}
+
 #[derive(Debug, Clone)]
 pub(crate) struct CelestialBodyData {
     name: String,
@@ -44,6 +49,21 @@ impl Display for CelestialBody {
     }
 }
 
+impl CelestialSystem {
+    pub(crate) fn new(central_body: CelestialBodyData) -> Self {
+        let central_body_name = central_body.name.clone();
+        CelestialSystem {
+            bodies: vec![central_body],
+            central_body_name,
+        }
+    }
+
+    pub(crate) fn get_current_data(&self, time: Time) -> Vec<CelestialBody> {
+        let mut system = Vec::new();
+        system
+    }
+}
+
 impl CelestialBodyData {
     pub(crate) fn new(
         name: String,
@@ -77,18 +97,6 @@ impl CelestialBodyData {
     pub(crate) fn add_orbiting_body(&mut self, body_name: &String) {
         self.orbiting_bodies.push(body_name.clone());
     }
-}
-
-pub(crate) fn system(data: &Vec<CelestialBodyData>, time: Time) -> Vec<CelestialBody> {
-    let mut system = Vec::new();
-    for body_data in data {
-        system.push(CelestialBody::new(
-            body_data.clone(),
-            None, //TODO: this is temporary
-            time,
-        ));
-    }
-    system
 }
 
 impl CelestialBody {
