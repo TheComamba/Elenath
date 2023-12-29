@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 use astro_utils::{
     coordinates::cartesian::{CartesianCoordinates, ORIGIN},
     units::{length::Length, mass::Mass, time::Time},
@@ -16,9 +18,30 @@ pub(crate) struct CelestialBodyData {
     orbiting_bodies: Vec<CelestialBodyData>,
 }
 
+impl PartialEq for CelestialBodyData {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+#[derive(Debug, Clone)]
 pub(crate) struct CelestialBody {
     data: CelestialBodyData,
     position: CartesianCoordinates,
+}
+
+impl PartialEq for CelestialBody {
+    fn eq(&self, other: &Self) -> bool {
+        self.data == other.data
+    }
+}
+
+impl Eq for CelestialBody {}
+
+impl Display for CelestialBody {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.data.name)
+    }
 }
 
 impl CelestialBodyData {
@@ -100,5 +123,9 @@ impl CelestialBody {
 
     pub(crate) fn get_position(&self) -> CartesianCoordinates {
         self.position
+    }
+
+    pub(crate) fn get_name(&self) -> &str {
+        &self.data.name
     }
 }
