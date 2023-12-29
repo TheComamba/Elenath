@@ -1,7 +1,7 @@
-use super::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
+use super::celestial_body_data::CelestialBodyData;
 use astro_utils::{
     coordinates::cartesian::{CartesianCoordinates, ORIGIN},
-    units::{length::Length, mass::Mass, time::Time},
+    units::{mass::Mass, time::Time},
 };
 use std::fmt::{Display, Formatter};
 
@@ -36,18 +36,6 @@ impl CelestialBody {
             None => ORIGIN,
         };
         CelestialBody { data, position }
-    }
-
-    pub(crate) fn get_data(&self) -> &CelestialBodyData {
-        &self.data
-    }
-
-    pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
-        &self.data.get_orbital_parameters()
-    }
-
-    pub(crate) fn get_semi_major_axis(&self) -> Length {
-        self.data.get_semi_major_axis()
     }
 
     pub(crate) fn get_mass(&self) -> Mass {

@@ -43,10 +43,6 @@ impl OrbitalParameters {
         }
     }
 
-    pub(super) fn get_semi_major_axis(&self) -> Length {
-        self.semi_major_axis
-    }
-
     pub(super) fn calculate_position(
         &self,
         body_mass: Mass,

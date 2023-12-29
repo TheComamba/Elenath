@@ -44,10 +44,6 @@ impl CelestialBodyData {
         self.mass
     }
 
-    pub(crate) fn get_semi_major_axis(&self) -> Length {
-        self.orbital_parameters.get_semi_major_axis()
-    }
-
     pub(crate) fn get_name(&self) -> &String {
         &self.name
     }
