@@ -30,6 +30,10 @@ impl CelestialSystem {
         self.planets.push(planet);
     }
 
+    pub(crate) fn get_central_body_data(&self) -> &CelestialBodyData {
+        &self.central_body
+    }
+
     pub(crate) fn get_bodies_data(&self) -> Vec<&CelestialBodyData> {
         let mut bodies = Vec::new();
         bodies.push(&self.central_body);

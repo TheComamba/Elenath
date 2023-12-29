@@ -32,6 +32,11 @@ impl Sandbox for Gui {
     fn new() -> Self {
         let celestial_system = solar_system();
         let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
+        let central_body_data = celestial_system.get_central_body_data();
+        let selected_focus = celestial_bodies
+            .iter()
+            .find(|body| body.get_name() == central_body_data.get_name())
+            .cloned();
         let mut gui = Gui {
             mode: GuiMode::TopView,
             time: Time::from_days(0.0),
@@ -39,7 +44,7 @@ impl Sandbox for Gui {
             topview_state: TopViewState::new(),
             celestial_system,
             celestial_bodies,
-            selected_focus: None,
+            selected_focus,
             table_col_data: vec![],
         };
         gui.init_table_col_data();

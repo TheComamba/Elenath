@@ -215,11 +215,11 @@ pub(crate) fn solar_system() -> CelestialSystem {
     system.add_planet(venus());
     system.add_planet(earth());
     system.add_planet(mars());
+    system.add_planet(ceres());
     system.add_planet(jupiter());
     system.add_planet(saturn());
     system.add_planet(uranus());
     system.add_planet(neptune());
     system.add_planet(pluto());
-    system.add_planet(ceres());
     system
 }
