@@ -1,3 +1,4 @@
+use super::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     kepler_orbit::{
@@ -8,8 +9,6 @@ use astro_utils::{
     units::{angle::Angle, length::Length, mass::Mass, time::Time},
     Float,
 };
-
-use super::celestial_body::CelestialBody;
 
 #[derive(Debug, Clone)]
 pub(crate) struct OrbitalParameters {
@@ -43,8 +42,24 @@ impl OrbitalParameters {
         }
     }
 
-    pub(super) fn get_semi_major_axis(&self) -> Length {
+    pub(crate) fn get_semi_major_axis(&self) -> Length {
         self.semi_major_axis
+    }
+
+    pub(crate) fn get_eccentricity(&self) -> Float {
+        self.eccentricity
+    }
+
+    pub(crate) fn get_inclination(&self) -> Angle {
+        self.orientation.inclination()
+    }
+
+    pub(crate) fn get_longitude_of_ascending_node(&self) -> Angle {
+        self.orientation.longitude_of_ascending_node()
+    }
+
+    pub(crate) fn get_argument_of_periapsis(&self) -> Angle {
+        self.orientation.argument_of_periapsis()
     }
 
     pub(super) fn calculate_position(

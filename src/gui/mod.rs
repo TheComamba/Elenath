@@ -1,41 +1,54 @@
-use self::topview::TopViewState;
-use crate::model::celestial_body::CelestialBody;
-use crate::model::{celestial_body::CelestialBodyData, example::sun};
-use astro_utils::{
-    units::{length::Length, time::Time},
-    Float,
-};
+use self::top_view::TopViewState;
+use crate::gui::table_col_data::TableColData;
+use crate::model::example::solar_system;
+use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
+use astro_utils::{units::time::Time, Float};
 use iced::{
-    alignment::Horizontal,
-    widget::{canvas, Button, Column, Container, PickList, Row, Text},
-    Alignment, Sandbox,
+    widget::{canvas, Column},
+    Sandbox,
 };
+use std::vec;
 
-mod topview;
+mod local_view;
+mod shared_widgets;
+mod table_col_data;
+mod table_view;
+mod top_view;
 
 pub(crate) struct Gui {
+    mode: GuiMode,
     time: Time,
     time_step: Time,
     topview_state: TopViewState,
-    central_body_data: CelestialBodyData,
+    celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
     selected_focus: Option<CelestialBody>,
+    table_col_data: Vec<TableColData>,
 }
 
 impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let central_body_data = sun();
-        let celestial_bodies = central_body_data.system(Time::from_days(0.0));
-        Gui {
+        let celestial_system = solar_system();
+        let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
+        let central_body_data = celestial_system.get_central_body_data();
+        let selected_focus = celestial_bodies
+            .iter()
+            .find(|body| body.get_name() == central_body_data.get_name())
+            .cloned();
+        let mut gui = Gui {
+            mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             topview_state: TopViewState::new(),
-            central_body_data,
+            celestial_system,
             celestial_bodies,
-            selected_focus: None,
-        }
+            selected_focus,
+            table_col_data: vec![],
+        };
+        gui.init_table_col_data();
+        gui
     }
 
     fn title(&self) -> String {
@@ -44,6 +57,9 @@ impl Sandbox for Gui {
 
     fn update(&mut self, message: Self::Message) {
         match message {
+            GuiMessage::ModeSelected(mode) => {
+                self.mode = mode;
+            }
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
                 self.update_bodies();
@@ -58,18 +74,25 @@ impl Sandbox for Gui {
                 self.selected_focus = Some(planet_name);
             }
         }
-        self.topview_state.redraw();
+        self.topview_state.redraw(); //If performance is an issue, only redraw when needed
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        Column::new()
-            .push(self.topview_control_field())
-            .push(
-                canvas(self)
-                    .width(iced::Length::Fill)
-                    .height(iced::Length::Fill),
-            )
-            .width(iced::Length::Fill)
+        let mut col = Column::new().push(self.gui_mode_tabs());
+
+        match self.mode {
+            GuiMode::LocalView => col = col.push(self.local_view_control_field()),
+            GuiMode::TopView => {
+                col = col.push(self.topview_control_field()).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
+            }
+            GuiMode::TableView => col = col.push(self.table_view()),
+        }
+
+        col.width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
@@ -90,86 +113,20 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         bounds: iced::Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
-        self.topview_canvas(renderer, bounds)
+        match self.mode {
+            GuiMode::LocalView => todo![],
+            GuiMode::TopView => self.topview_canvas(renderer, bounds),
+            _ => {
+                println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
+                vec![]
+            }
+        }
     }
 }
 
 impl Gui {
-    fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
-        let time_control_field = self.control_field(
-            "Time:",
-            format!("{}", self.time),
-            GuiMessage::UpdateTime(self.time - self.time_step),
-            GuiMessage::UpdateTime(self.time + self.time_step),
-        );
-        let time_step_control_field = self.control_field(
-            "Time step:",
-            format!("{}", self.time_step),
-            GuiMessage::UpdateTimeStep(self.time_step / 2.),
-            GuiMessage::UpdateTimeStep(self.time_step * 2.),
-        );
-        let m_per_px = self.topview_state.get_meter_per_pixel();
-        let length_scale_control_field = self.control_field(
-            "Length per 100px:",
-            format!("{}", Length::from_meters(100. * m_per_px)),
-            GuiMessage::UpdateLengthScale(m_per_px / 2.),
-            GuiMessage::UpdateLengthScale(m_per_px * 2.),
-        );
-        let planet_picker = self.planet_picker();
-        Column::new()
-            .push(time_control_field)
-            .push(time_step_control_field)
-            .push(length_scale_control_field)
-            .push(planet_picker)
-            .width(iced::Length::Fill)
-            .align_items(Alignment::Center)
-            .into()
-    }
-
-    fn control_field<'a>(
-        &self,
-        label: &'a str,
-        value: String,
-        decrease: GuiMessage,
-        increase: GuiMessage,
-    ) -> Row<'a, GuiMessage> {
-        let label = Container::new(Text::new(label))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(150.));
-        let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(50.));
-        let value = Container::new(Text::new(value))
-            .width(iced::Length::Fixed(100.))
-            .align_x(Horizontal::Center);
-        let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(50.));
-        Row::new()
-            .push(label)
-            .push(decrease_button)
-            .push(value)
-            .push(increase_button)
-            .align_items(Alignment::Center)
-    }
-
-    fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {
-        let text = Text::new("Focused body:").width(150.);
-        let pick_list = PickList::new(
-            self.celestial_bodies.clone(),
-            self.selected_focus.clone(),
-            GuiMessage::FocusedBodySelected,
-        )
-        .width(200.);
-        Row::new()
-            .push(text)
-            .push(pick_list)
-            .align_items(Alignment::Center)
-            .into()
-    }
-
     fn update_bodies(&mut self) {
-        self.celestial_bodies = self.central_body_data.system(self.time);
+        self.celestial_bodies = self.celestial_system.get_current_data(self.time);
         if let Some(focus) = &self.selected_focus {
             self.selected_focus = self
                 .celestial_bodies
@@ -181,9 +138,17 @@ impl Gui {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum GuiMessage {
+pub(super) enum GuiMessage {
+    ModeSelected(GuiMode),
     UpdateTime(Time),
     UpdateTimeStep(Time),
     UpdateLengthScale(Float),
     FocusedBodySelected(CelestialBody),
+}
+
+#[derive(Debug, Clone)]
+pub(super) enum GuiMode {
+    LocalView,
+    TopView,
+    TableView,
 }
