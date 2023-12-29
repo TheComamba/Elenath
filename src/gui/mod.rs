@@ -1,3 +1,5 @@
+use std::vec;
+
 use self::topview::TopViewState;
 use crate::model::celestial_body::CelestialBody;
 use crate::model::{celestial_body::CelestialBodyData, example::sun};
@@ -14,6 +16,7 @@ use iced::{
 mod topview;
 
 pub(crate) struct Gui {
+    mode: GuiMode,
     time: Time,
     time_step: Time,
     topview_state: TopViewState,
@@ -29,6 +32,7 @@ impl Sandbox for Gui {
         let central_body_data = sun();
         let celestial_bodies = central_body_data.system(Time::from_days(0.0));
         Gui {
+            mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             topview_state: TopViewState::new(),
@@ -44,6 +48,9 @@ impl Sandbox for Gui {
 
     fn update(&mut self, message: Self::Message) {
         match message {
+            GuiMessage::ModeSelected(mode) => {
+                self.mode = mode;
+            }
             GuiMessage::UpdateTime(time) => {
                 self.time = time;
                 self.update_bodies();
@@ -58,11 +65,12 @@ impl Sandbox for Gui {
                 self.selected_focus = Some(planet_name);
             }
         }
-        self.topview_state.redraw();
+        self.topview_state.redraw(); //If performance is an issue, only redraw when needed
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
         Column::new()
+            .push(self.gui_mode_tabs())
             .push(self.topview_control_field())
             .push(
                 canvas(self)
@@ -90,11 +98,33 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         bounds: iced::Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
-        self.topview_canvas(renderer, bounds)
+        match self.mode {
+            GuiMode::LocalView => todo![],
+            GuiMode::TopView => self.topview_canvas(renderer, bounds),
+            _ => {
+                println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
+                vec![]
+            }
+        }
     }
 }
 
 impl Gui {
+    fn gui_mode_tabs(&self) -> iced::Element<'_, GuiMessage> {
+        let local_view_button = Button::new(Text::new("Local View"))
+            .on_press(GuiMessage::ModeSelected(GuiMode::LocalView));
+        let top_view_button =
+            Button::new(Text::new("Top View")).on_press(GuiMessage::ModeSelected(GuiMode::TopView));
+        let table_view_button = Button::new(Text::new("Table View"))
+            .on_press(GuiMessage::ModeSelected(GuiMode::TableView));
+        Row::new()
+            .push(local_view_button)
+            .push(top_view_button)
+            .push(table_view_button)
+            .align_items(Alignment::Center)
+            .into()
+    }
+
     fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
         let time_control_field = self.control_field(
             "Time:",
@@ -181,9 +211,17 @@ impl Gui {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum GuiMessage {
+pub(super) enum GuiMessage {
+    ModeSelected(GuiMode),
     UpdateTime(Time),
     UpdateTimeStep(Time),
     UpdateLengthScale(Float),
     FocusedBodySelected(CelestialBody),
+}
+
+#[derive(Debug, Clone)]
+pub(super) enum GuiMode {
+    LocalView,
+    TopView,
+    TableView,
 }
