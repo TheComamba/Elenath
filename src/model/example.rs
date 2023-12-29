@@ -1,4 +1,5 @@
-use crate::model::{celestial_body::CelestialBodyData, orbital_parameters::OrbitalParameters};
+use super::celestial_system::CelestialSystem;
+use crate::model::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
 use astro_utils::{
     orbit_orientation::OrbitOrientation,
     solar_system_data::{
@@ -7,8 +8,6 @@ use astro_utils::{
     },
     units::{angle::Angle, length::Length, mass::Mass},
 };
-
-use super::celestial_body::CelestialSystem;
 
 fn sun() -> CelestialBodyData {
     let mut sun_data = CelestialBodyData::new(

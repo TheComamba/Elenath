@@ -1,9 +1,8 @@
 use std::vec;
 
 use self::top_view::TopViewState;
-use crate::model::celestial_body::CelestialBody;
-use crate::model::celestial_body::{CelestialBodyData, CelestialSystem};
 use crate::model::example::solar_system;
+use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
 use astro_utils::{units::time::Time, Float};
 use iced::{
     widget::{canvas, Column},
