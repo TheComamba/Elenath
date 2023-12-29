@@ -42,6 +42,26 @@ impl OrbitalParameters {
         }
     }
 
+    pub(crate) fn get_semi_major_axis(&self) -> Length {
+        self.semi_major_axis
+    }
+
+    pub(crate) fn get_eccentricity(&self) -> Float {
+        self.eccentricity
+    }
+
+    pub(crate) fn get_inclination(&self) -> Angle {
+        self.orientation.inclination()
+    }
+
+    pub(crate) fn get_longitude_of_ascending_node(&self) -> Angle {
+        self.orientation.longitude_of_ascending_node()
+    }
+
+    pub(crate) fn get_argument_of_periapsis(&self) -> Angle {
+        self.orientation.argument_of_periapsis()
+    }
+
     pub(super) fn calculate_position(
         &self,
         body_mass: Mass,

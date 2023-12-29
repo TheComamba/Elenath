@@ -36,15 +36,23 @@ impl CelestialBodyData {
         }
     }
 
-    pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
-        &self.orbital_parameters
+    pub(crate) fn get_name(&self) -> &String {
+        &self.name
     }
 
     pub(crate) fn get_mass(&self) -> Mass {
         self.mass
     }
 
-    pub(crate) fn get_name(&self) -> &String {
-        &self.name
+    pub(crate) fn get_radius(&self) -> Length {
+        self.radius
+    }
+
+    pub(crate) fn get_albedo(&self) -> Float {
+        self.albedo
+    }
+
+    pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
+        &self.orbital_parameters
     }
 }
