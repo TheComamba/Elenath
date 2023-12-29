@@ -8,7 +8,8 @@ use iced::{
     Alignment, Element,
 };
 
-const CELL_WIDTH: f32 = 250.;
+const CELL_WIDTH: f32 = 150.;
+const TABLE_WIDTH: f32 = 10. * CELL_WIDTH;
 
 impl Gui {
     pub(super) fn table_view(&self) -> Element<'_, GuiMessage> {
@@ -30,7 +31,9 @@ impl Gui {
         for body in self.celestial_system.get_bodies_data() {
             col = col.push(Self::table_row(body));
         }
-        col.into()
+        Container::new(col)
+            .width(iced::Length::Fixed(TABLE_WIDTH))
+            .into()
     }
 
     fn table_header() -> Row<'static, GuiMessage> {
