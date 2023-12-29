@@ -9,7 +9,7 @@ use iced::{
 };
 
 const CELL_WIDTH: f32 = 150.;
-const TABLE_WIDTH: f32 = 10. * CELL_WIDTH;
+const BUTTON_CELL_WIDTH: f32 = 50.;
 
 impl Gui {
     pub(super) fn table_view(&self) -> Element<'_, GuiMessage> {
@@ -25,97 +25,35 @@ impl Gui {
     }
 
     fn table(&self) -> Element<'_, GuiMessage> {
+        let width = CELL_WIDTH + CELL_WIDTH * self.table_col_data.len() as f32;
         let mut col = Column::new()
-            .push(Self::table_header())
+            .push(self.table_header())
             .push(Rule::horizontal(10));
         for body in self.celestial_system.get_bodies_data() {
-            col = col.push(Self::table_row(body));
+            col = col.push(self.table_row(body));
         }
-        Container::new(col)
-            .width(iced::Length::Fixed(TABLE_WIDTH))
-            .into()
+        Container::new(col).width(iced::Length::Fixed(width)).into()
     }
 
-    fn table_header() -> Row<'static, GuiMessage> {
-        let edit_button_space = Self::table_cell(Text::new("").into());
-        let name = Self::table_cell(Text::new("Name").into());
-        let mass = Self::table_cell(Text::new("Mass").into());
-        let radius = Self::table_cell(Text::new("Radius").into());
-        let albedo = Self::table_cell(Text::new("Albedo").into());
-        let semi_major_axis = Self::table_cell(Text::new("Semi-major axis").into());
-        let eccentricity = Self::table_cell(Text::new("Eccentricity").into());
-        let inclination = Self::table_cell(Text::new("Inclination").into());
-        let longitude_of_ascending_node =
-            Self::table_cell(Text::new("Longitude of ascending node").into());
-        let argument_of_periapsis = Self::table_cell(Text::new("Argument of periapsis").into());
-        Row::new()
-            .push(edit_button_space)
-            .push(name)
-            .push(mass)
-            .push(radius)
-            .push(albedo)
-            .push(semi_major_axis)
-            .push(eccentricity)
-            .push(inclination)
-            .push(longitude_of_ascending_node)
-            .push(argument_of_periapsis)
-            .align_items(Alignment::Center)
+    fn table_header(&self) -> Row<'static, GuiMessage> {
+        let mut row = Row::new()
+            .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
+        for col in &self.table_col_data {
+            row = row.push(Self::table_cell(Text::new(col.header).into()));
+        }
+        row.align_items(Alignment::Center)
     }
 
-    fn table_row(data: &CelestialBodyData) -> Row<'_, GuiMessage> {
-        let edit_button = Self::table_cell(Button::new(Text::new("Edit")).into());
-        let name = Self::table_cell(Text::new(data.get_name()).into());
-        let mass = Self::table_cell(Text::new(format!("{}", data.get_mass())).into());
-        let radius = Self::table_cell(Text::new(format!("{}", data.get_radius())).into());
-        let albedo = Self::table_cell(Text::new(format!("{}", data.get_albedo())).into());
-        let semi_major_axis = Self::table_cell(
-            Text::new(format!(
-                "{}",
-                data.get_orbital_parameters().get_semi_major_axis()
-            ))
-            .into(),
-        );
-        let eccentricity = Self::table_cell(
-            Text::new(format!(
-                "{}",
-                data.get_orbital_parameters().get_eccentricity()
-            ))
-            .into(),
-        );
-        let inclination = Self::table_cell(
-            Text::new(format!(
-                "{}",
-                data.get_orbital_parameters().get_inclination()
-            ))
-            .into(),
-        );
-        let longitude_of_ascending_node = Self::table_cell(
-            Text::new(format!(
-                "{}",
-                data.get_orbital_parameters()
-                    .get_longitude_of_ascending_node()
-            ))
-            .into(),
-        );
-        let argument_of_periapsis = Self::table_cell(
-            Text::new(format!(
-                "{}",
-                data.get_orbital_parameters().get_argument_of_periapsis()
-            ))
-            .into(),
-        );
-        Row::new()
-            .push(edit_button)
-            .push(name)
-            .push(mass)
-            .push(radius)
-            .push(albedo)
-            .push(semi_major_axis)
-            .push(eccentricity)
-            .push(inclination)
-            .push(longitude_of_ascending_node)
-            .push(argument_of_periapsis)
-            .align_items(Alignment::Center)
+    fn table_row(&self, data: &CelestialBodyData) -> Row<'_, GuiMessage> {
+        let edit_button = Container::new(Button::new(Text::new("Edit")))
+            .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
+        let mut row = Row::new().push(edit_button);
+        for col in self.table_col_data.iter() {
+            row = row.push(Self::table_cell(
+                Text::new((col.content_closure)(data)).into(),
+            ));
+        }
+        row.align_items(Alignment::Center)
     }
 
     fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {

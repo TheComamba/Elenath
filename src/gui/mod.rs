@@ -1,4 +1,5 @@
 use self::top_view::TopViewState;
+use crate::gui::table_col_data::TableColData;
 use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
 use astro_utils::{units::time::Time, Float};
@@ -10,6 +11,7 @@ use std::vec;
 
 mod local_view;
 mod shared_widgets;
+mod table_col_data;
 mod table_view;
 mod top_view;
 
@@ -21,6 +23,7 @@ pub(crate) struct Gui {
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
     selected_focus: Option<CelestialBody>,
+    table_col_data: Vec<TableColData>,
 }
 
 impl Sandbox for Gui {
@@ -29,7 +32,7 @@ impl Sandbox for Gui {
     fn new() -> Self {
         let celestial_system = solar_system();
         let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
-        Gui {
+        let mut gui = Gui {
             mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
@@ -37,7 +40,10 @@ impl Sandbox for Gui {
             celestial_system,
             celestial_bodies,
             selected_focus: None,
-        }
+            table_col_data: vec![],
+        };
+        gui.init_table_col_data();
+        gui
     }
 
     fn title(&self) -> String {
