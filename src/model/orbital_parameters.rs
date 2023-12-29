@@ -9,8 +9,9 @@ use astro_utils::{
     units::{angle::Angle, length::Length, mass::Mass, time::Time},
     Float,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct OrbitalParameters {
     semi_major_axis: Length,
     eccentricity: Float,
