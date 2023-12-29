@@ -10,20 +10,17 @@ use astro_utils::{
 };
 
 fn sun() -> CelestialBodyData {
-    let mut sun_data = CelestialBodyData::new(
+    CelestialBodyData::new(
         String::from("Sun"),
         SUN_MASS,
         OrbitalParameters::central(),
         SUN_RADIUS,
         1.0,
-    );
-    sun_data.add_orbiting_body(&"Earth".to_string());
-    sun_data.add_orbiting_body(&"Jupiter".to_string());
-    sun_data
+    )
 }
 
 fn earth() -> CelestialBodyData {
-    let mut earth_data = CelestialBodyData::new(
+    CelestialBodyData::new(
         String::from("Earth"),
         EARTH_MASS,
         OrbitalParameters::new(
@@ -37,9 +34,7 @@ fn earth() -> CelestialBodyData {
         ),
         EARTH_RADIUS,
         1.0,
-    );
-    earth_data.add_orbiting_body(&"Moon".to_string());
-    earth_data
+    )
 }
 
 fn jupiter() -> CelestialBodyData {
@@ -60,7 +55,7 @@ fn jupiter() -> CelestialBodyData {
     )
 }
 
-fn moon() -> CelestialBodyData {
+fn _moon() -> CelestialBodyData {
     CelestialBodyData::new(
         String::from("Moon"),
         MOON_MASS,
@@ -78,6 +73,8 @@ fn moon() -> CelestialBodyData {
     )
 }
 pub(crate) fn solar_system() -> CelestialSystem {
-    CelestialSystem::new(sun())
-    //vec![sun(), earth(), moon(), jupiter()]
+    let mut system = CelestialSystem::new(sun());
+    system.add_planet(earth());
+    system.add_planet(jupiter());
+    system
 }
