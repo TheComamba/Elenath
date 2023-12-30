@@ -102,12 +102,12 @@ impl Sandbox for Gui {
                 self.topview_state.set_meter_per_pixel(m_per_px);
             }
             GuiMessage::UpdateViewLongitude(longitude) => {
-                self.topview_state.view_angle.set_longitude(longitude);
-                self.topview_state.view_angle.normalize();
+                self.topview_state.view_ecliptic.set_longitude(longitude);
+                self.topview_state.view_ecliptic.normalize();
             }
             GuiMessage::UpdateViewLatitude(latitude) => {
-                self.topview_state.view_angle.set_latitude(latitude);
-                self.topview_state.view_angle.normalize();
+                self.topview_state.view_ecliptic.set_latitude(latitude);
+                self.topview_state.view_ecliptic.normalize();
             }
             GuiMessage::FocusedBodySelected(planet_name) => {
                 self.selected_focus = Some(planet_name);
