@@ -3,6 +3,7 @@ use crate::file_dialog;
 use crate::gui::table_col_data::TableColData;
 use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
+use astro_utils::units::angle::Angle;
 use astro_utils::{units::time::Time, Float};
 use iced::{
     widget::{canvas, Column},
@@ -100,6 +101,14 @@ impl Sandbox for Gui {
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
             }
+            GuiMessage::UpdateViewLongitude(longitude) => {
+                self.topview_state.view_angle.set_longitude(longitude);
+                self.topview_state.view_angle.normalize();
+            }
+            GuiMessage::UpdateViewLatitude(latitude) => {
+                self.topview_state.view_angle.set_latitude(latitude);
+                self.topview_state.view_angle.normalize();
+            }
             GuiMessage::FocusedBodySelected(planet_name) => {
                 self.selected_focus = Some(planet_name);
             }
@@ -178,6 +187,8 @@ pub(super) enum GuiMessage {
     UpdateTime(Time),
     UpdateTimeStep(Time),
     UpdateLengthScale(Float),
+    UpdateViewLongitude(Angle),
+    UpdateViewLatitude(Angle),
     FocusedBodySelected(CelestialBody),
 }
 

@@ -1,6 +1,12 @@
+use std::f32::consts::PI;
+
 use super::{Gui, GuiMessage};
 use crate::model::celestial_body::CelestialBody;
-use astro_utils::{units::length::Length, Float};
+use astro_utils::{
+    coordinates::ecliptic::{EclipticCoordinates, Z_DIRECTION},
+    units::{angle::Angle, length::Length},
+    Float,
+};
 use iced::{
     alignment::Horizontal,
     widget::{
@@ -15,6 +21,7 @@ pub(super) struct TopViewState {
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
     pub(super) meter_per_pixel: Float,
+    pub(super) view_angle: EclipticCoordinates,
 }
 
 impl TopViewState {
@@ -25,6 +32,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             meter_per_pixel: 0.01 * m_per_au,
+            view_angle: Z_DIRECTION,
         }
     }
 }
@@ -53,10 +61,27 @@ impl Gui {
             GuiMessage::UpdateLengthScale(m_per_px / 2.),
             GuiMessage::UpdateLengthScale(m_per_px * 2.),
         );
+        const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
+        let view_longitude = self.topview_state.view_angle.get_longitude();
+        let view_longitude_control_field = self.control_field(
+            "View longitude:",
+            format!("{}", view_longitude),
+            GuiMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
+            GuiMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
+        );
+        let view_latitude = self.topview_state.view_angle.get_latitude();
+        let view_latitude_control_field = self.control_field(
+            "View latitude:",
+            format!("{}", view_latitude),
+            GuiMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
+            GuiMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
+        );
         let planet_picker = self.planet_picker();
         Column::new()
             .push(self.time_control_fields())
             .push(length_scale_control_field)
+            .push(view_longitude_control_field)
+            .push(view_latitude_control_field)
             .push(planet_picker)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
