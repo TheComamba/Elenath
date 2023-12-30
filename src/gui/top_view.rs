@@ -1,6 +1,16 @@
+use std::f32::consts::PI;
+
 use super::{Gui, GuiMessage};
 use crate::model::celestial_body::CelestialBody;
-use astro_utils::{units::length::Length, Float};
+use astro_utils::{
+    coordinates::{
+        direction::{Direction, Z},
+        ecliptic::{EclipticCoordinates, Z_DIRECTION},
+        rotations::get_rotation_parameters,
+    },
+    units::{angle::Angle, length::Length},
+    Float,
+};
 use iced::{
     alignment::Horizontal,
     widget::{
@@ -15,6 +25,7 @@ pub(super) struct TopViewState {
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
     pub(super) meter_per_pixel: Float,
+    pub(super) view_ecliptic: EclipticCoordinates,
 }
 
 impl TopViewState {
@@ -25,6 +36,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             meter_per_pixel: 0.01 * m_per_au,
+            view_ecliptic: Z_DIRECTION,
         }
     }
 }
@@ -53,19 +65,43 @@ impl Gui {
             GuiMessage::UpdateLengthScale(m_per_px / 2.),
             GuiMessage::UpdateLengthScale(m_per_px * 2.),
         );
+        const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
+        let view_longitude = self.topview_state.view_ecliptic.get_longitude();
+        let view_longitude_control_field = self.control_field(
+            "View longitude:",
+            format!("{}", view_longitude),
+            GuiMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
+            GuiMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
+        );
+        let view_latitude = self.topview_state.view_ecliptic.get_latitude();
+        let view_latitude_control_field = self.control_field(
+            "View latitude:",
+            format!("{}", view_latitude),
+            GuiMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
+            GuiMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
+        );
         let planet_picker = self.planet_picker();
         Column::new()
             .push(self.time_control_fields())
             .push(length_scale_control_field)
+            .push(view_longitude_control_field)
+            .push(view_latitude_control_field)
             .push(planet_picker)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
 
-    fn canvas_position(&self, body: &CelestialBody) -> iced::Vector {
-        let x = body.get_position().x().as_meters() / self.topview_state.meter_per_pixel;
-        let y = -body.get_position().y().as_meters() / self.topview_state.meter_per_pixel; // y axis is inverted
+    fn canvas_position(
+        &self,
+        body: &CelestialBody,
+        view_angle: Angle,
+        view_rotation_axis: &Direction,
+    ) -> iced::Vector {
+        let three_dim_position = body.get_position();
+        let rotated_position = three_dim_position.rotated(-view_angle, view_rotation_axis); //passive transformation
+        let x = rotated_position.x().as_meters() / self.topview_state.meter_per_pixel;
+        let y = -rotated_position.y().as_meters() / self.topview_state.meter_per_pixel; // y axis is inverted
         iced::Vector::new(x as f32, y as f32)
     }
 
@@ -81,18 +117,22 @@ impl Gui {
                     let background = Path::rectangle(bounds.position(), bounds.size());
                     frame.fill(&background, Color::BLACK);
                 });
+        let view_direction = Direction::from_ecliptic(&self.topview_state.view_ecliptic);
+        let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
         let bodies = self
             .topview_state
             .bodies_cache
             .draw(renderer, bounds.size(), |frame| {
                 let offset = match &self.selected_focus {
-                    Some(focus) => self.canvas_position(focus),
+                    Some(focus) => self.canvas_position(focus, view_angle, &view_rotation_axis),
                     None => iced::Vector::new(0.0 as f32, 0.0 as f32),
                 };
                 let bodies = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
                         let radius = 3.0;
-                        let pos = frame.center() + self.canvas_position(body) - offset;
+                        let pos = frame.center()
+                            + self.canvas_position(body, view_angle, &view_rotation_axis)
+                            - offset;
                         path_builder.circle(pos, radius);
 
                         let mut name_widget = canvas::Text::default();
