@@ -82,6 +82,6 @@ impl OrbitalParameters {
             true_anomaly,
             &self.orientation,
         );
-        central_body_position + position
+        central_body_position + &position
     }
 }
