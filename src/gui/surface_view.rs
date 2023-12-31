@@ -5,6 +5,7 @@ use crate::model::celestial_body::CelestialBody;
 use super::{Gui, GuiMessage};
 use astro_utils::{
     coordinates::{
+        cartesian::{CartesianCoordinates, ORIGIN},
         direction::{Direction, X, Z},
         ecliptic::EclipticCoordinates,
     },
@@ -49,14 +50,25 @@ impl Gui {
             .into()
     }
 
+    fn observer_data(&self) -> (CartesianCoordinates, Direction) {
+        let observer_position = self
+            .selected_focus
+            .as_ref()
+            .map_or(ORIGIN, |body| body.get_position().clone());
+        let observer_normal = X; //TODO: Calculate observer normal
+                                 //TODO: add observer normal times radius to position.
+        (observer_position, observer_normal)
+    }
+
     fn surface_view_canvas_position(
-        &self,
         body: &CelestialBody,
+        observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
         canvas_radius: f32,
     ) -> iced::Vector {
         const PI_HALF: Float = PI / 2.;
-        let ecliptic_position = EclipticCoordinates::from_cartesian(body.get_position());
+        let relative_position = body.get_position() - observer_position;
+        let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
         let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
         let x = surface_position.get_longitude().as_radians() / PI_HALF * canvas_radius;
         let y = -surface_position.get_latitude().as_radians() / PI_HALF * canvas_radius; // y axis is inverted
@@ -77,8 +89,7 @@ impl Gui {
                     frame.fill(&background, Color::BLACK);
                 });
 
-        //TODO: Calculate observer normal
-        let observer_normal = X;
+        let (observer_position, observer_normal) = self.observer_data();
 
         let bodies = self
             .surface_view_state
@@ -87,8 +98,9 @@ impl Gui {
                 let bodies_path = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
                         let pos = frame.center()
-                            + self.surface_view_canvas_position(
+                            + Self::surface_view_canvas_position(
                                 body,
+                                &observer_position,
                                 &observer_normal,
                                 canvas_radius,
                             );
