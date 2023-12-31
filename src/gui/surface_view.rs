@@ -9,8 +9,9 @@ use astro_utils::{
         direction::{Direction, X, Z},
         ecliptic::EclipticCoordinates,
         equatorial::EquatorialCoordinates,
+        spherical::SphericalCoordinates,
     },
-    surface_normal::apparent_celestial_position,
+    surface_normal::{apparent_celestial_position, surface_normal_at_time},
     units::angle::Angle,
     Float,
 };
@@ -79,7 +80,21 @@ impl Gui {
             None => return (ORIGIN, Z),
         };
 
-        let observer_normal = X; //TODO: Calculate observer normal
+        let observer_equatorial_position = EquatorialCoordinates::new(
+            SphericalCoordinates::new(
+                self.surface_view_state.surface_longitude,
+                self.surface_view_state.surface_latitude,
+            ),
+            body.get_data().get_rotation_axis().clone(),
+        );
+        //TODO: Define Angle at Epoch
+        let planet_angle_at_epoch = Angle::from_degrees(0.0);
+        let observer_normal = surface_normal_at_time(
+            observer_equatorial_position,
+            planet_angle_at_epoch,
+            self.time,
+            body.get_data().get_sideral_rotation_period(),
+        );
 
         let focus_radius = body.get_data().get_radius();
         let observer_position =
