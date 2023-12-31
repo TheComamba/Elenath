@@ -101,6 +101,12 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
+            GuiMessage::UpdateSurfaceLongitude(longitude) => {
+                self.surface_view_state.surface_longitude = longitude;
+            }
+            GuiMessage::UpdateSurfaceLatitude(latitude) => {
+                self.surface_view_state.surface_latitude = latitude;
+            }
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
             }
@@ -196,6 +202,8 @@ pub(super) enum GuiMessage {
     ModeSelected(GuiMode),
     UpdateTime(Time),
     UpdateTimeStep(Time),
+    UpdateSurfaceLongitude(Angle),
+    UpdateSurfaceLatitude(Angle),
     UpdateLengthScale(Float),
     UpdateViewLongitude(Angle),
     UpdateViewLatitude(Angle),
