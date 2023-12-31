@@ -1,3 +1,4 @@
+use self::surface_view::SurfaceViewState;
 use self::top_view::TopViewState;
 use crate::file_dialog;
 use crate::gui::table_col_data::TableColData;
@@ -12,8 +13,8 @@ use iced::{
 use std::path::PathBuf;
 use std::vec;
 
-mod local_view;
 mod shared_widgets;
+mod surface_view;
 mod table_col_data;
 mod table_view;
 mod top_view;
@@ -23,6 +24,7 @@ pub(crate) struct Gui {
     mode: GuiMode,
     time: Time,
     time_step: Time,
+    surface_view_state: SurfaceViewState,
     topview_state: TopViewState,
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
@@ -46,6 +48,7 @@ impl Sandbox for Gui {
             mode: GuiMode::TopView,
             time: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
+            surface_view_state: SurfaceViewState::new(),
             topview_state: TopViewState::new(),
             celestial_system,
             celestial_bodies,
@@ -113,6 +116,7 @@ impl Sandbox for Gui {
                 self.selected_focus = Some(planet_name);
             }
         }
+        self.surface_view_state.redraw(); //If performance is an issue, only redraw when needed
         self.topview_state.redraw(); //If performance is an issue, only redraw when needed
     }
 
@@ -122,7 +126,7 @@ impl Sandbox for Gui {
             .push(self.file_buttons());
 
         match self.mode {
-            GuiMode::LocalView => col = col.push(self.local_view_control_field()),
+            GuiMode::SurfaceView => col = col.push(self.local_view_control_field()),
             GuiMode::TopView => {
                 col = col.push(self.topview_control_field()).push(
                     canvas(self)
@@ -155,7 +159,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         match self.mode {
-            GuiMode::LocalView => todo![],
+            GuiMode::SurfaceView => self.surface_view_canvas(renderer, bounds),
             GuiMode::TopView => self.topview_canvas(renderer, bounds),
             _ => {
                 println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
@@ -194,7 +198,7 @@ pub(super) enum GuiMessage {
 
 #[derive(Debug, Clone)]
 pub(super) enum GuiMode {
-    LocalView,
+    SurfaceView,
     TopView,
     TableView,
 }

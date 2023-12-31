@@ -8,7 +8,7 @@ use iced::{
 impl Gui {
     pub(super) fn gui_mode_tabs(&self) -> iced::Element<'_, GuiMessage> {
         let local_view_button = Button::new(Text::new("Local View"))
-            .on_press(GuiMessage::ModeSelected(GuiMode::LocalView));
+            .on_press(GuiMessage::ModeSelected(GuiMode::SurfaceView));
         let top_view_button =
             Button::new(Text::new("Top View")).on_press(GuiMessage::ModeSelected(GuiMode::TopView));
         let table_view_button = Button::new(Text::new("Table View"))
