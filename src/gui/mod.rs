@@ -126,7 +126,13 @@ impl Sandbox for Gui {
             .push(self.file_buttons());
 
         match self.mode {
-            GuiMode::SurfaceView => col = col.push(self.local_view_control_field()),
+            GuiMode::SurfaceView => {
+                col = col.push(self.surface_view_control_field()).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
+            }
             GuiMode::TopView => {
                 col = col.push(self.topview_control_field()).push(
                     canvas(self)
