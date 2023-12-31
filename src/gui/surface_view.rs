@@ -92,13 +92,13 @@ impl Gui {
         let observer_normal = surface_normal_at_time(
             observer_equatorial_position,
             planet_angle_at_epoch,
-            self.time,
+            self.time_since_epoch,
             body.get_data().get_sideral_rotation_period(),
         );
 
-        let focus_radius = body.get_data().get_radius();
+        let body_radius = body.get_data().get_radius();
         let observer_position =
-            body.get_position().clone() + observer_normal.to_cartesian(focus_radius);
+            body.get_position().clone() + observer_normal.to_cartesian(body_radius);
         (observer_position, observer_normal)
     }
 

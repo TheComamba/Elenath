@@ -22,7 +22,7 @@ mod top_view;
 pub(crate) struct Gui {
     opened_file: Option<PathBuf>,
     mode: GuiMode,
-    time: Time,
+    time_since_epoch: Time,
     time_step: Time,
     surface_view_state: SurfaceViewState,
     topview_state: TopViewState,
@@ -46,7 +46,7 @@ impl Sandbox for Gui {
         let mut gui = Gui {
             opened_file: None,
             mode: GuiMode::TopView,
-            time: Time::from_days(0.0),
+            time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             surface_view_state: SurfaceViewState::new(),
             topview_state: TopViewState::new(),
@@ -95,7 +95,7 @@ impl Sandbox for Gui {
                 self.mode = mode;
             }
             GuiMessage::UpdateTime(time) => {
-                self.time = time;
+                self.time_since_epoch = time;
                 self.update_bodies();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
@@ -183,7 +183,9 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 
 impl Gui {
     fn update_bodies(&mut self) {
-        self.celestial_bodies = self.celestial_system.get_current_data(self.time);
+        self.celestial_bodies = self
+            .celestial_system
+            .get_current_data(self.time_since_epoch);
         if let Some(focus) = &self.selected_body {
             self.selected_body = self
                 .celestial_bodies

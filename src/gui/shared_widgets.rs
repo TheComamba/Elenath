@@ -64,10 +64,10 @@ impl Gui {
 
     pub(super) fn time_control_fields(&self) -> iced::Element<'_, GuiMessage> {
         let time_control_field = self.control_field(
-            "Time:",
-            format!("{}", self.time),
-            GuiMessage::UpdateTime(self.time - self.time_step),
-            GuiMessage::UpdateTime(self.time + self.time_step),
+            "Time since Epoch:",
+            format!("{}", self.time_since_epoch),
+            GuiMessage::UpdateTime(self.time_since_epoch - self.time_step),
+            GuiMessage::UpdateTime(self.time_since_epoch + self.time_step),
         );
         let time_step_control_field = self.control_field(
             "Time step:",
