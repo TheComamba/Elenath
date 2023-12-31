@@ -63,4 +63,12 @@ impl CelestialBodyData {
     pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
         &self.orbital_parameters
     }
+
+    pub(crate) fn get_sideral_rotation_period(&self) -> Time {
+        self.sideral_rotation_period
+    }
+
+    pub(crate) fn get_rotation_axis(&self) -> &Direction {
+        &self.rotation_axis
+    }
 }

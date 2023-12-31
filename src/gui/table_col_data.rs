@@ -67,5 +67,13 @@ impl Gui {
                 )
             }),
         ));
+        self.table_col_data.push(TableColData::new(
+            "Sideral rotation period",
+            Box::new(|body| format!("{}", body.get_sideral_rotation_period())),
+        ));
+        self.table_col_data.push(TableColData::new(
+            "Rotation axis",
+            Box::new(|body| format!("{}", body.get_rotation_axis())),
+        ));
     }
 }
