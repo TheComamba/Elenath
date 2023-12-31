@@ -51,12 +51,16 @@ impl Gui {
     }
 
     fn observer_data(&self) -> (CartesianCoordinates, Direction) {
-        let observer_position = self
-            .selected_focus
-            .as_ref()
-            .map_or(ORIGIN, |body| body.get_position().clone());
+        let body = match self.selected_body.as_ref() {
+            Some(body) => body,
+            None => return (ORIGIN, Z),
+        };
+
         let observer_normal = X; //TODO: Calculate observer normal
-                                 //TODO: add observer normal times radius to position.
+
+        let focus_radius = body.get_data().get_radius();
+        let observer_position =
+            body.get_position().clone() + observer_normal.to_cartesian(focus_radius);
         (observer_position, observer_normal)
     }
 

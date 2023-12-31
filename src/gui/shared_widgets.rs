@@ -87,7 +87,7 @@ impl Gui {
         let text = Text::new("Focused body:").width(150.);
         let pick_list = PickList::new(
             self.celestial_bodies.clone(),
-            self.selected_focus.clone(),
+            self.selected_body.clone(),
             GuiMessage::FocusedBodySelected,
         )
         .width(200.);

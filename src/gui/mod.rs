@@ -28,7 +28,7 @@ pub(crate) struct Gui {
     topview_state: TopViewState,
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
-    selected_focus: Option<CelestialBody>,
+    selected_body: Option<CelestialBody>,
     table_col_data: Vec<TableColData>,
 }
 
@@ -52,7 +52,7 @@ impl Sandbox for Gui {
             topview_state: TopViewState::new(),
             celestial_system,
             celestial_bodies,
-            selected_focus,
+            selected_body: selected_focus,
             table_col_data: vec![],
         };
         gui.init_table_col_data();
@@ -112,8 +112,8 @@ impl Sandbox for Gui {
                 self.topview_state.view_ecliptic.set_latitude(latitude);
                 self.topview_state.view_ecliptic.normalize();
             }
-            GuiMessage::FocusedBodySelected(planet_name) => {
-                self.selected_focus = Some(planet_name);
+            GuiMessage::FocusedBodySelected(body) => {
+                self.selected_body = Some(body);
             }
         }
         self.surface_view_state.redraw(); //If performance is an issue, only redraw when needed
@@ -178,8 +178,8 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 impl Gui {
     fn update_bodies(&mut self) {
         self.celestial_bodies = self.celestial_system.get_current_data(self.time);
-        if let Some(focus) = &self.selected_focus {
-            self.selected_focus = self
+        if let Some(focus) = &self.selected_body {
+            self.selected_body = self
                 .celestial_bodies
                 .iter()
                 .find(|body| body.get_name() == focus.get_name())

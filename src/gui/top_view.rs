@@ -124,7 +124,7 @@ impl Gui {
             .topview_state
             .bodies_cache
             .draw(renderer, bounds.size(), |frame| {
-                let offset = match &self.selected_focus {
+                let offset = match &self.selected_body {
                     Some(focus) => self.canvas_position(focus, view_angle, &view_rotation_axis),
                     None => iced::Vector::new(0.0 as f32, 0.0 as f32),
                 };
