@@ -1,6 +1,6 @@
 use super::celestial_system::CelestialSystem;
 use crate::model::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
-use astro_utils::{orbit_orientation::OrbitOrientation, solar_system_data::*, units::angle::Angle};
+use astro_utils::{coordinates::direction::Z, solar_system_data::*, units::time::Time};
 
 fn sun() -> CelestialBodyData {
     CelestialBodyData::new(
@@ -9,6 +9,8 @@ fn sun() -> CelestialBodyData {
         OrbitalParameters::central(),
         SUN_RADIUS,
         1.0,
+        Time::from_seconds(0.),
+        Z,
     )
 }
 
@@ -23,6 +25,8 @@ fn mercury() -> CelestialBodyData {
         ),
         MERCURY_RADIUS,
         MERCURY_BOND_ALBEDO,
+        MERCURY_SIDERIAL_ROTATION_PERIOD,
+        MERCURY_NORTH.to_direction(),
     )
 }
 
@@ -37,6 +41,8 @@ fn venus() -> CelestialBodyData {
         ),
         VENUS_RADIUS,
         VENUS_BOND_ALBEDO,
+        VENUS_SIDERIAL_ROTATION_PERIOD,
+        VENUS_NORTH.to_direction(),
     )
 }
 
@@ -51,6 +57,8 @@ fn earth() -> CelestialBodyData {
         ),
         EARTH_RADIUS,
         EARTH_BOND_ALBEDO,
+        EARTH_SIDERIAL_ROTATION_PERIOD,
+        EARTH_NORTH.to_direction(),
     )
 }
 
@@ -65,6 +73,8 @@ fn mars() -> CelestialBodyData {
         ),
         MARS_RADIUS,
         MARS_BOND_ALBEDO,
+        MARS_SIDERIAL_ROTATION_PERIOD,
+        MARS_NORTH.to_direction(),
     )
 }
 
@@ -79,6 +89,8 @@ fn ceres() -> CelestialBodyData {
         ),
         CERES_RADIUS,
         CERES_BOND_ALBEDO,
+        CERES_SIDERIAL_ROTATION_PERIOD,
+        CERES_NORTH.to_direction(),
     )
 }
 
@@ -93,6 +105,8 @@ fn jupiter() -> CelestialBodyData {
         ),
         JUPITER_RADIUS,
         JUPITER_BOND_ALBEDO,
+        JUPITER_SIDERIAL_ROTATION_PERIOD,
+        JUPITER_NORTH.to_direction(),
     )
 }
 
@@ -107,6 +121,8 @@ fn saturn() -> CelestialBodyData {
         ),
         SATURN_RADIUS,
         SATURN_BOND_ALBEDO,
+        SATURN_SIDERIAL_ROTATION_PERIOD,
+        SATURN_NORTH.to_direction(),
     )
 }
 
@@ -121,6 +137,8 @@ fn uranus() -> CelestialBodyData {
         ),
         URANUS_RADIUS,
         URANUS_BOND_ALBEDO,
+        URANUS_SIDERIAL_ROTATION_PERIOD,
+        URANUS_NORTH.to_direction(),
     )
 }
 
@@ -135,6 +153,8 @@ fn neptune() -> CelestialBodyData {
         ),
         NEPTUNE_RADIUS,
         NEPTUNE_BOND_ALBEDO,
+        NEPTUNE_SIDERIAL_ROTATION_PERIOD,
+        NEPTUNE_NORTH.to_direction(),
     )
 }
 
@@ -149,6 +169,8 @@ fn pluto() -> CelestialBodyData {
         ),
         PLUTO_RADIUS,
         PLUTO_BOND_ALBEDO,
+        PLUTO_SIDERIAL_ROTATION_PERIOD,
+        PLUTO_NORTH.to_direction(),
     )
 }
 
@@ -158,15 +180,13 @@ fn _moon() -> CelestialBodyData {
         MOON_MASS,
         OrbitalParameters::new(
             MOON_SEMI_MAJOR_AXIS,
-            0.0549,
-            OrbitOrientation::new(
-                Angle::from_degrees(5.145),
-                Angle::from_degrees(0.0),
-                Angle::from_degrees(0.0),
-            ),
+            MOON_ECCENTRICITY,
+            MOON_ORBIT_ORIENTATION,
         ),
         MOON_RADIUS,
-        1.0,
+        MOON_BOND_ALBEDO,
+        MOON_SIDERIAL_ROTATION_PERIOD,
+        MOON_NORTH.to_direction(),
     )
 }
 pub(crate) fn solar_system() -> CelestialSystem {
