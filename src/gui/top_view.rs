@@ -117,13 +117,14 @@ impl Gui {
                     let background = Path::rectangle(bounds.position(), bounds.size());
                     frame.fill(&background, Color::BLACK);
                 });
-        let view_direction = Direction::from_ecliptic(&self.topview_state.view_ecliptic);
+        let view_direction =
+            Direction::from_spherical(&self.topview_state.view_ecliptic.get_spherical());
         let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
         let bodies = self
             .topview_state
             .bodies_cache
             .draw(renderer, bounds.size(), |frame| {
-                let offset = match &self.selected_focus {
+                let offset = match &self.selected_body {
                     Some(focus) => self.canvas_position(focus, view_angle, &view_rotation_axis),
                     None => iced::Vector::new(0.0 as f32, 0.0 as f32),
                 };

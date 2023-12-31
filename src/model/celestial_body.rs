@@ -38,12 +38,16 @@ impl CelestialBody {
         CelestialBody { data, position }
     }
 
+    pub(crate) fn get_data(&self) -> &CelestialBodyData {
+        &self.data
+    }
+
     pub(crate) fn get_mass(&self) -> Mass {
         self.data.get_mass()
     }
 
-    pub(crate) fn get_position(&self) -> CartesianCoordinates {
-        self.position
+    pub(crate) fn get_position(&self) -> &CartesianCoordinates {
+        &self.position
     }
 
     pub(crate) fn get_name(&self) -> &str {

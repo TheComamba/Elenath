@@ -1,6 +1,6 @@
 use super::celestial_system::CelestialSystem;
 use crate::model::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
-use astro_utils::{orbit_orientation::OrbitOrientation, solar_system_data::*, units::angle::Angle};
+use astro_utils::{coordinates::direction::Z, solar_system_data::*, units::time::Time};
 
 fn sun() -> CelestialBodyData {
     CelestialBodyData::new(
@@ -9,6 +9,8 @@ fn sun() -> CelestialBodyData {
         OrbitalParameters::central(),
         SUN_RADIUS,
         1.0,
+        Time::from_seconds(0.),
+        Z,
     )
 }
 
@@ -19,14 +21,12 @@ fn mercury() -> CelestialBodyData {
         OrbitalParameters::new(
             MERCURY_SEMI_MAJOR_AXIS,
             MERCURY_ECCENTRICITY,
-            OrbitOrientation::new(
-                MERCURY_INCLINATION,
-                MERCURY_LONGITUDE_OF_ASCENDING_NODE,
-                MERCURY_ARGUMENT_OF_PERIAPSIS,
-            ),
+            MERCURY_ORBIT_ORIENTATION,
         ),
         MERCURY_RADIUS,
-        MERCURY_ALBEDO,
+        MERCURY_BOND_ALBEDO,
+        MERCURY_SIDERIAL_ROTATION_PERIOD,
+        MERCURY_NORTH.to_direction(),
     )
 }
 
@@ -37,14 +37,12 @@ fn venus() -> CelestialBodyData {
         OrbitalParameters::new(
             VENUS_SEMI_MAJOR_AXIS,
             VENUS_ECCENTRICITY,
-            OrbitOrientation::new(
-                VENUS_INCLINATION,
-                VENUS_LONGITUDE_OF_ASCENDING_NODE,
-                VENUS_ARGUMENT_OF_PERIAPSIS,
-            ),
+            VENUS_ORBIT_ORIENTATION,
         ),
         VENUS_RADIUS,
-        VENUS_ALBEDO,
+        VENUS_BOND_ALBEDO,
+        VENUS_SIDERIAL_ROTATION_PERIOD,
+        VENUS_NORTH.to_direction(),
     )
 }
 
@@ -55,14 +53,12 @@ fn earth() -> CelestialBodyData {
         OrbitalParameters::new(
             EARTH_SEMI_MAJOR_AXIS,
             EARTH_ECCENTRICITY,
-            OrbitOrientation::new(
-                EARTH_INCLINATION,
-                EARTH_LONGITUDE_OF_ASCENDING_NODE,
-                EARTH_ARGUMENT_OF_PERIAPSIS,
-            ),
+            EARTH_ORBIT_ORIENTATION,
         ),
         EARTH_RADIUS,
-        EARTH_ALBEDO,
+        EARTH_BOND_ALBEDO,
+        EARTH_SIDERIAL_ROTATION_PERIOD,
+        EARTH_NORTH.to_direction(),
     )
 }
 
@@ -73,14 +69,12 @@ fn mars() -> CelestialBodyData {
         OrbitalParameters::new(
             MARS_SEMI_MAJOR_AXIS,
             MARS_ECCENTRICITY,
-            OrbitOrientation::new(
-                MARS_INCLINATION,
-                MARS_LONGITUDE_OF_ASCENDING_NODE,
-                MARS_ARGUMENT_OF_PERIAPSIS,
-            ),
+            MARS_ORBIT_ORIENTATION,
         ),
         MARS_RADIUS,
-        MARS_ALBEDO,
+        MARS_BOND_ALBEDO,
+        MARS_SIDERIAL_ROTATION_PERIOD,
+        MARS_NORTH.to_direction(),
     )
 }
 
@@ -91,14 +85,12 @@ fn ceres() -> CelestialBodyData {
         OrbitalParameters::new(
             CERES_SEMI_MAJOR_AXIS,
             CERES_ECCENTRICITY,
-            OrbitOrientation::new(
-                CERES_INCLINATION,
-                CERES_LONGITUDE_OF_ASCENDING_NODE,
-                CERES_ARGUMENT_OF_PERIAPSIS,
-            ),
+            CERES_ORBIT_ORIENTATION,
         ),
         CERES_RADIUS,
-        CERES_ALBEDO,
+        CERES_BOND_ALBEDO,
+        CERES_SIDERIAL_ROTATION_PERIOD,
+        CERES_NORTH.to_direction(),
     )
 }
 
@@ -109,14 +101,12 @@ fn jupiter() -> CelestialBodyData {
         OrbitalParameters::new(
             JUPITER_SEMI_MAJOR_AXIS,
             JUPITER_ECCENTRICITY,
-            OrbitOrientation::new(
-                JUPITER_INCLINATION,
-                JUPITER_LONGITUDE_OF_ASCENDING_NODE,
-                JUPITER_ARGUMENT_OF_PERIAPSIS,
-            ),
+            JUPITER_ORBIT_ORIENTATION,
         ),
         JUPITER_RADIUS,
-        JUPITER_ALBEDO,
+        JUPITER_BOND_ALBEDO,
+        JUPITER_SIDERIAL_ROTATION_PERIOD,
+        JUPITER_NORTH.to_direction(),
     )
 }
 
@@ -127,14 +117,12 @@ fn saturn() -> CelestialBodyData {
         OrbitalParameters::new(
             SATURN_SEMI_MAJOR_AXIS,
             SATURN_ECCENTRICITY,
-            OrbitOrientation::new(
-                SATURN_INCLINATION,
-                SATURN_LONGITUDE_OF_ASCENDING_NODE,
-                SATURN_ARGUMENT_OF_PERIAPSIS,
-            ),
+            SATURN_ORBIT_ORIENTATION,
         ),
         SATURN_RADIUS,
-        SATURN_ALBEDO,
+        SATURN_BOND_ALBEDO,
+        SATURN_SIDERIAL_ROTATION_PERIOD,
+        SATURN_NORTH.to_direction(),
     )
 }
 
@@ -145,14 +133,12 @@ fn uranus() -> CelestialBodyData {
         OrbitalParameters::new(
             URANUS_SEMI_MAJOR_AXIS,
             URANUS_ECCENTRICITY,
-            OrbitOrientation::new(
-                URANUS_INCLINATION,
-                URANUS_LONGITUDE_OF_ASCENDING_NODE,
-                URANUS_ARGUMENT_OF_PERIAPSIS,
-            ),
+            URANUS_ORBIT_ORIENTATION,
         ),
         URANUS_RADIUS,
-        URANUS_ALBEDO,
+        URANUS_BOND_ALBEDO,
+        URANUS_SIDERIAL_ROTATION_PERIOD,
+        URANUS_NORTH.to_direction(),
     )
 }
 
@@ -163,14 +149,12 @@ fn neptune() -> CelestialBodyData {
         OrbitalParameters::new(
             NEPTUNE_SEMI_MAJOR_AXIS,
             NEPTUNE_ECCENTRICITY,
-            OrbitOrientation::new(
-                NEPTUNE_INCLINATION,
-                NEPTUNE_LONGITUDE_OF_ASCENDING_NODE,
-                NEPTUNE_ARGUMENT_OF_PERIAPSIS,
-            ),
+            NEPTUNE_ORBIT_ORIENTATION,
         ),
         NEPTUNE_RADIUS,
-        NEPTUNE_ALBEDO,
+        NEPTUNE_BOND_ALBEDO,
+        NEPTUNE_SIDERIAL_ROTATION_PERIOD,
+        NEPTUNE_NORTH.to_direction(),
     )
 }
 
@@ -181,14 +165,12 @@ fn pluto() -> CelestialBodyData {
         OrbitalParameters::new(
             PLUTO_SEMI_MAJOR_AXIS,
             PLUTO_ECCENTRICITY,
-            OrbitOrientation::new(
-                PLUTO_INCLINATION,
-                PLUTO_LONGITUDE_OF_ASCENDING_NODE,
-                PLUTO_ARGUMENT_OF_PERIAPSIS,
-            ),
+            PLUTO_ORBIT_ORIENTATION,
         ),
         PLUTO_RADIUS,
-        PLUTO_ALBEDO,
+        PLUTO_BOND_ALBEDO,
+        PLUTO_SIDERIAL_ROTATION_PERIOD,
+        PLUTO_NORTH.to_direction(),
     )
 }
 
@@ -198,15 +180,13 @@ fn _moon() -> CelestialBodyData {
         MOON_MASS,
         OrbitalParameters::new(
             MOON_SEMI_MAJOR_AXIS,
-            0.0549,
-            OrbitOrientation::new(
-                Angle::from_degrees(5.145),
-                Angle::from_degrees(0.0),
-                Angle::from_degrees(0.0),
-            ),
+            MOON_ECCENTRICITY,
+            MOON_ORBIT_ORIENTATION,
         ),
         MOON_RADIUS,
-        1.0,
+        MOON_BOND_ALBEDO,
+        MOON_SIDERIAL_ROTATION_PERIOD,
+        MOON_NORTH.to_direction(),
     )
 }
 pub(crate) fn solar_system() -> CelestialSystem {

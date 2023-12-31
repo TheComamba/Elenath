@@ -1,6 +1,7 @@
 use super::orbital_parameters::OrbitalParameters;
 use astro_utils::{
-    units::{length::Length, mass::Mass},
+    coordinates::direction::Direction,
+    units::{length::Length, mass::Mass, time::Time},
     Float,
 };
 use serde::{Deserialize, Serialize};
@@ -12,6 +13,8 @@ pub(crate) struct CelestialBodyData {
     radius: Length,
     albedo: Float,
     orbital_parameters: OrbitalParameters,
+    sideral_rotation_period: Time,
+    rotation_axis: Direction,
 }
 
 impl PartialEq for CelestialBodyData {
@@ -27,6 +30,8 @@ impl CelestialBodyData {
         orbital_parameters: OrbitalParameters,
         radius: Length,
         albedo: Float,
+        sideral_rotation_period: Time,
+        rotation_axis: Direction,
     ) -> Self {
         CelestialBodyData {
             name,
@@ -34,6 +39,8 @@ impl CelestialBodyData {
             orbital_parameters,
             radius,
             albedo,
+            sideral_rotation_period,
+            rotation_axis,
         }
     }
 
@@ -55,5 +62,13 @@ impl CelestialBodyData {
 
     pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
         &self.orbital_parameters
+    }
+
+    pub(crate) fn get_sideral_rotation_period(&self) -> Time {
+        self.sideral_rotation_period
+    }
+
+    pub(crate) fn get_rotation_axis(&self) -> &Direction {
+        &self.rotation_axis
     }
 }

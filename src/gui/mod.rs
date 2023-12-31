@@ -1,3 +1,4 @@
+use self::surface_view::SurfaceViewState;
 use self::top_view::TopViewState;
 use crate::file_dialog;
 use crate::gui::table_col_data::TableColData;
@@ -12,8 +13,8 @@ use iced::{
 use std::path::PathBuf;
 use std::vec;
 
-mod local_view;
 mod shared_widgets;
+mod surface_view;
 mod table_col_data;
 mod table_view;
 mod top_view;
@@ -21,12 +22,13 @@ mod top_view;
 pub(crate) struct Gui {
     opened_file: Option<PathBuf>,
     mode: GuiMode,
-    time: Time,
+    time_since_epoch: Time,
     time_step: Time,
+    surface_view_state: SurfaceViewState,
     topview_state: TopViewState,
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
-    selected_focus: Option<CelestialBody>,
+    selected_body: Option<CelestialBody>,
     table_col_data: Vec<TableColData>,
 }
 
@@ -44,12 +46,13 @@ impl Sandbox for Gui {
         let mut gui = Gui {
             opened_file: None,
             mode: GuiMode::TopView,
-            time: Time::from_days(0.0),
+            time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
+            surface_view_state: SurfaceViewState::new(),
             topview_state: TopViewState::new(),
             celestial_system,
             celestial_bodies,
-            selected_focus,
+            selected_body: selected_focus,
             table_col_data: vec![],
         };
         gui.init_table_col_data();
@@ -92,11 +95,17 @@ impl Sandbox for Gui {
                 self.mode = mode;
             }
             GuiMessage::UpdateTime(time) => {
-                self.time = time;
+                self.time_since_epoch = time;
                 self.update_bodies();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
+            }
+            GuiMessage::UpdateSurfaceLongitude(longitude) => {
+                self.surface_view_state.surface_longitude = longitude;
+            }
+            GuiMessage::UpdateSurfaceLatitude(latitude) => {
+                self.surface_view_state.surface_latitude = latitude;
             }
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
@@ -109,10 +118,11 @@ impl Sandbox for Gui {
                 self.topview_state.view_ecliptic.set_latitude(latitude);
                 self.topview_state.view_ecliptic.normalize();
             }
-            GuiMessage::FocusedBodySelected(planet_name) => {
-                self.selected_focus = Some(planet_name);
+            GuiMessage::FocusedBodySelected(body) => {
+                self.selected_body = Some(body);
             }
         }
+        self.surface_view_state.redraw(); //If performance is an issue, only redraw when needed
         self.topview_state.redraw(); //If performance is an issue, only redraw when needed
     }
 
@@ -122,7 +132,13 @@ impl Sandbox for Gui {
             .push(self.file_buttons());
 
         match self.mode {
-            GuiMode::LocalView => col = col.push(self.local_view_control_field()),
+            GuiMode::SurfaceView => {
+                col = col.push(self.surface_view_control_field()).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
+            }
             GuiMode::TopView => {
                 col = col.push(self.topview_control_field()).push(
                     canvas(self)
@@ -155,7 +171,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         match self.mode {
-            GuiMode::LocalView => todo![],
+            GuiMode::SurfaceView => self.surface_view_canvas(renderer, bounds),
             GuiMode::TopView => self.topview_canvas(renderer, bounds),
             _ => {
                 println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
@@ -167,9 +183,11 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 
 impl Gui {
     fn update_bodies(&mut self) {
-        self.celestial_bodies = self.celestial_system.get_current_data(self.time);
-        if let Some(focus) = &self.selected_focus {
-            self.selected_focus = self
+        self.celestial_bodies = self
+            .celestial_system
+            .get_current_data(self.time_since_epoch);
+        if let Some(focus) = &self.selected_body {
+            self.selected_body = self
                 .celestial_bodies
                 .iter()
                 .find(|body| body.get_name() == focus.get_name())
@@ -186,6 +204,8 @@ pub(super) enum GuiMessage {
     ModeSelected(GuiMode),
     UpdateTime(Time),
     UpdateTimeStep(Time),
+    UpdateSurfaceLongitude(Angle),
+    UpdateSurfaceLatitude(Angle),
     UpdateLengthScale(Float),
     UpdateViewLongitude(Angle),
     UpdateViewLatitude(Angle),
@@ -194,7 +214,7 @@ pub(super) enum GuiMessage {
 
 #[derive(Debug, Clone)]
 pub(super) enum GuiMode {
-    LocalView,
+    SurfaceView,
     TopView,
     TableView,
 }
