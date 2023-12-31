@@ -117,7 +117,8 @@ impl Gui {
                     let background = Path::rectangle(bounds.position(), bounds.size());
                     frame.fill(&background, Color::BLACK);
                 });
-        let view_direction = Direction::from_ecliptic(&self.topview_state.view_ecliptic);
+        let view_direction =
+            Direction::from_spherical(&self.topview_state.view_ecliptic.get_spherical());
         let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
         let bodies = self
             .topview_state
