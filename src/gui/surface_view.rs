@@ -93,6 +93,12 @@ impl Gui {
                                 canvas_radius,
                             );
                         path_builder.circle(pos, 3.0);
+
+                        let mut name_widget = canvas::Text::default();
+                        name_widget.color = Color::WHITE;
+                        name_widget.content = body.get_name().to_string();
+                        name_widget.position = pos;
+                        frame.fill_text(name_widget);
                     }
                 });
                 frame.fill(&bodies_path, Color::WHITE);
