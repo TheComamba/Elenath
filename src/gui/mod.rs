@@ -10,7 +10,6 @@ use iced::{
     widget::{canvas, Column},
     Sandbox,
 };
-use std::f32::consts::PI;
 use std::path::PathBuf;
 use std::vec;
 

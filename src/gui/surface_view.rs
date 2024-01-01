@@ -12,14 +12,15 @@ use astro_utils::{
         spherical::SphericalCoordinates,
     },
     surface_normal::{apparent_celestial_position, surface_normal_at_time},
-    units::{angle::Angle, length::Length},
+    units::angle::Angle,
+    Float,
 };
 use iced::{
     widget::{
         canvas::{self, Path},
         Column,
     },
-    Alignment, Color, Point, Size,
+    Alignment, Color, Point,
 };
 
 const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
@@ -113,25 +114,26 @@ impl Gui {
         (observer_position, observer_normal)
     }
 
+    fn pixel_per_viewport_width(&self, canvas_width: f32) -> Float {
+        let opening_angle = self.surface_view_state.viewport_horizontal_opening_angle;
+        let viewport_width = (opening_angle / 2.).sin() * 2.; //Viewport is at unit distance
+        canvas_width / viewport_width
+    }
+
     fn surface_view_canvas_position(
         &self,
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
-        canvas_size: &Size,
+        pixel_per_viewport_width: Float,
     ) -> Option<iced::Vector> {
-        const VIEWPORT_DISTANCE: Length = Length::from_meters(1.0);
-        let opening_angle = self.surface_view_state.viewport_horizontal_opening_angle;
-        let viewport_width = VIEWPORT_DISTANCE * (opening_angle / 2.).sin() * 2.;
-        let length_per_pixel = viewport_width / canvas_size.width;
         let relative_position = body.get_position() - observer_position;
         let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
         let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
-        let position_at_viewport =
-            Direction::from_spherical(&surface_position).to_cartesian(VIEWPORT_DISTANCE);
-        if position_at_viewport.z().as_meters() > 0.0 {
-            let x = position_at_viewport.x() / length_per_pixel;
-            let y = -position_at_viewport.y() / length_per_pixel; // y axis is inverted
+        let direction = Direction::from_spherical(&surface_position);
+        if direction.z() > 0.0 {
+            let x = direction.x() * pixel_per_viewport_width;
+            let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
             Some(iced::Vector::new(x as f32, y as f32))
         } else {
             None
@@ -153,6 +155,7 @@ impl Gui {
 
         let (observer_position, observer_normal) = self.observer_data();
 
+        let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
         let bodies = self
             .surface_view_state
             .bodies_cache
@@ -163,7 +166,7 @@ impl Gui {
                             body,
                             &observer_position,
                             &observer_normal,
-                            &bounds.size(),
+                            pixel_per_viewport_width,
                         );
                         if let Some(pos) = pos {
                             let pos = frame.center() + pos;
