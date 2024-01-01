@@ -14,7 +14,8 @@ pub(crate) struct CelestialBody {
 
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum CelestialBodyData {
-    Star(StellarProperties),
+    CentralBody(StellarProperties),
+    DistantStar(StellarProperties),
     Planet(PlanetData),
 }
 
@@ -35,8 +36,15 @@ impl Display for CelestialBody {
 impl CelestialBody {
     pub(crate) fn central_body(data: StellarProperties) -> Self {
         CelestialBody {
-            data: CelestialBodyData::Star(data),
+            data: CelestialBodyData::CentralBody(data),
             position: CartesianCoordinates::ORIGIN,
+        }
+    }
+
+    pub(crate) fn from_distant_star(star: &DistantStar) -> Self {
+        CelestialBody {
+            data: CelestialBodyData::DistantStar(star.get_stellar_properties().clone()),
+            position: star.calculate_position(),
         }
     }
 
@@ -50,16 +58,17 @@ impl CelestialBody {
         }
     }
 
-    pub(crate) fn from_distant_star(star: &DistantStar) -> Self {
-        CelestialBody {
-            data: CelestialBodyData::Star(star.get_stellar_properties().clone()),
-            position: star.calculate_position(),
+    pub(crate) fn is_distant_star(&self) -> bool {
+        match &self.data {
+            CelestialBodyData::DistantStar(_) => true,
+            _ => false,
         }
     }
 
     pub(crate) fn get_mass(&self) -> Mass {
         match &self.data {
-            CelestialBodyData::Star(data) => data.get_mass(),
+            CelestialBodyData::CentralBody(data) => data.get_mass(),
+            CelestialBodyData::DistantStar(data) => data.get_mass(),
             CelestialBodyData::Planet(data) => data.get_mass(),
         }
     }
@@ -70,28 +79,32 @@ impl CelestialBody {
 
     pub(crate) fn get_name(&self) -> &str {
         match &self.data {
-            CelestialBodyData::Star(data) => data.get_name(),
+            CelestialBodyData::CentralBody(data) => data.get_name(),
+            CelestialBodyData::DistantStar(data) => data.get_name(),
             CelestialBodyData::Planet(data) => data.get_name(),
         }
     }
 
     pub(crate) fn get_rotation_axis(&self) -> &Direction {
         match &self.data {
-            CelestialBodyData::Star(_) => &Direction::Z,
+            CelestialBodyData::CentralBody(_) => &Direction::Z,
+            CelestialBodyData::DistantStar(_) => &Direction::Z,
             CelestialBodyData::Planet(data) => data.get_rotation_axis(),
         }
     }
 
     pub(crate) fn get_sideral_rotation_period(&self) -> Time {
         match &self.data {
-            CelestialBodyData::Star(_) => Time::from_seconds(0.),
+            CelestialBodyData::CentralBody(_) => Time::from_seconds(0.),
+            CelestialBodyData::DistantStar(_) => Time::from_seconds(0.),
             CelestialBodyData::Planet(data) => data.get_sideral_rotation_period(),
         }
     }
 
     pub(crate) fn get_radius(&self) -> Length {
         match &self.data {
-            CelestialBodyData::Star(data) => data.get_radius(),
+            CelestialBodyData::CentralBody(data) => data.get_radius(),
+            CelestialBodyData::DistantStar(data) => data.get_radius(),
             CelestialBodyData::Planet(data) => data.get_radius(),
         }
     }

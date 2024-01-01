@@ -66,14 +66,16 @@ impl TopViewState {
         };
         let bodies = Path::new(|path_builder| {
             for body in celestial_bodies.iter() {
-                self.draw_body(
-                    frame,
-                    body,
-                    view_angle,
-                    &view_rotation_axis,
-                    offset,
-                    path_builder,
-                );
+                if !body.is_distant_star() {
+                    self.draw_body(
+                        frame,
+                        body,
+                        view_angle,
+                        &view_rotation_axis,
+                        offset,
+                        path_builder,
+                    );
+                }
             }
         });
         frame.fill(&bodies, Color::WHITE);
