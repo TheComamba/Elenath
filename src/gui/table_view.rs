@@ -1,4 +1,4 @@
-use super::{Gui, GuiMessage};
+use super::{gui_widget::GuiMessage, Gui};
 use crate::model::celestial_body_data::CelestialBodyData;
 use iced::{
     widget::{

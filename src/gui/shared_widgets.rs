@@ -1,4 +1,4 @@
-use super::{Gui, GuiMessage, GuiMode};
+use super::{gui_widget::GuiMessage, Gui, GuiMode};
 use iced::{
     alignment::Horizontal,
     widget::{Button, Column, Container, PickList, Row, Text},
