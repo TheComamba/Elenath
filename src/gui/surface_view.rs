@@ -19,7 +19,7 @@ use iced::{
         canvas::{self, Path},
         Column,
     },
-    Alignment, Color, Size,
+    Alignment, Color, Point, Size,
 };
 
 const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
@@ -132,16 +132,6 @@ impl Gui {
         if position_at_viewport.z().as_meters() > 0.0 {
             let x = position_at_viewport.x() / length_per_pixel;
             let y = -position_at_viewport.y() / length_per_pixel; // y axis is inverted
-            println!("\nbody: {}", body.get_name());
-            println!("opening_angle: {}", opening_angle);
-            println!("canvas_size.width: {}", canvas_size.width);
-            println!("viewport_width: {}", viewport_width);
-            println!("length_per_pixel: {:?}", length_per_pixel);
-            println!("relative_position: {}", relative_position);
-            println!("ecliptic_position: {}", ecliptic_position);
-            println!("surface_position: {}", surface_position);
-            println!("position_at_viewport: {}", position_at_viewport);
-            println!("x: {} y: {}", x, y);
             Some(iced::Vector::new(x as f32, y as f32))
         } else {
             None
@@ -153,7 +143,13 @@ impl Gui {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
     ) -> Vec<canvas::Geometry> {
-        let background = self.black_background(renderer, &bounds);
+        let background =
+            self.surface_view_state
+                .background_cache
+                .draw(renderer, bounds.size(), |frame| {
+                    let background = Path::rectangle(Point::ORIGIN, bounds.size());
+                    frame.fill(&background, Color::BLACK);
+                });
 
         let (observer_position, observer_normal) = self.observer_data();
 

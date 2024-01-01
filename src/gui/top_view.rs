@@ -17,7 +17,7 @@ use iced::{
         canvas::{self, Cache, Path, Style},
         Column,
     },
-    Alignment, Color,
+    Alignment, Color, Point,
 };
 
 pub(super) struct TopViewState {
@@ -110,7 +110,13 @@ impl Gui {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
     ) -> Vec<canvas::Geometry> {
-        let background = self.black_background(renderer, &bounds);
+        let background =
+            self.topview_state
+                .background_cache
+                .draw(renderer, bounds.size(), |frame| {
+                    let background = Path::rectangle(Point::ORIGIN, bounds.size());
+                    frame.fill(&background, Color::BLACK);
+                });
         let view_direction =
             Direction::from_spherical(&self.topview_state.view_ecliptic.get_spherical());
         let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
@@ -173,20 +179,5 @@ impl Gui {
                 frame.fill_text(text);
             });
         vec![background, bodies, scale]
-    }
-
-    pub(super) fn black_background(
-        &self,
-        renderer: &iced::Renderer,
-        bounds: &iced::Rectangle,
-    ) -> canvas::Geometry {
-        let background =
-            self.topview_state
-                .background_cache
-                .draw(renderer, bounds.size(), |frame| {
-                    let background = Path::rectangle(bounds.position(), bounds.size());
-                    frame.fill(&background, Color::BLACK);
-                });
-        background
     }
 }
