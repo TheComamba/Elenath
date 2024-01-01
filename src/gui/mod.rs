@@ -107,6 +107,17 @@ impl Sandbox for Gui {
             GuiMessage::UpdateSurfaceLatitude(latitude) => {
                 self.surface_view_state.surface_latitude = latitude;
             }
+            GuiMessage::UpdateViewportOpeningAngle(angle) => {
+                if angle.as_degrees() < 10. {
+                    self.surface_view_state.viewport_horizontal_opening_angle =
+                        Angle::from_degrees(10.);
+                } else if angle.as_degrees() > 170. {
+                    self.surface_view_state.viewport_horizontal_opening_angle =
+                        Angle::from_degrees(170.);
+                } else {
+                    self.surface_view_state.viewport_horizontal_opening_angle = angle;
+                }
+            }
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
             }
@@ -206,6 +217,7 @@ pub(super) enum GuiMessage {
     UpdateTimeStep(Time),
     UpdateSurfaceLongitude(Angle),
     UpdateSurfaceLatitude(Angle),
+    UpdateViewportOpeningAngle(Angle),
     UpdateLengthScale(Float),
     UpdateViewLongitude(Angle),
     UpdateViewLatitude(Angle),

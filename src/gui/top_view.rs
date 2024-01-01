@@ -4,9 +4,7 @@ use super::{Gui, GuiMessage};
 use crate::model::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::{
-        direction::{Direction, Z},
-        ecliptic::{EclipticCoordinates, Z_DIRECTION},
-        rotations::get_rotation_parameters,
+        direction::Direction, ecliptic::EclipticCoordinates, rotations::get_rotation_parameters,
     },
     units::{angle::Angle, length::Length},
     Float,
@@ -17,7 +15,7 @@ use iced::{
         canvas::{self, Cache, Path, Style},
         Column,
     },
-    Alignment, Color,
+    Alignment, Color, Point,
 };
 
 pub(super) struct TopViewState {
@@ -36,7 +34,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             meter_per_pixel: 0.01 * m_per_au,
-            view_ecliptic: Z_DIRECTION,
+            view_ecliptic: EclipticCoordinates::Z_DIRECTION,
         }
     }
 }
@@ -114,12 +112,13 @@ impl Gui {
             self.topview_state
                 .background_cache
                 .draw(renderer, bounds.size(), |frame| {
-                    let background = Path::rectangle(bounds.position(), bounds.size());
+                    let background = Path::rectangle(Point::ORIGIN, bounds.size());
                     frame.fill(&background, Color::BLACK);
                 });
         let view_direction =
             Direction::from_spherical(&self.topview_state.view_ecliptic.get_spherical());
-        let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
+        let (view_angle, view_rotation_axis) =
+            get_rotation_parameters(&Direction::Z, &view_direction);
         let bodies = self
             .topview_state
             .bodies_cache
@@ -150,7 +149,8 @@ impl Gui {
             .scale_cache
             .draw(renderer, bounds.size(), |frame| {
                 const LENGTH: f32 = 200.0;
-                let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
+                let start_pos =
+                    Point::ORIGIN + iced::Vector::new(50. as f32, bounds.height - 50. as f32);
                 let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
                 let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
                 let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
