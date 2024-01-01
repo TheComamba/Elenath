@@ -13,6 +13,7 @@ fn mercury() -> PlanetData {
         ),
         MERCURY_RADIUS,
         MERCURY_BOND_ALBEDO,
+        MERCURY_COLOR,
         MERCURY_SIDERIAL_ROTATION_PERIOD,
         MERCURY_NORTH.to_direction(),
     )
@@ -29,6 +30,7 @@ fn venus() -> PlanetData {
         ),
         VENUS_RADIUS,
         VENUS_BOND_ALBEDO,
+        VENUS_COLOR,
         VENUS_SIDERIAL_ROTATION_PERIOD,
         VENUS_NORTH.to_direction(),
     )
@@ -45,6 +47,7 @@ fn earth() -> PlanetData {
         ),
         EARTH_RADIUS,
         EARTH_BOND_ALBEDO,
+        EARTH_COLOR,
         EARTH_SIDERIAL_ROTATION_PERIOD,
         EARTH_NORTH.to_direction(),
     )
@@ -61,6 +64,7 @@ fn mars() -> PlanetData {
         ),
         MARS_RADIUS,
         MARS_BOND_ALBEDO,
+        MARS_COLOR,
         MARS_SIDERIAL_ROTATION_PERIOD,
         MARS_NORTH.to_direction(),
     )
@@ -77,6 +81,7 @@ fn ceres() -> PlanetData {
         ),
         CERES_RADIUS,
         CERES_BOND_ALBEDO,
+        CERES_COLOR,
         CERES_SIDERIAL_ROTATION_PERIOD,
         CERES_NORTH.to_direction(),
     )
@@ -93,6 +98,7 @@ fn jupiter() -> PlanetData {
         ),
         JUPITER_RADIUS,
         JUPITER_BOND_ALBEDO,
+        JUPITER_COLOR,
         JUPITER_SIDERIAL_ROTATION_PERIOD,
         JUPITER_NORTH.to_direction(),
     )
@@ -109,6 +115,7 @@ fn saturn() -> PlanetData {
         ),
         SATURN_RADIUS,
         SATURN_BOND_ALBEDO,
+        SATURN_COLOR,
         SATURN_SIDERIAL_ROTATION_PERIOD,
         SATURN_NORTH.to_direction(),
     )
@@ -125,6 +132,7 @@ fn uranus() -> PlanetData {
         ),
         URANUS_RADIUS,
         URANUS_BOND_ALBEDO,
+        URANUS_COLOR,
         URANUS_SIDERIAL_ROTATION_PERIOD,
         URANUS_NORTH.to_direction(),
     )
@@ -141,6 +149,7 @@ fn neptune() -> PlanetData {
         ),
         NEPTUNE_RADIUS,
         NEPTUNE_BOND_ALBEDO,
+        NEPTUNE_COLOR,
         NEPTUNE_SIDERIAL_ROTATION_PERIOD,
         NEPTUNE_NORTH.to_direction(),
     )
@@ -157,6 +166,7 @@ fn pluto() -> PlanetData {
         ),
         PLUTO_RADIUS,
         PLUTO_BOND_ALBEDO,
+        PLUTO_COLOR,
         PLUTO_SIDERIAL_ROTATION_PERIOD,
         PLUTO_NORTH.to_direction(),
     )
@@ -173,6 +183,7 @@ fn _moon() -> PlanetData {
         ),
         MOON_RADIUS,
         MOON_BOND_ALBEDO,
+        MOON_COLOR,
         MOON_SIDERIAL_ROTATION_PERIOD,
         MOON_NORTH.to_direction(),
     )
