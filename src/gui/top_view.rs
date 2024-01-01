@@ -149,7 +149,8 @@ impl Gui {
             .scale_cache
             .draw(renderer, bounds.size(), |frame| {
                 const LENGTH: f32 = 200.0;
-                let start_pos = bounds.position() + iced::Vector::new(50. as f32, 50. as f32);
+                let start_pos =
+                    Point::ORIGIN + iced::Vector::new(50. as f32, bounds.height - 50. as f32);
                 let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
                 let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
                 let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
