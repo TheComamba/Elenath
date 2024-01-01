@@ -25,7 +25,7 @@ pub(crate) struct Gui {
     time_step: Time,
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
-    selected_body: Option<CelestialBody>,
+    focused_body: Option<CelestialBody>,
 }
 
 impl Gui {
@@ -33,8 +33,8 @@ impl Gui {
         self.celestial_bodies = self
             .celestial_system
             .get_current_data(self.time_since_epoch);
-        if let Some(focus) = &self.selected_body {
-            self.selected_body = self
+        if let Some(focus) = &self.focused_body {
+            self.focused_body = self
                 .celestial_bodies
                 .iter()
                 .find(|body| body.get_name() == focus.get_name())

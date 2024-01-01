@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use super::celestial_body::CelestialBody;
+use super::distant_star::DistantStar;
 use super::planet_data::PlanetData;
 use astro_utils::{stellar_properties::StellarProperties, units::time::Time};
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub(crate) struct CelestialSystem {
     central_body: StellarProperties,
     planets: Vec<PlanetData>,
+    distant_stars: Vec<DistantStar>,
 }
 
 impl CelestialSystem {
@@ -16,6 +18,7 @@ impl CelestialSystem {
         CelestialSystem {
             central_body,
             planets: vec![],
+            distant_stars: vec![],
         }
     }
 
@@ -50,6 +53,10 @@ impl CelestialSystem {
 
     pub(crate) fn add_planet(&mut self, planet: PlanetData) {
         self.planets.push(planet);
+    }
+
+    pub(crate) fn add_distant_star(&mut self, star: DistantStar) {
+        self.distant_stars.push(star);
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
