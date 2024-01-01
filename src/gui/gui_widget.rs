@@ -1,19 +1,39 @@
+use super::{
+    surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
+    top_view_widget::{TopViewMessage, TopViewState},
+    Gui,
+};
 use crate::{
     file_dialog,
     model::{
         celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
     },
 };
-use astro_utils::{
-    units::{angle::Angle, time::Time},
-    Float,
-};
+use astro_utils::units::time::Time;
 use iced::{
     widget::{canvas, Column},
     Sandbox,
 };
 
-use super::{surface_view::SurfaceViewState, top_view::TopViewState, Gui};
+#[derive(Debug, Clone)]
+pub(crate) enum GuiMessage {
+    UpdateSurfaceView(SurfaceViewMessage),
+    UpdateTopView(TopViewMessage),
+    SaveToFile,
+    SaveToNewFile,
+    OpenFile,
+    ModeSelected(GuiMode),
+    UpdateTime(Time),
+    UpdateTimeStep(Time),
+    FocusedBodySelected(CelestialBody),
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum GuiMode {
+    SurfaceView,
+    TopView,
+    TableView,
+}
 
 impl Sandbox for Gui {
     type Message = GuiMessage;
@@ -48,6 +68,12 @@ impl Sandbox for Gui {
 
     fn update(&mut self, message: Self::Message) {
         match message {
+            GuiMessage::UpdateSurfaceView(message) => {
+                self.surface_view_state.update(message);
+            }
+            GuiMessage::UpdateTopView(message) => {
+                self.topview_state.update(message);
+            }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
                     self.opened_file = file_dialog::new();
@@ -83,34 +109,6 @@ impl Sandbox for Gui {
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
-            }
-            GuiMessage::UpdateSurfaceLongitude(longitude) => {
-                self.surface_view_state.surface_longitude = longitude;
-            }
-            GuiMessage::UpdateSurfaceLatitude(latitude) => {
-                self.surface_view_state.surface_latitude = latitude;
-            }
-            GuiMessage::UpdateViewportOpeningAngle(angle) => {
-                if angle.as_degrees() < 10. {
-                    self.surface_view_state.viewport_horizontal_opening_angle =
-                        Angle::from_degrees(10.);
-                } else if angle.as_degrees() > 170. {
-                    self.surface_view_state.viewport_horizontal_opening_angle =
-                        Angle::from_degrees(170.);
-                } else {
-                    self.surface_view_state.viewport_horizontal_opening_angle = angle;
-                }
-            }
-            GuiMessage::UpdateLengthScale(m_per_px) => {
-                self.topview_state.set_meter_per_pixel(m_per_px);
-            }
-            GuiMessage::UpdateViewLongitude(longitude) => {
-                self.topview_state.view_ecliptic.set_longitude(longitude);
-                self.topview_state.view_ecliptic.normalize();
-            }
-            GuiMessage::UpdateViewLatitude(latitude) => {
-                self.topview_state.view_ecliptic.set_latitude(latitude);
-                self.topview_state.view_ecliptic.normalize();
             }
             GuiMessage::FocusedBodySelected(body) => {
                 self.selected_body = Some(body);
@@ -173,28 +171,4 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             }
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum GuiMessage {
-    SaveToFile,
-    SaveToNewFile,
-    OpenFile,
-    ModeSelected(GuiMode),
-    UpdateTime(Time),
-    UpdateTimeStep(Time),
-    UpdateSurfaceLongitude(Angle),
-    UpdateSurfaceLatitude(Angle),
-    UpdateViewportOpeningAngle(Angle),
-    UpdateLengthScale(Float),
-    UpdateViewLongitude(Angle),
-    UpdateViewLatitude(Angle),
-    FocusedBodySelected(CelestialBody),
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum GuiMode {
-    SurfaceView,
-    TopView,
-    TableView,
 }

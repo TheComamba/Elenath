@@ -19,6 +19,19 @@ pub(super) struct SurfaceViewState {
     pub(super) viewport_horizontal_opening_angle: Angle,
 }
 
+#[derive(Debug, Clone)]
+pub(crate) enum SurfaceViewMessage {
+    UpdateSurfaceLongitude(Angle),
+    UpdateSurfaceLatitude(Angle),
+    UpdateViewportOpeningAngle(Angle),
+}
+
+impl Into<GuiMessage> for SurfaceViewMessage {
+    fn into(self) -> GuiMessage {
+        GuiMessage::UpdateSurfaceView(self)
+    }
+}
+
 impl SurfaceViewState {
     pub(super) fn new() -> Self {
         SurfaceViewState {
@@ -27,6 +40,27 @@ impl SurfaceViewState {
             surface_longitude: Angle::from_degrees(0.0),
             surface_latitude: Angle::from_degrees(0.0),
             viewport_horizontal_opening_angle: HUMAN_EYE_OPENING_ANGLE,
+        }
+    }
+
+    pub(super) fn update(&mut self, message: SurfaceViewMessage) {
+        match message {
+            SurfaceViewMessage::UpdateSurfaceLongitude(mut longitude) => {
+                longitude.normalize();
+                self.surface_longitude = longitude;
+            }
+            SurfaceViewMessage::UpdateSurfaceLatitude(mut latitude) => {
+                latitude.normalize();
+                self.surface_latitude = latitude;
+            }
+            SurfaceViewMessage::UpdateViewportOpeningAngle(mut angle) => {
+                if angle.as_degrees() < 10. {
+                    angle = Angle::from_degrees(10.);
+                } else if angle.as_degrees() > 170. {
+                    angle = Angle::from_degrees(170.);
+                }
+                self.viewport_horizontal_opening_angle = angle;
+            }
         }
     }
 
@@ -43,22 +77,22 @@ impl Gui {
         let surface_longitude_control_field = self.control_field(
             "Surface Longitude:",
             format!("{}", longitude),
-            GuiMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
-            GuiMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
         );
         let latitude = self.surface_view_state.surface_latitude;
         let surface_latitude_control_field = self.control_field(
             "Surface Latitude:",
             format!("{}", latitude),
-            GuiMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
-            GuiMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
         );
         let viewport_angle = self.surface_view_state.viewport_horizontal_opening_angle;
         let viewport_angle_control_field = self.control_field(
             "Horizontal Viewport Opening Angle:",
             format!("{}", viewport_angle),
-            GuiMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
-            GuiMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
+            SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
+            SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
         );
         let planet_picker = self.planet_picker();
         Column::new()

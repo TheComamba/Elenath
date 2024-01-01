@@ -35,25 +35,30 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn control_field<'a>(
+    pub(super) fn control_field<'a, M>(
         &self,
         label: &'a str,
         value: String,
-        decrease: GuiMessage,
-        increase: GuiMessage,
-    ) -> Row<'a, GuiMessage> {
+        decrease: M,
+        increase: M,
+    ) -> Row<'a, GuiMessage>
+    where
+        M: Into<GuiMessage>,
+    {
         let label = Container::new(Text::new(label))
             .align_x(Horizontal::Center)
             .width(iced::Length::Fixed(150.));
-        let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(50.));
+        let decrease_button =
+            Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
+                .align_x(Horizontal::Center)
+                .width(iced::Length::Fixed(50.));
         let value = Container::new(Text::new(value))
             .width(iced::Length::Fixed(100.))
             .align_x(Horizontal::Center);
-        let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(50.));
+        let increase_button =
+            Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
+                .align_x(Horizontal::Center)
+                .width(iced::Length::Fixed(50.));
         Row::new()
             .push(label)
             .push(decrease_button)
