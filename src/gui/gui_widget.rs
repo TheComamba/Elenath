@@ -161,7 +161,13 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         match self.mode {
-            GuiMode::SurfaceView => self.surface_view_canvas(renderer, bounds),
+            GuiMode::SurfaceView => self.surface_view_state.canvas(
+                renderer,
+                bounds,
+                &self.selected_body,
+                self.time_since_epoch,
+                &self.celestial_bodies,
+            ),
             GuiMode::TopView => self.topview_canvas(renderer, bounds),
             _ => {
                 println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
