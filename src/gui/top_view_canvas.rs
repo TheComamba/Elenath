@@ -70,7 +70,7 @@ impl TopViewState {
                     frame,
                     body,
                     view_angle,
-                    view_rotation_axis,
+                    &view_rotation_axis,
                     offset,
                     path_builder,
                 );
@@ -84,7 +84,7 @@ impl TopViewState {
         frame: &mut canvas::Frame,
         body: &CelestialBody,
         view_angle: Angle,
-        view_rotation_axis: Direction,
+        view_rotation_axis: &Direction,
         offset: iced::Vector,
         path_builder: &mut canvas::path::Builder,
     ) {

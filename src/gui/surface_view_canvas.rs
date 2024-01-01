@@ -115,8 +115,8 @@ impl SurfaceViewState {
             for body in celestial_bodies.iter() {
                 self.draw_body(
                     body,
-                    observer_position,
-                    observer_normal,
+                    &observer_position,
+                    &observer_normal,
                     pixel_per_viewport_width,
                     frame,
                     path_builder,
@@ -130,16 +130,16 @@ impl SurfaceViewState {
     fn draw_body(
         &self,
         body: &CelestialBody,
-        observer_position: CartesianCoordinates,
-        observer_normal: Direction,
+        observer_position: &CartesianCoordinates,
+        observer_normal: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
         path_builder: &mut canvas::path::Builder,
     ) {
         let pos = self.canvas_position(
             body,
-            &observer_position,
-            &observer_normal,
+            observer_position,
+            observer_normal,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {

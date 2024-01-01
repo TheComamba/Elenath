@@ -123,8 +123,9 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#42303683f64e1541192ad259d0f49df0f31bc7e5"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#997c383b75f449e5a678865d9e65497a87753a37"
 dependencies = [
+ "forward_ref_generic",
  "serde",
 ]
 
@@ -602,6 +603,12 @@ name = "foreign-types-shared"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
+
+[[package]]
+name = "forward_ref_generic"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d39b515240e7f7e94b1c3471425f0778762d2f98de03e846bd4221c856752209"
 
 [[package]]
 name = "futures"
