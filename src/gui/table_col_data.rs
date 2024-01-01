@@ -6,60 +6,69 @@ pub(super) struct TableColData {
 }
 
 impl TableColData {
-    const fn new(
-        header: &'static str,
-        content_closure: Box<dyn Fn(&CelestialBodyData) -> String>,
-    ) -> TableColData {
-        TableColData {
-            header,
-            content_closure,
-        }
-    }
     pub(super) fn default_table_col_data() -> Vec<TableColData> {
         vec![
-            TableColData::new("Name", Box::new(|body| body.get_name().to_string())),
-            TableColData::new("Mass", Box::new(|body| format!("{}", body.get_mass()))),
-            TableColData::new("Radius", Box::new(|body| format!("{}", body.get_radius()))),
-            TableColData::new("Albedo", Box::new(|body| format!("{}", body.get_albedo()))),
-            TableColData::new(
-                "Semi-major axis",
-                Box::new(|body| format!("{}", body.get_orbital_parameters().get_semi_major_axis())),
-            ),
-            TableColData::new(
-                "Eccentricity",
-                Box::new(|body| format!("{}", body.get_orbital_parameters().get_eccentricity())),
-            ),
-            TableColData::new(
-                "Inclination",
-                Box::new(|body| format!("{}", body.get_orbital_parameters().get_inclination())),
-            ),
-            TableColData::new(
-                "Longitude of ascending node",
-                Box::new(|body| {
+            TableColData {
+                header: "Name",
+                content_closure: Box::new(|body| body.get_name().to_string()),
+            },
+            TableColData {
+                header: "Mass",
+                content_closure: Box::new(|body| format!("{}", body.get_mass())),
+            },
+            TableColData {
+                header: "Radius",
+                content_closure: Box::new(|body| format!("{}", body.get_radius())),
+            },
+            TableColData {
+                header: "Albedo",
+                content_closure: Box::new(|body| format!("{}", body.get_albedo())),
+            },
+            TableColData {
+                header: "Semi-major axis",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_orbital_parameters().get_semi_major_axis())
+                }),
+            },
+            TableColData {
+                header: "Eccentricity",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_orbital_parameters().get_eccentricity())
+                }),
+            },
+            TableColData {
+                header: "Inclination",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_orbital_parameters().get_inclination())
+                }),
+            },
+            TableColData {
+                header: "Longitude of ascending node",
+                content_closure: Box::new(|body| {
                     format!(
                         "{}",
                         body.get_orbital_parameters()
                             .get_longitude_of_ascending_node()
                     )
                 }),
-            ),
-            TableColData::new(
-                "Argument of periapsis",
-                Box::new(|body| {
+            },
+            TableColData {
+                header: "Argument of periapsis",
+                content_closure: Box::new(|body| {
                     format!(
                         "{}",
                         body.get_orbital_parameters().get_argument_of_periapsis()
                     )
                 }),
-            ),
-            TableColData::new(
-                "Sideral rotation period",
-                Box::new(|body| format!("{}", body.get_sideral_rotation_period())),
-            ),
-            TableColData::new(
-                "Rotation axis",
-                Box::new(|body| format!("{}", body.get_rotation_axis())),
-            ),
+            },
+            TableColData {
+                header: "Sideral rotation period",
+                content_closure: Box::new(|body| format!("{}", body.get_sideral_rotation_period())),
+            },
+            TableColData {
+                header: "Rotation axis",
+                content_closure: Box::new(|body| format!("{}", body.get_rotation_axis())),
+            },
         ]
     }
 }
