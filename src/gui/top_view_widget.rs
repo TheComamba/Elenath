@@ -70,7 +70,7 @@ impl TopViewState {
 impl Gui {
     pub(super) fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
         let m_per_px = self.topview_state.meter_per_pixel;
-        let length_scale_control_field = self.control_field(
+        let length_scale_control_field = Gui::control_field(
             "Length per 100px:",
             format!("{}", Length::from_meters(100. * m_per_px)),
             TopViewMessage::UpdateLengthScale(m_per_px / 2.),
@@ -78,14 +78,14 @@ impl Gui {
         );
         const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
         let view_longitude = self.topview_state.view_ecliptic.get_longitude();
-        let view_longitude_control_field = self.control_field(
+        let view_longitude_control_field = Gui::control_field(
             "View longitude:",
             format!("{}", view_longitude),
             TopViewMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
         );
         let view_latitude = self.topview_state.view_ecliptic.get_latitude();
-        let view_latitude_control_field = self.control_field(
+        let view_latitude_control_field = Gui::control_field(
             "View latitude:",
             format!("{}", view_latitude),
             TopViewMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),

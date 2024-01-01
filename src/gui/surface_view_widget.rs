@@ -74,21 +74,21 @@ impl Gui {
     pub(super) fn surface_view_control_field(&self) -> iced::Element<'_, GuiMessage> {
         const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
         let longitude = self.surface_view_state.surface_longitude;
-        let surface_longitude_control_field = self.control_field(
+        let surface_longitude_control_field = Gui::control_field(
             "Surface Longitude:",
             format!("{}", longitude),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
         );
         let latitude = self.surface_view_state.surface_latitude;
-        let surface_latitude_control_field = self.control_field(
+        let surface_latitude_control_field = Gui::control_field(
             "Surface Latitude:",
             format!("{}", latitude),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
         );
         let viewport_angle = self.surface_view_state.viewport_horizontal_opening_angle;
-        let viewport_angle_control_field = self.control_field(
+        let viewport_angle_control_field = Gui::control_field(
             "Horizontal Viewport Opening Angle:",
             format!("{}", viewport_angle),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),

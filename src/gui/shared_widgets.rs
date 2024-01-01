@@ -6,7 +6,7 @@ use iced::{
 };
 
 impl Gui {
-    pub(super) fn gui_mode_tabs(&self) -> iced::Element<'_, GuiMessage> {
+    pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
         let local_view_button = Button::new(Text::new("Local View"))
             .on_press(GuiMessage::ModeSelected(GuiMode::SurfaceView));
         let top_view_button =
@@ -21,7 +21,7 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn file_buttons(&self) -> iced::Element<'_, GuiMessage> {
+    pub(super) fn file_buttons() -> iced::Element<'static, GuiMessage> {
         let save_to_file_button =
             Button::new(Text::new("Save to file")).on_press(GuiMessage::SaveToFile);
         let save_to_new_file_button =
@@ -36,7 +36,6 @@ impl Gui {
     }
 
     pub(super) fn control_field<'a, M>(
-        &self,
         label: &'a str,
         value: String,
         decrease: M,
@@ -68,13 +67,13 @@ impl Gui {
     }
 
     pub(super) fn time_control_fields(&self) -> iced::Element<'_, GuiMessage> {
-        let time_control_field = self.control_field(
+        let time_control_field = Gui::control_field(
             "Time since Epoch:",
             format!("{}", self.time_since_epoch),
             GuiMessage::UpdateTime(self.time_since_epoch - self.time_step),
             GuiMessage::UpdateTime(self.time_since_epoch + self.time_step),
         );
-        let time_step_control_field = self.control_field(
+        let time_step_control_field = Gui::control_field(
             "Time step:",
             format!("{}", self.time_step),
             GuiMessage::UpdateTimeStep(self.time_step / 2.),

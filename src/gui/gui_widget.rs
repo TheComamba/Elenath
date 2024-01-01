@@ -118,8 +118,8 @@ impl Sandbox for Gui {
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
         let mut col = Column::new()
-            .push(self.gui_mode_tabs())
-            .push(self.file_buttons());
+            .push(Gui::gui_mode_tabs())
+            .push(Gui::file_buttons());
 
         match self.mode {
             GuiMode::SurfaceView => {
