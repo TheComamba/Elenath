@@ -1,24 +1,13 @@
-use std::f32::consts::PI;
-
-use crate::model::celestial_body::CelestialBody;
-
 use super::{gui_widget::GuiMessage, Gui};
-use astro_utils::{
-    coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
-        spherical::SphericalCoordinates,
-    },
-    surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
-    units::angle::Angle,
-    Float,
-};
+use astro_utils::units::angle::Angle;
 use iced::{
     widget::{
-        canvas::{self, Path},
+        canvas::{self},
         Column,
     },
-    Alignment, Color, Point,
+    Alignment,
 };
+use std::f32::consts::PI;
 
 const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
 

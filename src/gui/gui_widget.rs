@@ -1,3 +1,9 @@
+use crate::{
+    file_dialog,
+    model::{
+        celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
+    },
+};
 use astro_utils::{
     units::{angle::Angle, time::Time},
     Float,
@@ -5,13 +11,6 @@ use astro_utils::{
 use iced::{
     widget::{canvas, Column},
     Sandbox,
-};
-
-use crate::{
-    file_dialog,
-    model::{
-        celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
-    },
 };
 
 use super::{surface_view::SurfaceViewState, top_view::TopViewState, Gui};
@@ -194,7 +193,7 @@ pub(crate) enum GuiMessage {
 }
 
 #[derive(Debug, Clone)]
-pub(super) enum GuiMode {
+pub(crate) enum GuiMode {
     SurfaceView,
     TopView,
     TableView,

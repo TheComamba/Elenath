@@ -1,3 +1,5 @@
+use super::Gui;
+use crate::model::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
@@ -11,10 +13,6 @@ use iced::{
     widget::canvas::{self, Path},
     Color, Point,
 };
-
-use crate::model::celestial_body::CelestialBody;
-
-use super::Gui;
 
 impl Gui {
     fn observer_data(&self) -> (CartesianCoordinates, Direction) {

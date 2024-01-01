@@ -1,22 +1,15 @@
-use std::f32::consts::PI;
-
 use super::Gui;
-use crate::{gui::gui_widget::GuiMessage, model::celestial_body::CelestialBody};
+use crate::gui::gui_widget::GuiMessage;
 use astro_utils::{
-    coordinates::{
-        direction::Direction, ecliptic::EclipticCoordinates, rotations::get_rotation_parameters,
-    },
+    coordinates::ecliptic::EclipticCoordinates,
     units::{angle::Angle, length::Length},
     Float,
 };
 use iced::{
-    alignment::Horizontal,
-    widget::{
-        canvas::{self, Cache, Path, Style},
-        Column,
-    },
-    Alignment, Color, Point,
+    widget::{canvas::Cache, Column},
+    Alignment,
 };
+use std::f32::consts::PI;
 
 pub(super) struct TopViewState {
     pub(super) background_cache: Cache,

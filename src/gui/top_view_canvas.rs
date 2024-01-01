@@ -1,3 +1,5 @@
+use super::Gui;
+use crate::model::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
     units::{angle::Angle, length::Length},
@@ -7,10 +9,6 @@ use iced::{
     widget::canvas::{self, Path, Style},
     Color, Point,
 };
-
-use crate::model::celestial_body::CelestialBody;
-
-use super::Gui;
 
 impl Gui {
     fn canvas_position(

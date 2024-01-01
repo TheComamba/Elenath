@@ -1,18 +1,10 @@
 use self::gui_widget::GuiMode;
 use self::surface_view::SurfaceViewState;
 use self::top_view::TopViewState;
-use crate::file_dialog;
 use crate::gui::table_col_data::TableColData;
-use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
-use astro_utils::units::angle::Angle;
-use astro_utils::{units::time::Time, Float};
-use iced::{
-    widget::{canvas, Column},
-    Sandbox,
-};
+use astro_utils::units::time::Time;
 use std::path::PathBuf;
-use std::vec;
 
 mod gui_widget;
 mod shared_widgets;
