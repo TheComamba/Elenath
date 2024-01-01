@@ -123,18 +123,32 @@ impl Sandbox for Gui {
 
         match self.mode {
             GuiMode::SurfaceView => {
-                col = col.push(self.surface_view_control_field()).push(
-                    canvas(self)
-                        .width(iced::Length::Fill)
-                        .height(iced::Length::Fill),
-                )
+                col = col
+                    .push(self.surface_view_state.control_field(
+                        &self.time_since_epoch,
+                        &self.time_step,
+                        &self.celestial_bodies,
+                        &self.selected_body,
+                    ))
+                    .push(
+                        canvas(self)
+                            .width(iced::Length::Fill)
+                            .height(iced::Length::Fill),
+                    )
             }
             GuiMode::TopView => {
-                col = col.push(self.topview_control_field()).push(
-                    canvas(self)
-                        .width(iced::Length::Fill)
-                        .height(iced::Length::Fill),
-                )
+                col = col
+                    .push(self.topview_state.control_field(
+                        &self.time_since_epoch,
+                        &self.time_step,
+                        &self.celestial_bodies,
+                        &self.selected_body,
+                    ))
+                    .push(
+                        canvas(self)
+                            .width(iced::Length::Fill)
+                            .height(iced::Length::Fill),
+                    )
             }
             GuiMode::TableView => col = col.push(self.table_view()),
         }

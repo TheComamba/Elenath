@@ -1,7 +1,10 @@
-use crate::gui::shared_widgets::{control_field, planet_picker, time_control_fields};
+use crate::{
+    gui::shared_widgets::{control_field, planet_picker, time_control_fields},
+    model::celestial_body::CelestialBody,
+};
 
-use super::{gui_widget::GuiMessage, Gui};
-use astro_utils::units::angle::Angle;
+use super::gui_widget::GuiMessage;
+use astro_utils::units::{angle::Angle, time::Time};
 use iced::{
     widget::{
         canvas::{self},
@@ -70,34 +73,38 @@ impl SurfaceViewState {
     fn redraw(&mut self) {
         self.bodies_cache.clear();
     }
-}
 
-impl Gui {
-    pub(super) fn surface_view_control_field(&self) -> iced::Element<'_, GuiMessage> {
+    pub(super) fn control_field<'a>(
+        &'a self,
+        time_since_epoch: &'a Time,
+        time_step: &'a Time,
+        celestial_bodies: &'a Vec<CelestialBody>,
+        selected_body: &'a Option<CelestialBody>,
+    ) -> iced::Element<'a, GuiMessage> {
         const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
-        let time_control_fields = time_control_fields(&self.time_since_epoch, &self.time_step);
-        let longitude = self.surface_view_state.surface_longitude;
+        let time_control_fields = time_control_fields(time_since_epoch, time_step);
+        let longitude = self.surface_longitude;
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",
             format!("{}", longitude),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
         );
-        let latitude = self.surface_view_state.surface_latitude;
+        let latitude = self.surface_latitude;
         let surface_latitude_control_field = control_field(
             "Surface Latitude:",
             format!("{}", latitude),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
         );
-        let viewport_angle = self.surface_view_state.viewport_horizontal_opening_angle;
+        let viewport_angle = self.viewport_horizontal_opening_angle;
         let viewport_angle_control_field = control_field(
             "Horizontal Viewport Opening Angle:",
             format!("{}", viewport_angle),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
         );
-        let planet_picker = planet_picker(&self.celestial_bodies, &self.selected_body);
+        let planet_picker = planet_picker(celestial_bodies, selected_body);
         Column::new()
             .push(time_control_fields)
             .push(surface_longitude_control_field)
