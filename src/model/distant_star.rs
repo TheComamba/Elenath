@@ -29,14 +29,6 @@ impl DistantStar {
         &self.stellar_properties
     }
 
-    pub(crate) fn get_direction(&self) -> &Direction {
-        &self.direction
-    }
-
-    pub(crate) fn get_distance(&self) -> Length {
-        self.distance
-    }
-
     pub(crate) fn calculate_position(&self) -> CartesianCoordinates {
         self.direction.to_cartesian(self.distance)
     }
