@@ -117,16 +117,21 @@ impl Gui {
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
         canvas_size: &Size,
-    ) -> iced::Vector {
+    ) -> Option<iced::Vector> {
         const VIEWPORT_LENGTH_SCALE: Length = Length::from_meters(100_000_000_000_000.);
         let relative_position = body.get_position() - observer_position;
         let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
         let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
         let position_at_viewport = Direction::from_spherical(&surface_position)
             .to_cartesian(self.surface_view_state.viewport_distance);
-        let x = position_at_viewport.x() / VIEWPORT_LENGTH_SCALE * canvas_size.width;
-        let y = -position_at_viewport.y() / VIEWPORT_LENGTH_SCALE * canvas_size.height; // y axis is inverted
-        iced::Vector::new(x as f32, y as f32)
+        if position_at_viewport.z().as_meters() > 0.0 {
+            let x = position_at_viewport.x() / VIEWPORT_LENGTH_SCALE * canvas_size.width;
+            let y = -position_at_viewport.y() / VIEWPORT_LENGTH_SCALE * canvas_size.height; // y axis is inverted
+            println!("x: {} y: {}", x, y);
+            Some(iced::Vector::new(x as f32, y as f32))
+        } else {
+            None
+        }
     }
 
     pub(super) fn surface_view_canvas(
@@ -144,20 +149,22 @@ impl Gui {
             .draw(renderer, bounds.size(), |frame| {
                 let bodies_path = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
-                        let pos = frame.center()
-                            + self.surface_view_canvas_position(
-                                body,
-                                &observer_position,
-                                &observer_normal,
-                                &bounds.size(),
-                            );
-                        path_builder.circle(pos, 3.0);
+                        let pos = self.surface_view_canvas_position(
+                            body,
+                            &observer_position,
+                            &observer_normal,
+                            &bounds.size(),
+                        );
+                        if let Some(pos) = pos {
+                            let pos = frame.center() + pos;
+                            path_builder.circle(pos, 3.0);
 
-                        let mut name_widget = canvas::Text::default();
-                        name_widget.color = Color::WHITE;
-                        name_widget.content = body.get_name().to_string();
-                        name_widget.position = pos;
-                        frame.fill_text(name_widget);
+                            let mut name_widget = canvas::Text::default();
+                            name_widget.color = Color::WHITE;
+                            name_widget.content = body.get_name().to_string();
+                            name_widget.position = pos;
+                            frame.fill_text(name_widget);
+                        }
                     }
                 });
                 frame.fill(&bodies_path, Color::WHITE);
