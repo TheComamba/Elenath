@@ -114,8 +114,6 @@ impl Sandbox for Gui {
                 self.selected_body = Some(body);
             }
         }
-        self.surface_view_state.redraw(); //If performance is an issue, only redraw when needed
-        self.topview_state.redraw(); //If performance is an issue, only redraw when needed
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {

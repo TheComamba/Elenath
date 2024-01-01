@@ -62,10 +62,10 @@ impl SurfaceViewState {
                 self.viewport_horizontal_opening_angle = angle;
             }
         }
+        self.redraw();
     }
 
-    pub(super) fn redraw(&mut self) {
-        self.background_cache.clear();
+    fn redraw(&mut self) {
         self.bodies_cache.clear();
     }
 }
