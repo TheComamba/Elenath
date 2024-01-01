@@ -64,21 +64,11 @@ impl TopViewState {
             Some(focus) => self.canvas_position(focus, view_angle, &view_rotation_axis),
             None => iced::Vector::new(0.0 as f32, 0.0 as f32),
         };
-        let bodies = Path::new(|path_builder| {
-            for body in celestial_bodies.iter() {
-                if !body.is_distant_star() {
-                    self.draw_body(
-                        frame,
-                        body,
-                        view_angle,
-                        &view_rotation_axis,
-                        offset,
-                        path_builder,
-                    );
-                }
+        for body in celestial_bodies.iter() {
+            if !body.is_distant_star() {
+                self.draw_body(frame, body, view_angle, &view_rotation_axis, offset);
             }
-        });
-        frame.fill(&bodies, Color::WHITE);
+        }
     }
 
     fn draw_body(
@@ -88,14 +78,16 @@ impl TopViewState {
         view_angle: Angle,
         view_rotation_axis: &Direction,
         offset: iced::Vector,
-        path_builder: &mut canvas::path::Builder,
     ) {
         let radius = 3.0;
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
-        path_builder.circle(pos, radius);
+        let circle = Path::circle(pos, radius);
+        let (r, g, b) = body.get_color().normalized_rgb();
+        let color = Color::from_rgb(r, g, b);
+        frame.fill(&circle, color);
 
-        draw_body_name(body, pos, frame);
+        draw_body_name(body, color, pos, frame);
     }
 
     fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {

@@ -71,6 +71,10 @@ impl CelestialBody {
         }
     }
 
+    pub(crate) fn get_color(&self) -> &Color {
+        &self.color
+    }
+
     pub(crate) fn get_mass(&self) -> Mass {
         match &self.data {
             CelestialBodyData::CentralBody(data) => data.get_mass(),
