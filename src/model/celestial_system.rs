@@ -45,8 +45,10 @@ impl CelestialSystem {
         let central_body = CelestialBody::central_body(self.central_body.clone());
         bodies.push(central_body.clone());
         for planet in &self.planets {
-            let planet_body = CelestialBody::from_planet(planet.clone(), &central_body, time);
-            bodies.push(planet_body);
+            bodies.push(CelestialBody::from_planet(planet, &central_body, time));
+        }
+        for star in &self.distant_stars {
+            bodies.push(CelestialBody::from_distant_star(star));
         }
         bodies
     }

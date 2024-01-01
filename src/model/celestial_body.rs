@@ -1,4 +1,4 @@
-use super::planet_data::PlanetData;
+use super::{distant_star::DistantStar, planet_data::PlanetData};
 use astro_utils::{
     coordinates::{cartesian::CartesianCoordinates, direction::Direction},
     stellar_properties::StellarProperties,
@@ -40,13 +40,20 @@ impl CelestialBody {
         }
     }
 
-    pub(crate) fn from_planet(data: PlanetData, central_body: &Self, time: Time) -> Self {
+    pub(crate) fn from_planet(data: &PlanetData, central_body: &Self, time: Time) -> Self {
         let position =
             data.get_orbital_parameters()
                 .calculate_position(data.get_mass(), &central_body, time);
         CelestialBody {
-            data: CelestialBodyData::Planet(data),
+            data: CelestialBodyData::Planet(data.clone()),
             position,
+        }
+    }
+
+    pub(crate) fn from_distant_star(star: &DistantStar) -> Self {
+        CelestialBody {
+            data: CelestialBodyData::Star(star.get_stellar_properties().clone()),
+            position: star.calculate_position(),
         }
     }
 

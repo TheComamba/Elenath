@@ -1,5 +1,7 @@
 use astro_utils::{
-    coordinates::direction::Direction, stellar_properties::StellarProperties, units::length::Length,
+    coordinates::{cartesian::CartesianCoordinates, direction::Direction},
+    stellar_properties::StellarProperties,
+    units::length::Length,
 };
 use serde::{Deserialize, Serialize};
 
@@ -33,5 +35,9 @@ impl DistantStar {
 
     pub(crate) fn get_distance(&self) -> Length {
         self.distance
+    }
+
+    pub(crate) fn calculate_position(&self) -> CartesianCoordinates {
+        self.direction.to_cartesian(self.distance)
     }
 }

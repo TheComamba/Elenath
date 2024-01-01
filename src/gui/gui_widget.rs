@@ -49,7 +49,7 @@ impl Sandbox for Gui {
             .cloned();
         Gui {
             opened_file: None,
-            mode: GuiMode::TopView,
+            mode: GuiMode::SurfaceView,
             surface_view_state: SurfaceViewState::new(),
             top_view_state: TopViewState::new(),
             table_view_state: TableViewState::new(),
