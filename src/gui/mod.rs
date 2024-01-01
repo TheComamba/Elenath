@@ -5,12 +5,12 @@ use crate::gui::table_col_data::TableColData;
 use crate::model::example::solar_system;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
 use astro_utils::units::angle::Angle;
-use astro_utils::units::length::Length;
 use astro_utils::{units::time::Time, Float};
 use iced::{
     widget::{canvas, Column},
     Sandbox,
 };
+use std::f32::consts::PI;
 use std::path::PathBuf;
 use std::vec;
 
@@ -108,8 +108,16 @@ impl Sandbox for Gui {
             GuiMessage::UpdateSurfaceLatitude(latitude) => {
                 self.surface_view_state.surface_latitude = latitude;
             }
-            GuiMessage::UpdateViewportDistance(distance) => {
-                self.surface_view_state.viewport_distance = distance;
+            GuiMessage::UpdateViewportOpeningAngle(angle) => {
+                if angle.as_degrees() < 10. {
+                    self.surface_view_state.viewport_horizontal_opening_angle =
+                        Angle::from_degrees(10.);
+                } else if angle.as_degrees() > 170. {
+                    self.surface_view_state.viewport_horizontal_opening_angle =
+                        Angle::from_degrees(170.);
+                } else {
+                    self.surface_view_state.viewport_horizontal_opening_angle = angle;
+                }
             }
             GuiMessage::UpdateLengthScale(m_per_px) => {
                 self.topview_state.set_meter_per_pixel(m_per_px);
@@ -210,7 +218,7 @@ pub(super) enum GuiMessage {
     UpdateTimeStep(Time),
     UpdateSurfaceLongitude(Angle),
     UpdateSurfaceLatitude(Angle),
-    UpdateViewportDistance(Length),
+    UpdateViewportOpeningAngle(Angle),
     UpdateLengthScale(Float),
     UpdateViewLongitude(Angle),
     UpdateViewLatitude(Angle),
