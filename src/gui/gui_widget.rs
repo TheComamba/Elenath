@@ -168,7 +168,12 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 self.time_since_epoch,
                 &self.celestial_bodies,
             ),
-            GuiMode::TopView => self.topview_canvas(renderer, bounds),
+            GuiMode::TopView => self.topview_state.canvas(
+                renderer,
+                bounds,
+                &self.selected_body,
+                &self.celestial_bodies,
+            ),
             _ => {
                 println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
                 vec![]
