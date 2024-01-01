@@ -22,6 +22,8 @@ use iced::{
     Alignment, Color, Size,
 };
 
+const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
+
 pub(super) struct SurfaceViewState {
     pub(super) background_cache: canvas::Cache,
     pub(super) bodies_cache: canvas::Cache,
@@ -37,7 +39,7 @@ impl SurfaceViewState {
             bodies_cache: canvas::Cache::default(),
             surface_longitude: Angle::from_degrees(0.0),
             surface_latitude: Angle::from_degrees(0.0),
-            viewport_horizontal_opening_angle: Angle::from_radians(PI / 2.),
+            viewport_horizontal_opening_angle: HUMAN_EYE_OPENING_ANGLE,
         }
     }
 
@@ -66,7 +68,7 @@ impl Gui {
         );
         let viewport_angle = self.surface_view_state.viewport_horizontal_opening_angle;
         let viewport_angle_control_field = self.control_field(
-            "Viewport Opening Angle:",
+            "Horizontal Viewport Opening Angle:",
             format!("{}", viewport_angle),
             GuiMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
             GuiMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
@@ -119,20 +121,26 @@ impl Gui {
         canvas_size: &Size,
     ) -> Option<iced::Vector> {
         const VIEWPORT_DISTANCE: Length = Length::from_meters(1.0);
-        let viewport_width = VIEWPORT_DISTANCE
-            * self
-                .surface_view_state
-                .viewport_horizontal_opening_angle
-                .sin();
-        let pixel_per_length = viewport_width / canvas_size.width;
+        let opening_angle = self.surface_view_state.viewport_horizontal_opening_angle;
+        let viewport_width = VIEWPORT_DISTANCE * (opening_angle / 2.).sin() * 2.;
+        let length_per_pixel = viewport_width / canvas_size.width;
         let relative_position = body.get_position() - observer_position;
         let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
         let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
         let position_at_viewport =
             Direction::from_spherical(&surface_position).to_cartesian(VIEWPORT_DISTANCE);
         if position_at_viewport.z().as_meters() > 0.0 {
-            let x = position_at_viewport.x() / pixel_per_length;
-            let y = -position_at_viewport.y() / pixel_per_length; // y axis is inverted
+            let x = position_at_viewport.x() / length_per_pixel;
+            let y = -position_at_viewport.y() / length_per_pixel; // y axis is inverted
+            println!("\nbody: {}", body.get_name());
+            println!("opening_angle: {}", opening_angle);
+            println!("canvas_size.width: {}", canvas_size.width);
+            println!("viewport_width: {}", viewport_width);
+            println!("length_per_pixel: {:?}", length_per_pixel);
+            println!("relative_position: {}", relative_position);
+            println!("ecliptic_position: {}", ecliptic_position);
+            println!("surface_position: {}", surface_position);
+            println!("position_at_viewport: {}", position_at_viewport);
             println!("x: {} y: {}", x, y);
             Some(iced::Vector::new(x as f32, y as f32))
         } else {
