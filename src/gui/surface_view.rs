@@ -6,13 +6,13 @@ use super::{Gui, GuiMessage};
 use astro_utils::{
     coordinates::{
         cartesian::{CartesianCoordinates, ORIGIN},
-        direction::{Direction, X, Z},
+        direction::{Direction, Z},
         ecliptic::EclipticCoordinates,
         equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
     surface_normal::{apparent_celestial_position, surface_normal_at_time},
-    units::angle::Angle,
+    units::{angle::Angle, length::Length},
     Float,
 };
 use iced::{
@@ -28,6 +28,7 @@ pub(super) struct SurfaceViewState {
     pub(super) bodies_cache: canvas::Cache,
     pub(super) surface_longitude: Angle,
     pub(super) surface_latitude: Angle,
+    pub(super) viewport_distance: Length,
 }
 
 impl SurfaceViewState {
@@ -37,6 +38,7 @@ impl SurfaceViewState {
             bodies_cache: canvas::Cache::default(),
             surface_longitude: Angle::from_degrees(0.0),
             surface_latitude: Angle::from_degrees(0.0),
+            viewport_distance: Length::from_astronomical_units(1.0),
         }
     }
 
@@ -63,11 +65,19 @@ impl Gui {
             GuiMessage::UpdateSurfaceLatitude(latitude - SURFACE_ANGLE_STEP),
             GuiMessage::UpdateSurfaceLatitude(latitude + SURFACE_ANGLE_STEP),
         );
+        let viewport_distance = self.surface_view_state.viewport_distance;
+        let viewport_distance_control_field = self.control_field(
+            "Viewport Distance:",
+            format!("{}", viewport_distance),
+            GuiMessage::UpdateViewportDistance(viewport_distance / 2.),
+            GuiMessage::UpdateViewportDistance(viewport_distance * 2.),
+        );
         let planet_picker = self.planet_picker();
         Column::new()
             .push(self.time_control_fields())
             .push(surface_longitude_control_field)
             .push(surface_latitude_control_field)
+            .push(viewport_distance_control_field)
             .push(planet_picker)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
