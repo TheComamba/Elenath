@@ -1,8 +1,8 @@
-use crate::model::celestial_body_data::CelestialBodyData;
+use crate::model::planet_data::PlanetData;
 
 pub(super) struct TableColData {
     pub(super) header: &'static str,
-    pub(super) content_closure: Box<dyn Fn(&CelestialBodyData) -> String>,
+    pub(super) content_closure: Box<dyn Fn(&PlanetData) -> String>,
 }
 
 impl TableColData {

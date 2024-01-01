@@ -1,6 +1,6 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use crate::model::celestial_body_data::CelestialBodyData;
+use crate::model::planet_data::PlanetData;
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -23,7 +23,7 @@ impl TableViewState {
         }
     }
 
-    pub(super) fn table_view(&self, bodies: &Vec<&CelestialBodyData>) -> Element<'_, GuiMessage> {
+    pub(super) fn table_view(&self, bodies: &Vec<&PlanetData>) -> Element<'_, GuiMessage> {
         let direction = Direction::Both {
             vertical: Properties::default(),
             horizontal: Properties::default(),
@@ -35,7 +35,7 @@ impl TableViewState {
             .into()
     }
 
-    fn table(&self, bodies: &Vec<&CelestialBodyData>) -> Element<'_, GuiMessage> {
+    fn table(&self, bodies: &Vec<&PlanetData>) -> Element<'_, GuiMessage> {
         let width = Self::CELL_WIDTH + Self::CELL_WIDTH * self.table_col_data.len() as f32;
         let mut col = Column::new()
             .push(self.table_header())
@@ -56,7 +56,7 @@ impl TableViewState {
         row.align_items(Alignment::Center)
     }
 
-    fn table_row(&self, data: &CelestialBodyData) -> Row<'_, GuiMessage> {
+    fn table_row(&self, data: &PlanetData) -> Row<'_, GuiMessage> {
         let edit_button = Container::new(Button::new(Text::new("Edit")))
             .width(iced::Length::Fixed(Self::BUTTON_CELL_WIDTH));
         let mut row = Row::new().push(edit_button);

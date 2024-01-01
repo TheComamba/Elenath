@@ -20,7 +20,7 @@ impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
         let observer_equatorial_position = EquatorialCoordinates::new(
             SphericalCoordinates::new(self.surface_longitude, self.surface_latitude),
-            selected_body.get_data().get_rotation_axis().clone(),
+            selected_body.get_rotation_axis().clone(),
         );
         //TODO: Define Angle at Epoch
         let planet_angle_at_epoch = Angle::from_degrees(0.0);
@@ -28,7 +28,7 @@ impl SurfaceViewState {
             observer_equatorial_position,
             planet_angle_at_epoch,
             time_since_epoch,
-            selected_body.get_data().get_sideral_rotation_period(),
+            selected_body.get_sideral_rotation_period(),
         )
     }
 
@@ -37,7 +37,7 @@ impl SurfaceViewState {
         selected_body: &CelestialBody,
         observer_normal: &Direction,
     ) -> CartesianCoordinates {
-        let body_radius = selected_body.get_data().get_radius();
+        let body_radius = selected_body.get_radius();
         selected_body.get_position().clone() + observer_normal.to_cartesian(body_radius)
     }
 
@@ -115,8 +115,8 @@ impl SurfaceViewState {
             for body in celestial_bodies.iter() {
                 self.draw_body(
                     body,
-                    observer_position,
-                    observer_normal,
+                    &observer_position,
+                    &observer_normal,
                     pixel_per_viewport_width,
                     frame,
                     path_builder,
@@ -130,16 +130,16 @@ impl SurfaceViewState {
     fn draw_body(
         &self,
         body: &CelestialBody,
-        observer_position: CartesianCoordinates,
-        observer_normal: Direction,
+        observer_position: &CartesianCoordinates,
+        observer_normal: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
         path_builder: &mut canvas::path::Builder,
     ) {
         let pos = self.canvas_position(
             body,
-            &observer_position,
-            &observer_normal,
+            observer_position,
+            observer_normal,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {

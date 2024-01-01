@@ -31,18 +31,6 @@ impl OrbitalParameters {
         }
     }
 
-    pub(super) fn central() -> Self {
-        OrbitalParameters {
-            semi_major_axis: Length::from_astronomical_units(0.0),
-            eccentricity: 0.0,
-            orientation: OrbitOrientation::new(
-                Angle::from_radians(0.0),
-                Angle::from_radians(0.0),
-                Angle::from_radians(0.0),
-            ),
-        }
-    }
-
     pub(crate) fn get_semi_major_axis(&self) -> Length {
         self.semi_major_axis
     }

@@ -49,7 +49,7 @@ impl Sandbox for Gui {
             .cloned();
         Gui {
             opened_file: None,
-            mode: GuiMode::TopView,
+            mode: GuiMode::SurfaceView,
             surface_view_state: SurfaceViewState::new(),
             top_view_state: TopViewState::new(),
             table_view_state: TableViewState::new(),
@@ -57,7 +57,7 @@ impl Sandbox for Gui {
             time_step: Time::from_days(1.0),
             celestial_system,
             celestial_bodies,
-            selected_body: selected_focus,
+            focused_body: selected_focus,
         }
     }
 
@@ -110,9 +110,10 @@ impl Sandbox for Gui {
                 self.time_step = time_step;
             }
             GuiMessage::FocusedBodySelected(body) => {
-                self.selected_body = Some(body);
+                self.focused_body = Some(body);
             }
         }
+        self.redraw();
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
@@ -127,7 +128,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_bodies,
-                        &self.selected_body,
+                        &self.focused_body,
                     ))
                     .push(
                         canvas(self)
@@ -141,7 +142,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_bodies,
-                        &self.selected_body,
+                        &self.focused_body,
                     ))
                     .push(
                         canvas(self)
@@ -152,7 +153,7 @@ impl Sandbox for Gui {
             GuiMode::TableView => {
                 col = col.push(
                     self.table_view_state
-                        .table_view(&self.celestial_system.get_bodies_data()),
+                        .table_view(&self.celestial_system.get_planets_data()),
                 )
             }
         }
@@ -182,14 +183,14 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::SurfaceView => self.surface_view_state.canvas(
                 renderer,
                 bounds,
-                &self.selected_body,
+                &self.focused_body,
                 self.time_since_epoch,
                 &self.celestial_bodies,
             ),
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.selected_body,
+                &self.focused_body,
                 &self.celestial_bodies,
             ),
             _ => {

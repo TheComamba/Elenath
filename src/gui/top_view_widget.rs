@@ -63,10 +63,9 @@ impl TopViewState {
                 self.view_ecliptic.set_latitude(latitude);
             }
         }
-        self.redraw();
     }
 
-    fn redraw(&mut self) {
+    pub(super) fn redraw(&mut self) {
         self.bodies_cache.clear();
         self.scale_cache.clear();
     }
