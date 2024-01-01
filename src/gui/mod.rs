@@ -1,7 +1,6 @@
 use self::gui_widget::GuiMode;
 use self::surface_view_widget::SurfaceViewState;
 use self::top_view_widget::TopViewState;
-use crate::gui::table_col_data::TableColData;
 use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
 use astro_utils::units::time::Time;
 use std::path::PathBuf;
@@ -19,14 +18,14 @@ mod top_view_widget;
 pub(crate) struct Gui {
     opened_file: Option<PathBuf>,
     mode: GuiMode,
+    surface_view_state: SurfaceViewState,
+    top_view_state: TopViewState,
+    table_view_state: table_view::TableViewState,
     time_since_epoch: Time,
     time_step: Time,
-    surface_view_state: SurfaceViewState,
-    topview_state: TopViewState,
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
     selected_body: Option<CelestialBody>,
-    table_col_data: Vec<TableColData>,
 }
 
 impl Gui {

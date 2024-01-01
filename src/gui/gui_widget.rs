@@ -1,5 +1,6 @@
 use super::{
     surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
+    table_view::TableViewState,
     top_view_widget::{TopViewMessage, TopViewState},
     Gui,
 };
@@ -46,20 +47,18 @@ impl Sandbox for Gui {
             .iter()
             .find(|body| body.get_name() == central_body_data.get_name())
             .cloned();
-        let mut gui = Gui {
+        Gui {
             opened_file: None,
             mode: GuiMode::TopView,
+            surface_view_state: SurfaceViewState::new(),
+            top_view_state: TopViewState::new(),
+            table_view_state: TableViewState::new(),
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
-            surface_view_state: SurfaceViewState::new(),
-            topview_state: TopViewState::new(),
             celestial_system,
             celestial_bodies,
             selected_body: selected_focus,
-            table_col_data: vec![],
-        };
-        gui.init_table_col_data();
-        gui
+        }
     }
 
     fn title(&self) -> String {
@@ -72,7 +71,7 @@ impl Sandbox for Gui {
                 self.surface_view_state.update(message);
             }
             GuiMessage::UpdateTopView(message) => {
-                self.topview_state.update(message);
+                self.top_view_state.update(message);
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
@@ -138,7 +137,7 @@ impl Sandbox for Gui {
             }
             GuiMode::TopView => {
                 col = col
-                    .push(self.topview_state.control_field(
+                    .push(self.top_view_state.control_field(
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_bodies,
@@ -150,7 +149,12 @@ impl Sandbox for Gui {
                             .height(iced::Length::Fill),
                     )
             }
-            GuiMode::TableView => col = col.push(self.table_view()),
+            GuiMode::TableView => {
+                col = col.push(
+                    self.table_view_state
+                        .table_view(&self.celestial_system.get_bodies_data()),
+                )
+            }
         }
 
         col.width(iced::Length::Fill)
@@ -182,7 +186,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 self.time_since_epoch,
                 &self.celestial_bodies,
             ),
-            GuiMode::TopView => self.topview_state.canvas(
+            GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
                 &self.selected_body,

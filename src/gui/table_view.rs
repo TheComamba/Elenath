@@ -1,4 +1,5 @@
-use super::{gui_widget::GuiMessage, Gui};
+use super::gui_widget::GuiMessage;
+use super::table_col_data::TableColData;
 use crate::model::celestial_body_data::CelestialBodyData;
 use iced::{
     widget::{
@@ -8,36 +9,47 @@ use iced::{
     Alignment, Element,
 };
 
-const CELL_WIDTH: f32 = 150.;
-const BUTTON_CELL_WIDTH: f32 = 50.;
+pub(super) struct TableViewState {
+    pub(super) table_col_data: Vec<TableColData>,
+}
 
-impl Gui {
-    pub(super) fn table_view(&self) -> Element<'_, GuiMessage> {
+impl TableViewState {
+    const CELL_WIDTH: f32 = 150.;
+    const BUTTON_CELL_WIDTH: f32 = 50.;
+
+    pub(super) fn new() -> TableViewState {
+        TableViewState {
+            table_col_data: TableColData::default_table_col_data(),
+        }
+    }
+
+    pub(super) fn table_view(&self, bodies: &Vec<&CelestialBodyData>) -> Element<'_, GuiMessage> {
         let direction = Direction::Both {
             vertical: Properties::default(),
             horizontal: Properties::default(),
         };
-        Scrollable::new(self.table())
+        Scrollable::new(self.table(bodies))
             .direction(direction)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
 
-    fn table(&self) -> Element<'_, GuiMessage> {
-        let width = CELL_WIDTH + CELL_WIDTH * self.table_col_data.len() as f32;
+    fn table(&self, bodies: &Vec<&CelestialBodyData>) -> Element<'_, GuiMessage> {
+        let width = Self::CELL_WIDTH + Self::CELL_WIDTH * self.table_col_data.len() as f32;
         let mut col = Column::new()
             .push(self.table_header())
             .push(Rule::horizontal(10));
-        for body in self.celestial_system.get_bodies_data() {
+        for body in bodies {
             col = col.push(self.table_row(body));
         }
         Container::new(col).width(iced::Length::Fixed(width)).into()
     }
 
     fn table_header(&self) -> Row<'static, GuiMessage> {
-        let mut row = Row::new()
-            .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
+        let mut row = Row::new().push(
+            Container::new(Text::new("")).width(iced::Length::Fixed(Self::BUTTON_CELL_WIDTH)),
+        );
         for col in &self.table_col_data {
             row = row.push(Self::table_cell(Text::new(col.header).into()));
         }
@@ -46,7 +58,7 @@ impl Gui {
 
     fn table_row(&self, data: &CelestialBodyData) -> Row<'_, GuiMessage> {
         let edit_button = Container::new(Button::new(Text::new("Edit")))
-            .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
+            .width(iced::Length::Fixed(Self::BUTTON_CELL_WIDTH));
         let mut row = Row::new().push(edit_button);
         for col in self.table_col_data.iter() {
             row = row.push(Self::table_cell(
@@ -57,6 +69,6 @@ impl Gui {
     }
 
     fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {
-        Container::new(content).width(iced::Length::Fixed(CELL_WIDTH))
+        Container::new(content).width(iced::Length::Fixed(Self::CELL_WIDTH))
     }
 }
