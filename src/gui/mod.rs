@@ -41,4 +41,16 @@ impl Gui {
                 .cloned();
         }
     }
+
+    pub(super) fn redraw(&mut self) {
+        match self.mode {
+            GuiMode::SurfaceView => {
+                self.surface_view_state.redraw();
+            }
+            GuiMode::TopView => {
+                self.top_view_state.redraw();
+            }
+            _ => (),
+        };
+    }
 }

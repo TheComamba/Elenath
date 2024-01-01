@@ -113,6 +113,7 @@ impl Sandbox for Gui {
                 self.selected_body = Some(body);
             }
         }
+        self.redraw();
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
