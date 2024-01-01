@@ -1,9 +1,8 @@
+use crate::model::celestial_body::CelestialBody;
 use iced::{
     widget::canvas::{self, Path},
     Color, Point,
 };
-
-use crate::model::celestial_body::CelestialBody;
 
 pub(super) fn draw_background(bounds: iced::Rectangle, frame: &mut canvas::Frame) {
     let background = Path::rectangle(Point::ORIGIN, bounds.size());

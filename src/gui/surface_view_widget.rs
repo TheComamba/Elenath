@@ -1,3 +1,5 @@
+use crate::gui::shared_widgets::{control_field, planet_picker, time_control_fields};
+
 use super::{gui_widget::GuiMessage, Gui};
 use astro_utils::units::angle::Angle;
 use iced::{
@@ -73,30 +75,31 @@ impl SurfaceViewState {
 impl Gui {
     pub(super) fn surface_view_control_field(&self) -> iced::Element<'_, GuiMessage> {
         const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
+        let time_control_fields = time_control_fields(&self.time_since_epoch, &self.time_step);
         let longitude = self.surface_view_state.surface_longitude;
-        let surface_longitude_control_field = Gui::control_field(
+        let surface_longitude_control_field = control_field(
             "Surface Longitude:",
             format!("{}", longitude),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
         );
         let latitude = self.surface_view_state.surface_latitude;
-        let surface_latitude_control_field = Gui::control_field(
+        let surface_latitude_control_field = control_field(
             "Surface Latitude:",
             format!("{}", latitude),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
         );
         let viewport_angle = self.surface_view_state.viewport_horizontal_opening_angle;
-        let viewport_angle_control_field = Gui::control_field(
+        let viewport_angle_control_field = control_field(
             "Horizontal Viewport Opening Angle:",
             format!("{}", viewport_angle),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
         );
-        let planet_picker = self.planet_picker();
+        let planet_picker = planet_picker(&self.celestial_bodies, &self.selected_body);
         Column::new()
-            .push(self.time_control_fields())
+            .push(time_control_fields)
             .push(surface_longitude_control_field)
             .push(surface_latitude_control_field)
             .push(viewport_angle_control_field)

@@ -1,5 +1,8 @@
 use super::Gui;
-use crate::gui::gui_widget::GuiMessage;
+use crate::gui::{
+    gui_widget::GuiMessage,
+    shared_widgets::{control_field, planet_picker, time_control_fields},
+};
 use astro_utils::{
     coordinates::ecliptic::EclipticCoordinates,
     units::{angle::Angle, length::Length},
@@ -69,8 +72,9 @@ impl TopViewState {
 
 impl Gui {
     pub(super) fn topview_control_field(&self) -> iced::Element<'_, GuiMessage> {
+        let time_control_fields = time_control_fields(&self.time_since_epoch, &self.time_step);
         let m_per_px = self.topview_state.meter_per_pixel;
-        let length_scale_control_field = Gui::control_field(
+        let length_scale_control_field = control_field(
             "Length per 100px:",
             format!("{}", Length::from_meters(100. * m_per_px)),
             TopViewMessage::UpdateLengthScale(m_per_px / 2.),
@@ -78,22 +82,22 @@ impl Gui {
         );
         const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
         let view_longitude = self.topview_state.view_ecliptic.get_longitude();
-        let view_longitude_control_field = Gui::control_field(
+        let view_longitude_control_field = control_field(
             "View longitude:",
             format!("{}", view_longitude),
             TopViewMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
         );
         let view_latitude = self.topview_state.view_ecliptic.get_latitude();
-        let view_latitude_control_field = Gui::control_field(
+        let view_latitude_control_field = control_field(
             "View latitude:",
             format!("{}", view_latitude),
             TopViewMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
         );
-        let planet_picker = self.planet_picker();
+        let planet_picker = planet_picker(&self.celestial_bodies, &self.selected_body);
         Column::new()
-            .push(self.time_control_fields())
+            .push(time_control_fields)
             .push(length_scale_control_field)
             .push(view_longitude_control_field)
             .push(view_latitude_control_field)

@@ -1,4 +1,7 @@
+use crate::model::celestial_body::CelestialBody;
+
 use super::{gui_widget::GuiMessage, Gui, GuiMode};
+use astro_utils::units::time::Time;
 use iced::{
     alignment::Horizontal,
     widget::{Button, Column, Container, PickList, Row, Text},
@@ -34,71 +37,75 @@ impl Gui {
             .align_items(Alignment::Center)
             .into()
     }
+}
 
-    pub(super) fn control_field<'a, M>(
-        label: &'a str,
-        value: String,
-        decrease: M,
-        increase: M,
-    ) -> Row<'a, GuiMessage>
-    where
-        M: Into<GuiMessage>,
-    {
-        let label = Container::new(Text::new(label))
-            .align_x(Horizontal::Center)
-            .width(iced::Length::Fixed(150.));
-        let decrease_button =
-            Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
-                .align_x(Horizontal::Center)
-                .width(iced::Length::Fixed(50.));
-        let value = Container::new(Text::new(value))
-            .width(iced::Length::Fixed(100.))
-            .align_x(Horizontal::Center);
-        let increase_button =
-            Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
-                .align_x(Horizontal::Center)
-                .width(iced::Length::Fixed(50.));
-        Row::new()
-            .push(label)
-            .push(decrease_button)
-            .push(value)
-            .push(increase_button)
-            .align_items(Alignment::Center)
-    }
+pub(super) fn time_control_fields<'a>(
+    time_since_epoch: &'a Time,
+    time_step: &'a Time,
+) -> iced::Element<'a, GuiMessage> {
+    let time_control_field = control_field(
+        "Time since Epoch:",
+        format!("{}", time_since_epoch),
+        GuiMessage::UpdateTime(*time_since_epoch - *time_step),
+        GuiMessage::UpdateTime(*time_since_epoch + *time_step),
+    );
+    let time_step_control_field = control_field(
+        "Time step:",
+        format!("{}", time_step),
+        GuiMessage::UpdateTimeStep(*time_step / 2.),
+        GuiMessage::UpdateTimeStep(*time_step * 2.),
+    );
+    Column::new()
+        .push(time_control_field)
+        .push(time_step_control_field)
+        .width(iced::Length::Fill)
+        .align_items(Alignment::Center)
+        .into()
+}
 
-    pub(super) fn time_control_fields(&self) -> iced::Element<'_, GuiMessage> {
-        let time_control_field = Gui::control_field(
-            "Time since Epoch:",
-            format!("{}", self.time_since_epoch),
-            GuiMessage::UpdateTime(self.time_since_epoch - self.time_step),
-            GuiMessage::UpdateTime(self.time_since_epoch + self.time_step),
-        );
-        let time_step_control_field = Gui::control_field(
-            "Time step:",
-            format!("{}", self.time_step),
-            GuiMessage::UpdateTimeStep(self.time_step / 2.),
-            GuiMessage::UpdateTimeStep(self.time_step * 2.),
-        );
-        Column::new()
-            .push(time_control_field)
-            .push(time_step_control_field)
-            .width(iced::Length::Fill)
-            .align_items(Alignment::Center)
-            .into()
-    }
+pub(super) fn planet_picker<'a>(
+    celestial_bodies: &'a Vec<CelestialBody>,
+    selected_body: &'a Option<CelestialBody>,
+) -> iced::Element<'a, GuiMessage> {
+    let text = Text::new("Focused body:").width(150.);
+    let pick_list = PickList::new(
+        celestial_bodies.clone(),
+        selected_body.clone(),
+        GuiMessage::FocusedBodySelected,
+    )
+    .width(200.);
+    Row::new()
+        .push(text)
+        .push(pick_list)
+        .align_items(Alignment::Center)
+        .into()
+}
 
-    pub(super) fn planet_picker(&self) -> iced::Element<'_, GuiMessage> {
-        let text = Text::new("Focused body:").width(150.);
-        let pick_list = PickList::new(
-            self.celestial_bodies.clone(),
-            self.selected_body.clone(),
-            GuiMessage::FocusedBodySelected,
-        )
-        .width(200.);
-        Row::new()
-            .push(text)
-            .push(pick_list)
-            .align_items(Alignment::Center)
-            .into()
-    }
+pub(super) fn control_field<'a, M>(
+    label: &'a str,
+    value: String,
+    decrease: M,
+    increase: M,
+) -> Row<'a, GuiMessage>
+where
+    M: Into<GuiMessage>,
+{
+    let label = Container::new(Text::new(label))
+        .align_x(Horizontal::Center)
+        .width(iced::Length::Fixed(150.));
+    let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
+        .align_x(Horizontal::Center)
+        .width(iced::Length::Fixed(50.));
+    let value = Container::new(Text::new(value))
+        .width(iced::Length::Fixed(100.))
+        .align_x(Horizontal::Center);
+    let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
+        .align_x(Horizontal::Center)
+        .width(iced::Length::Fixed(50.));
+    Row::new()
+        .push(label)
+        .push(decrease_button)
+        .push(value)
+        .push(increase_button)
+        .align_items(Alignment::Center)
 }
