@@ -64,6 +64,10 @@ impl PlanetData {
         self.albedo
     }
 
+    pub(crate) fn get_color(&self) -> &Color {
+        &self.color
+    }
+
     pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
         &self.orbital_parameters
     }
