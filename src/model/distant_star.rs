@@ -1,6 +1,6 @@
 use astro_utils::{coordinates::ecliptic::EclipticCoordinates, units::length::Length};
 
-struct DistantStar {
+pub(crate) struct DistantStar {
     name: Option<String>,
     polar_coordinates: EclipticCoordinates,
     distance: Length,

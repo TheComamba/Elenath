@@ -7,7 +7,7 @@ use astro_utils::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) struct CelestialBodyData {
+pub(crate) struct PlanetData {
     name: String,
     mass: Mass,
     radius: Length,
@@ -17,13 +17,13 @@ pub(crate) struct CelestialBodyData {
     rotation_axis: Direction,
 }
 
-impl PartialEq for CelestialBodyData {
+impl PartialEq for PlanetData {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl CelestialBodyData {
+impl PlanetData {
     pub(crate) fn new(
         name: String,
         mass: Mass,
@@ -33,7 +33,7 @@ impl CelestialBodyData {
         sideral_rotation_period: Time,
         rotation_axis: Direction,
     ) -> Self {
-        CelestialBodyData {
+        PlanetData {
             name,
             mass,
             orbital_parameters,

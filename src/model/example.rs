@@ -1,25 +1,9 @@
 use super::celestial_system::CelestialSystem;
-use crate::model::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
-use astro_utils::{
-    coordinates::direction::Direction,
-    data::{planets::*, SUN_MASS},
-    units::time::Time,
-};
+use crate::model::{orbital_parameters::OrbitalParameters, planet_data::PlanetData};
+use astro_utils::data::{planets::*, stars::SUN_PROPERTIES};
 
-fn sun() -> CelestialBodyData {
-    CelestialBodyData::new(
-        String::from("Sun"),
-        SUN_MASS,
-        OrbitalParameters::central(),
-        SUN_RADIUS,
-        1.0,
-        Time::from_seconds(0.),
-        Direction::Z,
-    )
-}
-
-fn mercury() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn mercury() -> PlanetData {
+    PlanetData::new(
         String::from("Mercury"),
         MERCURY_MASS,
         OrbitalParameters::new(
@@ -34,8 +18,8 @@ fn mercury() -> CelestialBodyData {
     )
 }
 
-fn venus() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn venus() -> PlanetData {
+    PlanetData::new(
         String::from("Venus"),
         VENUS_MASS,
         OrbitalParameters::new(
@@ -50,8 +34,8 @@ fn venus() -> CelestialBodyData {
     )
 }
 
-fn earth() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn earth() -> PlanetData {
+    PlanetData::new(
         String::from("Earth"),
         EARTH_MASS,
         OrbitalParameters::new(
@@ -66,8 +50,8 @@ fn earth() -> CelestialBodyData {
     )
 }
 
-fn mars() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn mars() -> PlanetData {
+    PlanetData::new(
         String::from("Mars"),
         MARS_MASS,
         OrbitalParameters::new(
@@ -82,8 +66,8 @@ fn mars() -> CelestialBodyData {
     )
 }
 
-fn ceres() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn ceres() -> PlanetData {
+    PlanetData::new(
         String::from("Ceres"),
         CERES_MASS,
         OrbitalParameters::new(
@@ -98,8 +82,8 @@ fn ceres() -> CelestialBodyData {
     )
 }
 
-fn jupiter() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn jupiter() -> PlanetData {
+    PlanetData::new(
         String::from("Jupiter"),
         JUPITER_MASS,
         OrbitalParameters::new(
@@ -114,8 +98,8 @@ fn jupiter() -> CelestialBodyData {
     )
 }
 
-fn saturn() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn saturn() -> PlanetData {
+    PlanetData::new(
         String::from("Saturn"),
         SATURN_MASS,
         OrbitalParameters::new(
@@ -130,8 +114,8 @@ fn saturn() -> CelestialBodyData {
     )
 }
 
-fn uranus() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn uranus() -> PlanetData {
+    PlanetData::new(
         String::from("Uranus"),
         URANUS_MASS,
         OrbitalParameters::new(
@@ -146,8 +130,8 @@ fn uranus() -> CelestialBodyData {
     )
 }
 
-fn neptune() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn neptune() -> PlanetData {
+    PlanetData::new(
         String::from("Neptune"),
         NEPTUNE_MASS,
         OrbitalParameters::new(
@@ -162,8 +146,8 @@ fn neptune() -> CelestialBodyData {
     )
 }
 
-fn pluto() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn pluto() -> PlanetData {
+    PlanetData::new(
         String::from("Pluto"),
         PLUTO_MASS,
         OrbitalParameters::new(
@@ -178,8 +162,8 @@ fn pluto() -> CelestialBodyData {
     )
 }
 
-fn _moon() -> CelestialBodyData {
-    CelestialBodyData::new(
+fn _moon() -> PlanetData {
+    PlanetData::new(
         String::from("Moon"),
         MOON_MASS,
         OrbitalParameters::new(
@@ -194,7 +178,7 @@ fn _moon() -> CelestialBodyData {
     )
 }
 pub(crate) fn solar_system() -> CelestialSystem {
-    let mut system = CelestialSystem::new(sun());
+    let mut system = CelestialSystem::new(SUN_PROPERTIES);
     system.add_planet(mercury());
     system.add_planet(venus());
     system.add_planet(earth());
