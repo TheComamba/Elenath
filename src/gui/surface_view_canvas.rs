@@ -111,20 +111,15 @@ impl SurfaceViewState {
         };
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
-        let bodies_path = Path::new(|path_builder| {
-            for body in celestial_bodies.iter() {
-                self.draw_body(
-                    body,
-                    &observer_position,
-                    &observer_normal,
-                    pixel_per_viewport_width,
-                    frame,
-                    path_builder,
-                );
-            }
-        });
-
-        frame.fill(&bodies_path, Color::WHITE);
+        for body in celestial_bodies.iter() {
+            self.draw_body(
+                body,
+                &observer_position,
+                &observer_normal,
+                pixel_per_viewport_width,
+                frame,
+            );
+        }
     }
 
     fn draw_body(
@@ -134,7 +129,6 @@ impl SurfaceViewState {
         observer_normal: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
-        path_builder: &mut canvas::path::Builder,
     ) {
         let pos = self.canvas_position(
             body,
@@ -143,10 +137,14 @@ impl SurfaceViewState {
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
+            let radius = 3.0;
             let pos = frame.center() + pos;
-            path_builder.circle(pos, 3.0);
+            let circle = Path::circle(pos, radius);
+            let (r, g, b) = body.get_color().normalized_rgb();
+            let color = Color::from_rgb(r, g, b);
+            frame.fill(&circle, color);
 
-            draw_body_name(body, pos, frame);
+            draw_body_name(body, color, pos, frame);
         }
     }
 }

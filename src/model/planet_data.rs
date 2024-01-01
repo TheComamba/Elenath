@@ -1,5 +1,6 @@
 use super::orbital_parameters::OrbitalParameters;
 use astro_utils::{
+    color::Color,
     coordinates::direction::Direction,
     units::{length::Length, mass::Mass, time::Time},
     Float,
@@ -12,6 +13,7 @@ pub(crate) struct PlanetData {
     mass: Mass,
     radius: Length,
     albedo: Float,
+    color: Color,
     orbital_parameters: OrbitalParameters,
     sideral_rotation_period: Time,
     rotation_axis: Direction,
@@ -30,6 +32,7 @@ impl PlanetData {
         orbital_parameters: OrbitalParameters,
         radius: Length,
         albedo: Float,
+        color: Color,
         sideral_rotation_period: Time,
         rotation_axis: Direction,
     ) -> Self {
@@ -39,6 +42,7 @@ impl PlanetData {
             orbital_parameters,
             radius,
             albedo,
+            color,
             sideral_rotation_period,
             rotation_axis,
         }
@@ -58,6 +62,10 @@ impl PlanetData {
 
     pub(crate) fn get_albedo(&self) -> Float {
         self.albedo
+    }
+
+    pub(crate) fn get_color(&self) -> &Color {
+        &self.color
     }
 
     pub(crate) fn get_orbital_parameters(&self) -> &OrbitalParameters {
