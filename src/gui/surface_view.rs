@@ -13,14 +13,13 @@ use astro_utils::{
     },
     surface_normal::{apparent_celestial_position, surface_normal_at_time},
     units::{angle::Angle, length::Length},
-    Float,
 };
 use iced::{
     widget::{
         canvas::{self, Path},
         Column,
     },
-    Alignment, Color,
+    Alignment, Color, Size,
 };
 
 pub(super) struct SurfaceViewState {
@@ -113,17 +112,20 @@ impl Gui {
     }
 
     fn surface_view_canvas_position(
+        &self,
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
-        canvas_radius: f32,
+        canvas_size: &Size,
     ) -> iced::Vector {
-        const PI_HALF: Float = PI / 2.;
+        const VIEWPORT_LENGTH_SCALE: Length = Length::from_meters(100_000_000_000_000.);
         let relative_position = body.get_position() - observer_position;
         let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
         let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
-        let x = surface_position.get_longitude().as_radians() / PI_HALF * canvas_radius;
-        let y = -surface_position.get_latitude().as_radians() / PI_HALF * canvas_radius; // y axis is inverted
+        let position_at_viewport = Direction::from_spherical(&surface_position)
+            .to_cartesian(self.surface_view_state.viewport_distance);
+        let x = position_at_viewport.x() / VIEWPORT_LENGTH_SCALE * canvas_size.width;
+        let y = -position_at_viewport.y() / VIEWPORT_LENGTH_SCALE * canvas_size.height; // y axis is inverted
         iced::Vector::new(x as f32, y as f32)
     }
 
@@ -132,14 +134,7 @@ impl Gui {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
     ) -> Vec<canvas::Geometry> {
-        let canvas_radius = bounds.size().width.min(bounds.size().height) / 2.;
-        let background =
-            self.surface_view_state
-                .background_cache
-                .draw(renderer, bounds.size(), |frame| {
-                    let background = Path::circle(frame.center(), canvas_radius);
-                    frame.fill(&background, Color::BLACK);
-                });
+        let background = self.black_background(renderer, &bounds);
 
         let (observer_position, observer_normal) = self.observer_data();
 
@@ -150,11 +145,11 @@ impl Gui {
                 let bodies_path = Path::new(|path_builder| {
                     for body in self.celestial_bodies.iter() {
                         let pos = frame.center()
-                            + Self::surface_view_canvas_position(
+                            + self.surface_view_canvas_position(
                                 body,
                                 &observer_position,
                                 &observer_normal,
-                                canvas_radius,
+                                &bounds.size(),
                             );
                         path_builder.circle(pos, 3.0);
 
