@@ -1,6 +1,6 @@
 use super::celestial_body_data::CelestialBodyData;
 use astro_utils::{
-    coordinates::cartesian::{CartesianCoordinates, ORIGIN},
+    coordinates::cartesian::CartesianCoordinates,
     units::{mass::Mass, time::Time},
 };
 use std::fmt::{Display, Formatter};
@@ -33,7 +33,7 @@ impl CelestialBody {
                 &central_body,
                 time,
             ),
-            None => ORIGIN,
+            None => CartesianCoordinates::ORIGIN,
         };
         CelestialBody { data, position }
     }

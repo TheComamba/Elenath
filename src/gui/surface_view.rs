@@ -5,13 +5,10 @@ use crate::model::celestial_body::CelestialBody;
 use super::{Gui, GuiMessage};
 use astro_utils::{
     coordinates::{
-        cartesian::{CartesianCoordinates, ORIGIN},
-        direction::{Direction, Z},
-        ecliptic::EclipticCoordinates,
-        equatorial::EquatorialCoordinates,
+        cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
-    surface_normal::{apparent_celestial_position, surface_normal_at_time},
+    surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     units::angle::Angle,
     Float,
 };
@@ -89,7 +86,7 @@ impl Gui {
     fn observer_data(&self) -> (CartesianCoordinates, Direction) {
         let body = match self.selected_body.as_ref() {
             Some(body) => body,
-            None => return (ORIGIN, Z),
+            None => return (CartesianCoordinates::ORIGIN, Direction::Z),
         };
 
         let observer_equatorial_position = EquatorialCoordinates::new(
@@ -128,9 +125,8 @@ impl Gui {
         pixel_per_viewport_width: Float,
     ) -> Option<iced::Vector> {
         let relative_position = body.get_position() - observer_position;
-        let ecliptic_position = EclipticCoordinates::from_cartesian(&relative_position);
-        let surface_position = apparent_celestial_position(&ecliptic_position, observer_normal);
-        let direction = Direction::from_spherical(&surface_position);
+        let direction = Direction::from_cartesian(&relative_position);
+        let direction = direction_relative_to_surface_normal(&direction, observer_normal);
         if direction.z() > 0.0 {
             let x = direction.x() * pixel_per_viewport_width;
             let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted

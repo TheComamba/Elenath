@@ -4,9 +4,7 @@ use super::{Gui, GuiMessage};
 use crate::model::celestial_body::CelestialBody;
 use astro_utils::{
     coordinates::{
-        direction::{Direction, Z},
-        ecliptic::{EclipticCoordinates, Z_DIRECTION},
-        rotations::get_rotation_parameters,
+        direction::Direction, ecliptic::EclipticCoordinates, rotations::get_rotation_parameters,
     },
     units::{angle::Angle, length::Length},
     Float,
@@ -36,7 +34,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             meter_per_pixel: 0.01 * m_per_au,
-            view_ecliptic: Z_DIRECTION,
+            view_ecliptic: EclipticCoordinates::Z_DIRECTION,
         }
     }
 }
@@ -119,7 +117,8 @@ impl Gui {
                 });
         let view_direction =
             Direction::from_spherical(&self.topview_state.view_ecliptic.get_spherical());
-        let (view_angle, view_rotation_axis) = get_rotation_parameters(&Z, &view_direction);
+        let (view_angle, view_rotation_axis) =
+            get_rotation_parameters(&Direction::Z, &view_direction);
         let bodies = self
             .topview_state
             .bodies_cache

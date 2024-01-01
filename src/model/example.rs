@@ -1,6 +1,6 @@
 use super::celestial_system::CelestialSystem;
 use crate::model::{celestial_body_data::CelestialBodyData, orbital_parameters::OrbitalParameters};
-use astro_utils::{coordinates::direction::Z, solar_system_data::*, units::time::Time};
+use astro_utils::{coordinates::direction::Direction, solar_system_data::*, units::time::Time};
 
 fn sun() -> CelestialBodyData {
     CelestialBodyData::new(
@@ -10,7 +10,7 @@ fn sun() -> CelestialBodyData {
         SUN_RADIUS,
         1.0,
         Time::from_seconds(0.),
-        Z,
+        Direction::Z,
     )
 }
 
