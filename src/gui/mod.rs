@@ -7,6 +7,7 @@ use astro_utils::units::time::Time;
 use std::path::PathBuf;
 
 mod gui_widget;
+mod shared_canvas_functionality;
 mod shared_widgets;
 mod surface_view_canvas;
 mod surface_view_widget;
