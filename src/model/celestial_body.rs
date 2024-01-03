@@ -71,6 +71,10 @@ impl CelestialBody {
         }
     }
 
+    pub(crate) fn get_data(&self) -> &CelestialBodyData {
+        &self.data
+    }
+
     pub(crate) fn get_color(&self) -> &sRGBColor {
         &self.color
     }

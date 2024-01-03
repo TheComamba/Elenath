@@ -1,6 +1,7 @@
 use super::{shared_canvas_functionality::draw_body_name, top_view_widget::TopViewState};
 use crate::{
-    gui::shared_canvas_functionality::draw_background, model::celestial_body::CelestialBody,
+    gui::shared_canvas_functionality::draw_background,
+    model::celestial_body::{CelestialBody, CelestialBodyData},
 };
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
@@ -83,8 +84,7 @@ impl TopViewState {
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
         let circle = Path::circle(pos, radius);
-        let (r, g, b) = body.get_color().normalized_sRGB_tuple();
-        let color = Color::from_rgb(r, g, b);
+        let color = body_color(body);
         frame.fill(&circle, color);
 
         draw_body_name(body, color, pos, radius, frame);
@@ -122,4 +122,17 @@ impl TopViewState {
 fn body_radius(body: &CelestialBody) -> f32 {
     const SIZE_NUMBER: f32 = 0.3;
     body.get_radius().as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
+}
+
+fn body_color(body: &CelestialBody) -> Color {
+    const COLOR_FACTOR: f32 = 3.;
+    let (r, g, b) = body.get_color().normalized_sRGB_tuple();
+    let albedo = match body.get_data() {
+        CelestialBodyData::Planet(data) => data.get_albedo(),
+        _ => 1.,
+    };
+    let r = r * albedo * COLOR_FACTOR;
+    let g = g * albedo * COLOR_FACTOR;
+    let b = b * albedo * COLOR_FACTOR;
+    Color::from_rgb(r, g, b)
 }
