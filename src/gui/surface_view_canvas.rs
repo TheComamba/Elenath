@@ -1,14 +1,17 @@
 use super::{shared_canvas_functionality::draw_body_name, surface_view_widget::SurfaceViewState};
 use crate::{
-    gui::shared_canvas_functionality::draw_background, model::celestial_body::CelestialBody,
+    gui::shared_canvas_functionality::draw_background,
+    model::celestial_body::{CelestialBody, CelestialBodyData},
 };
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
+    planet_brightness::planet_brightness,
+    stellar_properties::StellarProperties,
     surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
-    units::{angle::Angle, time::Time},
+    units::{angle::Angle, illuminance::Illuminance, time::Time},
     Float,
 };
 use iced::{
@@ -51,6 +54,7 @@ impl SurfaceViewState {
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
+        central_body: &StellarProperties,
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         celestial_bodies: &Vec<CelestialBody>,
@@ -63,6 +67,7 @@ impl SurfaceViewState {
 
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
             self.draw_bodies(
+                central_body,
                 selected_body,
                 time_since_epoch,
                 bounds,
@@ -76,6 +81,7 @@ impl SurfaceViewState {
 
     fn draw_bodies(
         &self,
+        central_body: &StellarProperties,
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         bounds: iced::Rectangle,
@@ -94,6 +100,7 @@ impl SurfaceViewState {
 
         for body in celestial_bodies.iter() {
             self.draw_body(
+                central_body,
                 body,
                 &observer_position,
                 &observer_normal,
@@ -105,6 +112,7 @@ impl SurfaceViewState {
 
     fn draw_body(
         &self,
+        central_body: &StellarProperties,
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
@@ -118,8 +126,13 @@ impl SurfaceViewState {
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
-            let radius = body_radius(body, &relative_position, pixel_per_viewport_width);
-            println!("name: {}, radius: {}", body.get_name(), radius);
+            let brightness = body_brightness(central_body, body, observer_position);
+            let radius = canvas_body_radius(
+                body,
+                &relative_position,
+                &brightness,
+                pixel_per_viewport_width,
+            );
             let pos = frame.center() + pos;
             let circle = Path::circle(pos, radius);
             let (r, g, b) = body.get_color().normalized_sRGB_tuple();
@@ -147,12 +160,64 @@ fn canvas_position(
     }
 }
 
-fn body_radius(
+fn body_brightness(
+    central_body: &StellarProperties,
+    body: &CelestialBody,
+    observer_position: &CartesianCoordinates,
+) -> Illuminance {
+    match body.get_data() {
+        CelestialBodyData::CentralBody(data) => {
+            let distance = body.get_position() - observer_position;
+            data.get_absolute_magnitude()
+                .to_illuminance(&distance.length())
+        }
+        CelestialBodyData::DistantStar(data) => {
+            let distance = body.get_position() - observer_position;
+            data.get_absolute_magnitude()
+                .to_illuminance(&distance.length())
+        }
+        CelestialBodyData::Planet(data) => planet_brightness(
+            central_body.get_absolute_magnitude(),
+            &CartesianCoordinates::ORIGIN,
+            body.get_position(),
+            observer_position,
+            data.get_radius(),
+            data.get_geometric_albedo(),
+        ),
+    }
+}
+
+fn canvas_body_radius(
     body: &CelestialBody,
     relative_position: &CartesianCoordinates,
+    brightness: &Illuminance,
     pixel_per_viewport_width: Float,
 ) -> f32 {
     let apparent_size_at_viewport =
-        body.get_radius() / relative_position.length() * pixel_per_viewport_width;
-    todo!()
+        apparent_size_at_viewport(body, relative_position, pixel_per_viewport_width);
+    let brightness_size = brightness_to_canvas_size(brightness);
+    if apparent_size_at_viewport > brightness_size {
+        apparent_size_at_viewport
+    } else {
+        brightness_size
+    }
+}
+
+fn apparent_size_at_viewport(
+    body: &CelestialBody,
+    relative_position: &CartesianCoordinates,
+    pixel_per_viewport_width: f32,
+) -> f32 {
+    body.get_radius() / relative_position.length() * pixel_per_viewport_width
+}
+
+fn brightness_to_canvas_size(brightness: &Illuminance) -> f32 {
+    const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
+    const SIZE_FACTOR: f32 = 1.;
+    let size = -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * SIZE_FACTOR;
+    if size < 0. {
+        0.
+    } else {
+        size
+    }
 }
