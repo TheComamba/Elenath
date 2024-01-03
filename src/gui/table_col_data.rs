@@ -21,8 +21,8 @@ impl TableColData {
                 content_closure: Box::new(|body| format!("{}", body.get_radius())),
             },
             TableColData {
-                header: "Albedo",
-                content_closure: Box::new(|body| format!("{}", body.get_albedo())),
+                header: "Geometric Albedo",
+                content_closure: Box::new(|body| format!("{}", body.get_geometric_albedo())),
             },
             TableColData {
                 header: "Semi-major axis",

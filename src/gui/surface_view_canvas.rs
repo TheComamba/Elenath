@@ -152,6 +152,7 @@ fn body_radius(
     relative_position: &CartesianCoordinates,
     pixel_per_viewport_width: Float,
 ) -> f32 {
-    let apparent_size_at_viewport = body.get_radius() / relative_position.length() * pixel_per_viewport_width;
+    let apparent_size_at_viewport =
+        body.get_radius() / relative_position.length() * pixel_per_viewport_width;
+    todo!()
 }
-

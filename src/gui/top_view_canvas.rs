@@ -128,7 +128,7 @@ fn body_color(body: &CelestialBody) -> Color {
     const COLOR_FACTOR: f32 = 3.;
     let (r, g, b) = body.get_color().normalized_sRGB_tuple();
     let albedo = match body.get_data() {
-        CelestialBodyData::Planet(data) => data.get_albedo(),
+        CelestialBodyData::Planet(data) => data.get_geometric_albedo(),
         _ => 1.,
     };
     let r = r * albedo * COLOR_FACTOR;
