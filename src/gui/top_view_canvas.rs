@@ -25,8 +25,8 @@ impl TopViewState {
     ) -> iced::Vector {
         let three_dim_position = body.get_position();
         let rotated_position = three_dim_position.rotated(-view_angle, view_rotation_axis); //passive transformation
-        let x = rotated_position.x().as_meters() / self.meter_per_pixel;
-        let y = -rotated_position.y().as_meters() / self.meter_per_pixel; // y axis is inverted
+        let x = rotated_position.x().as_astronomical_units() / self.au_per_pixel;
+        let y = -rotated_position.y().as_astronomical_units() / self.au_per_pixel; // y axis is inverted
         iced::Vector::new(x as f32, y as f32)
     }
 
@@ -115,7 +115,10 @@ impl TopViewState {
 
         let mut text = canvas::Text::default();
         text.color = Color::WHITE;
-        text.content = format!("{}", Length::from_meters(LENGTH * self.meter_per_pixel));
+        text.content = format!(
+            "{}",
+            Length::from_astronomical_units(LENGTH * self.au_per_pixel)
+        );
         text.position = middle_pos;
         text.horizontal_alignment = Horizontal::Center;
         frame.fill_text(text);

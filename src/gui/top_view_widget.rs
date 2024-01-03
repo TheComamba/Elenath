@@ -20,7 +20,7 @@ pub(super) struct TopViewState {
     pub(super) background_cache: Cache,
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
-    pub(super) meter_per_pixel: Float,
+    pub(super) au_per_pixel: Float,
     pub(super) view_ecliptic: EclipticCoordinates,
 }
 
@@ -39,20 +39,19 @@ impl Into<GuiMessage> for TopViewMessage {
 
 impl TopViewState {
     pub(super) fn new() -> Self {
-        let m_per_au = Length::from_astronomical_units(1.).as_meters();
         TopViewState {
             background_cache: Cache::default(),
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
-            meter_per_pixel: 0.01 * m_per_au,
+            au_per_pixel: 0.01,
             view_ecliptic: EclipticCoordinates::Z_DIRECTION,
         }
     }
 
     pub(super) fn update(&mut self, message: TopViewMessage) {
         match message {
-            TopViewMessage::UpdateLengthScale(meter_per_pixel) => {
-                self.meter_per_pixel = meter_per_pixel;
+            TopViewMessage::UpdateLengthScale(au_per_pixel) => {
+                self.au_per_pixel = au_per_pixel;
             }
             TopViewMessage::UpdateViewLongitude(mut longitude) => {
                 longitude.normalize();
@@ -78,7 +77,7 @@ impl TopViewState {
         selected_body: &'a Option<CelestialBody>,
     ) -> iced::Element<'a, GuiMessage> {
         let time_control_fields = time_control_fields(time_since_epoch, time_step);
-        let m_per_px = self.meter_per_pixel;
+        let m_per_px = self.au_per_pixel;
         let length_scale_control_field = control_field(
             "Length per 100px:",
             format!("{}", Length::from_meters(100. * m_per_px)),
