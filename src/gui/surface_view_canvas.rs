@@ -144,7 +144,7 @@ impl SurfaceViewState {
             let color = Color::from_rgb(r, g, b);
             frame.fill(&circle, color);
 
-            draw_body_name(body, color, pos, frame);
+            draw_body_name(body, color, pos, radius, frame);
         }
     }
 }
