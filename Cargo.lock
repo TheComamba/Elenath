@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#f22904de1b2c054746307123282dd87f090b4956"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#a8198d902871606055b8f15cf34e718b63a122b0"
 dependencies = [
  "forward_ref_generic",
  "serde",

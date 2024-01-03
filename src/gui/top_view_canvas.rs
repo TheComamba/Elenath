@@ -60,7 +60,7 @@ impl TopViewState {
         celestial_bodies: &Vec<CelestialBody>,
         frame: &mut canvas::Frame,
     ) {
-        let view_direction = Direction::from_spherical(&self.view_ecliptic.get_spherical());
+        let view_direction = &self.view_ecliptic.get_spherical().to_direction();
         let (view_angle, view_rotation_axis) =
             get_rotation_parameters(&Direction::Z, &view_direction);
 
