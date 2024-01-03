@@ -22,10 +22,11 @@ use iced::{
     Color, Point,
 };
 
-const BRIGHTNESS_EXPONENT: f32 = 0.2;
-const BRIGHTNESS_FACTOR: f32 = 5e2;
-const GRADIENT_ALPHA: f32 = 0.5;
-const GRADIENT_STEPS: i32 = 10;
+const BRIGHTNESS_EXPONENT: f32 = 0.25;
+const BRIGHTNESS_FACTOR: f32 = 8e1;
+const GRADIENT_ALPHA: f32 = 1.;
+const GRADIENT_STEPS: i32 = 100;
+const GRADIENT_SHARPNESS_EXPONENT: i32 = 3;
 
 impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
@@ -156,7 +157,8 @@ fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut c
     let mut gradient_color = color.clone();
     gradient_color.a = (GRADIENT_ALPHA as f32) / (GRADIENT_STEPS as f32);
     for i in 1..=GRADIENT_STEPS {
-        let radius = brightness_radius * i as f32 / (GRADIENT_STEPS as f32);
+        let radius = brightness_radius
+            * (i as f32 / (GRADIENT_STEPS as f32)).powi(GRADIENT_SHARPNESS_EXPONENT);
         let brightness_circle = Path::circle(pos, radius);
         frame.fill(&brightness_circle, gradient_color);
     }
@@ -214,15 +216,6 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    // const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
-    // const BRIGHTNESS_SIZE_FACTOR: f32 = 1.;
-    // let size =
-    //     -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * BRIGHTNESS_SIZE_FACTOR;
-    // if size < 0. {
-    //     0.
-    // } else {
-    //     size
-    // }
     let size = brightness.get_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
     if size > 1e4 {
         1e4
