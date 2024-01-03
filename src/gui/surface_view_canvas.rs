@@ -1,4 +1,7 @@
-use super::{shared_canvas_functionality::draw_body_name, surface_view_widget::SurfaceViewState};
+use super::{
+    shared_canvas_functionality::{draw_body_name, maximized_color},
+    surface_view_widget::SurfaceViewState,
+};
 use crate::{
     gui::shared_canvas_functionality::draw_background,
     model::celestial_body::{CelestialBody, CelestialBodyData},
@@ -18,6 +21,11 @@ use iced::{
     widget::canvas::{self, Path},
     Color, Point,
 };
+
+const BRIGHTNESS_EXPONENT: f32 = 0.2;
+const BRIGHTNESS_FACTOR: f32 = 5e2;
+const GRADIENT_ALPHA: f32 = 0.5;
+const GRADIENT_STEPS: i32 = 10;
 
 impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
@@ -127,7 +135,7 @@ impl SurfaceViewState {
         );
         if let Some(pos) = pos {
             let brightness = body_brightness(central_body, body, observer_position);
-            let (color, remaining_brightness) = get_canvas_color(body, brightness);
+            let color = maximized_color(body);
             let apparent_radius =
                 canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
             let pos = frame.center() + pos;
@@ -135,7 +143,7 @@ impl SurfaceViewState {
             let solid_circle = Path::circle(pos, apparent_radius);
             frame.fill(&solid_circle, color);
 
-            let brightness_radius = canvas_brightness_radius(&remaining_brightness);
+            let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
 
             draw_body_name(body, color, pos, apparent_radius, frame);
@@ -146,9 +154,9 @@ impl SurfaceViewState {
 // Radial gradients are not yet impelemented in iced.
 fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut canvas::Frame) {
     let mut gradient_color = color.clone();
-    gradient_color.a = 0.01;
-    for i in 1..=10 {
-        let radius = brightness_radius * i as f32 / 10.;
+    gradient_color.a = (GRADIENT_ALPHA as f32) / (GRADIENT_STEPS as f32);
+    for i in 1..=GRADIENT_STEPS {
+        let radius = brightness_radius * i as f32 / (GRADIENT_STEPS as f32);
         let brightness_circle = Path::circle(pos, radius);
         frame.fill(&brightness_circle, gradient_color);
     }
@@ -197,27 +205,6 @@ fn body_brightness(
     }
 }
 
-fn get_canvas_color(body: &CelestialBody, brightness: Illuminance) -> (Color, Illuminance) {
-    const BRIGHTNESS_OF_WHITE: Illuminance = Illuminance::from_lux(1e-6);
-
-    let (r, g, b) = body.get_color().normalized_sRGB_tuple();
-    let max_rgb = r.max(g).max(b);
-    let max_color_norm = 1. / max_rgb;
-    let brightness_in_units_of_white = brightness / BRIGHTNESS_OF_WHITE;
-
-    let (color_norm, remaining_brightness) = if brightness_in_units_of_white > 1. {
-        let remaining_brightness = brightness - BRIGHTNESS_OF_WHITE;
-        (max_color_norm, remaining_brightness)
-    } else {
-        let color_norm = brightness_in_units_of_white * max_color_norm;
-        (color_norm, Illuminance::from_lux(0.))
-    };
-    let r = r * color_norm;
-    let g = g * color_norm;
-    let b = b * color_norm;
-    (Color::from_rgb(r, g, b), remaining_brightness)
-}
-
 fn canvas_apparent_radius(
     body: &CelestialBody,
     relative_position: &CartesianCoordinates,
@@ -227,12 +214,18 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
-    const BRIGHTNESS_SIZE_FACTOR: f32 = 1.;
-    let size =
-        -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * BRIGHTNESS_SIZE_FACTOR;
-    if size < 0. {
-        0.
+    // const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
+    // const BRIGHTNESS_SIZE_FACTOR: f32 = 1.;
+    // let size =
+    //     -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * BRIGHTNESS_SIZE_FACTOR;
+    // if size < 0. {
+    //     0.
+    // } else {
+    //     size
+    // }
+    let size = brightness.get_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
+    if size > 1e4 {
+        1e4
     } else {
         size
     }

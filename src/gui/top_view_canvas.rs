@@ -1,4 +1,7 @@
-use super::{shared_canvas_functionality::draw_body_name, top_view_widget::TopViewState};
+use super::{
+    shared_canvas_functionality::{draw_body_name, maximized_color},
+    top_view_widget::TopViewState,
+};
 use crate::{
     gui::shared_canvas_functionality::draw_background,
     model::celestial_body::{CelestialBody, CelestialBodyData},
@@ -125,14 +128,11 @@ fn body_radius(body: &CelestialBody) -> f32 {
 }
 
 fn body_color(body: &CelestialBody) -> Color {
-    const COLOR_FACTOR: f32 = 3.;
-    let (r, g, b) = body.get_color().normalized_sRGB_tuple();
+    let mut color = maximized_color(body);
     let albedo = match body.get_data() {
         CelestialBodyData::Planet(data) => data.get_geometric_albedo(),
         _ => 1.,
     };
-    let r = r * albedo * COLOR_FACTOR;
-    let g = g * albedo * COLOR_FACTOR;
-    let b = b * albedo * COLOR_FACTOR;
-    Color::from_rgb(r, g, b)
+    color.a = albedo as f32;
+    color
 }
