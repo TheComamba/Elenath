@@ -127,16 +127,15 @@ impl SurfaceViewState {
         );
         if let Some(pos) = pos {
             let brightness = body_brightness(central_body, body, observer_position);
+            let (color, remaining_brightness) = get_canvas_color(body, brightness);
             let radius = canvas_body_radius(
                 body,
                 &relative_position,
-                &brightness,
+                &remaining_brightness,
                 pixel_per_viewport_width,
             );
             let pos = frame.center() + pos;
             let circle = Path::circle(pos, radius);
-            let (r, g, b) = body.get_color().normalized_sRGB_tuple();
-            let color = Color::from_rgb(r, g, b);
             frame.fill(&circle, color);
 
             draw_body_name(body, color, pos, radius, frame);
@@ -187,6 +186,27 @@ fn body_brightness(
     }
 }
 
+fn get_canvas_color(body: &CelestialBody, brightness: Illuminance) -> (Color, Illuminance) {
+    const BRIGHTNESS_OF_WHITE: Illuminance = Illuminance::from_lux(1e-6);
+
+    let (r, g, b) = body.get_color().normalized_sRGB_tuple();
+    let max_rgb = r.max(g).max(b);
+    let max_color_norm = 1. / max_rgb;
+    let brightness_in_units_of_white = brightness / BRIGHTNESS_OF_WHITE;
+
+    let (color_norm, remaining_brightness) = if brightness_in_units_of_white > 1. {
+        let remaining_brightness = brightness - BRIGHTNESS_OF_WHITE;
+        (max_color_norm, remaining_brightness)
+    } else {
+        let color_norm = brightness_in_units_of_white * max_color_norm;
+        (color_norm, Illuminance::from_lux(0.))
+    };
+    let r = r * color_norm;
+    let g = g * color_norm;
+    let b = b * color_norm;
+    (Color::from_rgb(r, g, b), remaining_brightness)
+}
+
 fn canvas_body_radius(
     body: &CelestialBody,
     relative_position: &CartesianCoordinates,
@@ -213,8 +233,9 @@ fn apparent_size_at_viewport(
 
 fn brightness_to_canvas_size(brightness: &Illuminance) -> f32 {
     const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
-    const SIZE_FACTOR: f32 = 1.;
-    let size = -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * SIZE_FACTOR;
+    const BRIGHTNESS_SIZE_FACTOR: f32 = 1.;
+    let size =
+        -(brightness.as_apparent_magnitude() - MIN_VISIBLE_MAGNITUDE) * BRIGHTNESS_SIZE_FACTOR;
     if size < 0. {
         0.
     } else {
