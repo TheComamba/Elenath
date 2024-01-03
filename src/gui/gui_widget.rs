@@ -183,6 +183,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::SurfaceView => self.surface_view_state.canvas(
                 renderer,
                 bounds,
+                self.celestial_system.get_central_body_data(),
                 &self.focused_body,
                 self.time_since_epoch,
                 &self.celestial_bodies,

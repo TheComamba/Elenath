@@ -1,6 +1,10 @@
-use super::{shared_canvas_functionality::draw_body_name, top_view_widget::TopViewState};
+use super::{
+    shared_canvas_functionality::{draw_body_name, maximized_color},
+    top_view_widget::TopViewState,
+};
 use crate::{
-    gui::shared_canvas_functionality::draw_background, model::celestial_body::CelestialBody,
+    gui::shared_canvas_functionality::draw_background,
+    model::celestial_body::{CelestialBody, CelestialBodyData},
 };
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
@@ -79,15 +83,14 @@ impl TopViewState {
         view_rotation_axis: &Direction,
         offset: iced::Vector,
     ) {
-        let radius = 3.0;
+        let radius = body_radius(body);
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
         let circle = Path::circle(pos, radius);
-        let (r, g, b) = body.get_color().normalized_rgb();
-        let color = Color::from_rgb(r, g, b);
+        let color = body_color(body);
         frame.fill(&circle, color);
 
-        draw_body_name(body, color, pos, frame);
+        draw_body_name(body, color, pos, radius, frame);
     }
 
     fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {
@@ -117,4 +120,19 @@ impl TopViewState {
         text.horizontal_alignment = Horizontal::Center;
         frame.fill_text(text);
     }
+}
+
+fn body_radius(body: &CelestialBody) -> f32 {
+    const SIZE_NUMBER: f32 = 0.3;
+    body.get_radius().as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
+}
+
+fn body_color(body: &CelestialBody) -> Color {
+    let mut color = maximized_color(body);
+    let albedo = match body.get_data() {
+        CelestialBodyData::Planet(data) => data.get_geometric_albedo(),
+        _ => 1.,
+    };
+    color.a = albedo as f32;
+    color
 }

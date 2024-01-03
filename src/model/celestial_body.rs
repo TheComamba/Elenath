@@ -1,6 +1,6 @@
 use super::{distant_star::DistantStar, planet_data::PlanetData};
 use astro_utils::{
-    color::Color,
+    color::sRGBColor,
     coordinates::{cartesian::CartesianCoordinates, direction::Direction},
     stellar_properties::StellarProperties,
     units::{length::Length, mass::Mass, time::Time},
@@ -11,7 +11,7 @@ use std::fmt::{Display, Formatter};
 pub(crate) struct CelestialBody {
     data: CelestialBodyData,
     position: CartesianCoordinates,
-    color: Color,
+    color: sRGBColor,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -37,7 +37,7 @@ impl Display for CelestialBody {
 
 impl CelestialBody {
     pub(crate) fn central_body(data: StellarProperties) -> Self {
-        let color = Color::from_temperature(data.get_temperature());
+        let color = sRGBColor::from_temperature(data.get_temperature());
         CelestialBody {
             data: CelestialBodyData::CentralBody(data),
             position: CartesianCoordinates::ORIGIN,
@@ -71,7 +71,11 @@ impl CelestialBody {
         }
     }
 
-    pub(crate) fn get_color(&self) -> &Color {
+    pub(crate) fn get_data(&self) -> &CelestialBodyData {
+        &self.data
+    }
+
+    pub(crate) fn get_color(&self) -> &sRGBColor {
         &self.color
     }
 
