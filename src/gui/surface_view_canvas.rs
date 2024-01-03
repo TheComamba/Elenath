@@ -16,7 +16,7 @@ use astro_utils::{
 };
 use iced::{
     widget::canvas::{self, Path},
-    Color,
+    Color, Point,
 };
 
 impl SurfaceViewState {
@@ -128,18 +128,29 @@ impl SurfaceViewState {
         if let Some(pos) = pos {
             let brightness = body_brightness(central_body, body, observer_position);
             let (color, remaining_brightness) = get_canvas_color(body, brightness);
-            let radius = canvas_body_radius(
-                body,
-                &relative_position,
-                &remaining_brightness,
-                pixel_per_viewport_width,
-            );
+            let apparent_radius =
+                canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
             let pos = frame.center() + pos;
-            let circle = Path::circle(pos, radius);
-            frame.fill(&circle, color);
 
-            draw_body_name(body, color, pos, radius, frame);
+            let solid_circle = Path::circle(pos, apparent_radius);
+            frame.fill(&solid_circle, color);
+
+            let brightness_radius = canvas_brightness_radius(&remaining_brightness);
+            fake_gradient(color, brightness_radius, pos, frame);
+
+            draw_body_name(body, color, pos, apparent_radius, frame);
         }
+    }
+}
+
+// Radial gradients are not yet impelemented in iced.
+fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut canvas::Frame) {
+    let mut gradient_color = color.clone();
+    gradient_color.a = 0.01;
+    for i in 1..=10 {
+        let radius = brightness_radius * i as f32 / 10.;
+        let brightness_circle = Path::circle(pos, radius);
+        frame.fill(&brightness_circle, gradient_color);
     }
 }
 
@@ -207,23 +218,7 @@ fn get_canvas_color(body: &CelestialBody, brightness: Illuminance) -> (Color, Il
     (Color::from_rgb(r, g, b), remaining_brightness)
 }
 
-fn canvas_body_radius(
-    body: &CelestialBody,
-    relative_position: &CartesianCoordinates,
-    brightness: &Illuminance,
-    pixel_per_viewport_width: Float,
-) -> f32 {
-    let apparent_size_at_viewport =
-        apparent_size_at_viewport(body, relative_position, pixel_per_viewport_width);
-    let brightness_size = brightness_to_canvas_size(brightness);
-    if apparent_size_at_viewport > brightness_size {
-        apparent_size_at_viewport
-    } else {
-        brightness_size
-    }
-}
-
-fn apparent_size_at_viewport(
+fn canvas_apparent_radius(
     body: &CelestialBody,
     relative_position: &CartesianCoordinates,
     pixel_per_viewport_width: f32,
@@ -231,7 +226,7 @@ fn apparent_size_at_viewport(
     body.get_radius() / relative_position.length() * pixel_per_viewport_width
 }
 
-fn brightness_to_canvas_size(brightness: &Illuminance) -> f32 {
+fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
     const MIN_VISIBLE_MAGNITUDE: f32 = 6.5;
     const BRIGHTNESS_SIZE_FACTOR: f32 = 1.;
     let size =
