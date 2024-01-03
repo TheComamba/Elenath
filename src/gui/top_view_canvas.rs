@@ -83,7 +83,7 @@ impl TopViewState {
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
         let circle = Path::circle(pos, radius);
-        let (r, g, b) = body.get_color().normalized_rgb();
+        let (r, g, b) = body.get_color().normalized_sRGB_tuple();
         let color = Color::from_rgb(r, g, b);
         frame.fill(&circle, color);
 

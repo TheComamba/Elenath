@@ -140,7 +140,7 @@ impl SurfaceViewState {
             let radius = 3.0;
             let pos = frame.center() + pos;
             let circle = Path::circle(pos, radius);
-            let (r, g, b) = body.get_color().normalized_rgb();
+            let (r, g, b) = body.get_color().normalized_sRGB_tuple();
             let color = Color::from_rgb(r, g, b);
             frame.fill(&circle, color);
 
