@@ -47,25 +47,6 @@ impl SurfaceViewState {
         canvas_width / viewport_width
     }
 
-    fn canvas_position(
-        &self,
-        body: &CelestialBody,
-        observer_position: &CartesianCoordinates,
-        observer_normal: &Direction,
-        pixel_per_viewport_width: Float,
-    ) -> Option<iced::Vector> {
-        let relative_position = body.get_position() - observer_position;
-        let direction = Direction::from_cartesian(&relative_position);
-        let direction = direction_relative_to_surface_normal(&direction, observer_normal);
-        if direction.z() > 0.0 {
-            let x = direction.x() * pixel_per_viewport_width;
-            let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
-            Some(iced::Vector::new(x as f32, y as f32))
-        } else {
-            None
-        }
-    }
-
     pub(super) fn canvas(
         &self,
         renderer: &iced::Renderer,
@@ -130,14 +111,15 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
     ) {
-        let pos = self.canvas_position(
-            body,
-            observer_position,
+        let relative_position = body.get_position() - observer_position;
+        let pos = canvas_position(
+            &relative_position,
             observer_normal,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
-            let radius = 3.0;
+            let radius = body_radius(body, &relative_position, pixel_per_viewport_width);
+            println!("name: {}, radius: {}", body.get_name(), radius);
             let pos = frame.center() + pos;
             let circle = Path::circle(pos, radius);
             let (r, g, b) = body.get_color().normalized_sRGB_tuple();
@@ -148,3 +130,28 @@ impl SurfaceViewState {
         }
     }
 }
+
+fn canvas_position(
+    relative_position: &CartesianCoordinates,
+    observer_normal: &Direction,
+    pixel_per_viewport_width: Float,
+) -> Option<iced::Vector> {
+    let direction = Direction::from_cartesian(&relative_position);
+    let direction = direction_relative_to_surface_normal(&direction, observer_normal);
+    if direction.z() > 0.0 {
+        let x = direction.x() * pixel_per_viewport_width;
+        let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
+        Some(iced::Vector::new(x as f32, y as f32))
+    } else {
+        None
+    }
+}
+
+fn body_radius(
+    body: &CelestialBody,
+    relative_position: &CartesianCoordinates,
+    pixel_per_viewport_width: Float,
+) -> f32 {
+    let apparent_size_at_viewport = body.get_radius() / relative_position.length() * pixel_per_viewport_width;
+}
+
