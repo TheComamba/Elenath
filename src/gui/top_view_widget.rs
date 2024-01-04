@@ -77,12 +77,14 @@ impl TopViewState {
         selected_body: &'a Option<CelestialBody>,
     ) -> iced::Element<'a, GuiMessage> {
         let time_control_fields = time_control_fields(time_since_epoch, time_step);
-        let m_per_px = self.au_per_pixel;
         let length_scale_control_field = control_field(
             "Length per 100px:",
-            format!("{}", Length::from_meters(100. * m_per_px)),
-            TopViewMessage::UpdateLengthScale(m_per_px / 2.),
-            TopViewMessage::UpdateLengthScale(m_per_px * 2.),
+            format!(
+                "{}",
+                Length::from_astronomical_units(100. * self.au_per_pixel)
+            ),
+            TopViewMessage::UpdateLengthScale(self.au_per_pixel / 2.),
+            TopViewMessage::UpdateLengthScale(self.au_per_pixel * 2.),
         );
         const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
         let view_longitude = self.view_ecliptic.get_longitude();
