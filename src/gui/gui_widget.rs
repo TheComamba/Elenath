@@ -12,9 +12,11 @@ use crate::{
 };
 use astro_utils::units::time::Time;
 use iced::{
-    widget::{canvas, Column},
-    Sandbox,
+    widget::{canvas, Column, Row},
+    Alignment, Sandbox,
 };
+
+pub(super) const PADDING: f32 = 10.0;
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
@@ -117,38 +119,39 @@ impl Sandbox for Gui {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        let mut col = Column::new()
+        let toprow = Row::new()
             .push(Gui::gui_mode_tabs())
-            .push(Gui::file_buttons());
+            .push(Gui::file_buttons())
+            .spacing(150.)
+            .padding(PADDING);
+        let mut col = Column::new().push(toprow);
 
         match self.mode {
             GuiMode::SurfaceView => {
-                col = col
-                    .push(self.surface_view_state.control_field(
-                        &self.time_since_epoch,
-                        &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_body,
-                    ))
-                    .push(
-                        canvas(self)
-                            .width(iced::Length::Fill)
-                            .height(iced::Length::Fill),
-                    )
+                let control_row = Row::new().push(self.surface_view_state.control_field(
+                    &self.time_since_epoch,
+                    &self.time_step,
+                    &self.celestial_bodies,
+                    &self.focused_body,
+                ));
+                col = col.push(control_row).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
             }
             GuiMode::TopView => {
-                col = col
-                    .push(self.top_view_state.control_field(
-                        &self.time_since_epoch,
-                        &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_body,
-                    ))
-                    .push(
-                        canvas(self)
-                            .width(iced::Length::Fill)
-                            .height(iced::Length::Fill),
-                    )
+                let control_row = Row::new().push(self.top_view_state.control_field(
+                    &self.time_since_epoch,
+                    &self.time_step,
+                    &self.celestial_bodies,
+                    &self.focused_body,
+                ));
+                col = col.push(control_row).push(
+                    canvas(self)
+                        .width(iced::Length::Fill)
+                        .height(iced::Length::Fill),
+                )
             }
             GuiMode::TableView => {
                 col = col.push(

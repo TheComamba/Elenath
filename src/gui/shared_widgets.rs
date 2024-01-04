@@ -1,42 +1,54 @@
 use crate::model::celestial_body::CelestialBody;
 
-use super::{gui_widget::GuiMessage, Gui, GuiMode};
+use super::{
+    gui_widget::{GuiMessage, PADDING},
+    Gui, GuiMode,
+};
 use astro_utils::units::time::Time;
 use iced::{
-    alignment::Horizontal,
+    alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text},
     Alignment,
 };
 
 impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
-        let local_view_button = Button::new(Text::new("Local View"))
-            .on_press(GuiMessage::ModeSelected(GuiMode::SurfaceView));
-        let top_view_button =
-            Button::new(Text::new("Top View")).on_press(GuiMessage::ModeSelected(GuiMode::TopView));
-        let table_view_button = Button::new(Text::new("Table View"))
-            .on_press(GuiMessage::ModeSelected(GuiMode::TableView));
+        let local_view_button =
+            std_button("Local View", GuiMessage::ModeSelected(GuiMode::SurfaceView));
+        let top_view_button = std_button("Top View", GuiMessage::ModeSelected(GuiMode::TopView));
+        let table_view_button =
+            std_button("Table View", GuiMessage::ModeSelected(GuiMode::TableView));
         Row::new()
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
             .align_items(Alignment::Center)
+            .spacing(PADDING)
             .into()
     }
 
     pub(super) fn file_buttons() -> iced::Element<'static, GuiMessage> {
-        let save_to_file_button =
-            Button::new(Text::new("Save to file")).on_press(GuiMessage::SaveToFile);
-        let save_to_new_file_button =
-            Button::new(Text::new("Save to new file")).on_press(GuiMessage::SaveToNewFile);
-        let open_file_button = Button::new(Text::new("Open file")).on_press(GuiMessage::OpenFile);
+        let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
+        let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
+        let open_file_button = std_button("Open file", GuiMessage::OpenFile);
         Row::new()
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
             .align_items(Alignment::Center)
+            .spacing(PADDING)
             .into()
     }
+}
+
+fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
+    Button::new(
+        Text::new(text)
+            .horizontal_alignment(Horizontal::Center)
+            .vertical_alignment(Vertical::Center),
+    )
+    .on_press(message)
+    .width(150.)
 }
 
 pub(super) fn time_control_fields<'a>(
