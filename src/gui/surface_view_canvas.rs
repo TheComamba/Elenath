@@ -169,7 +169,7 @@ fn canvas_position(
     observer_normal: &Direction,
     pixel_per_viewport_width: Float,
 ) -> Option<iced::Vector> {
-    let direction = Direction::from_cartesian(&relative_position);
+    let direction = relative_position.to_direction();
     let direction = direction_relative_to_surface_normal(&direction, observer_normal);
     if direction.z() > 0.0 {
         let x = direction.x() * pixel_per_viewport_width;
@@ -216,7 +216,7 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    let size = brightness.get_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
+    let size = brightness.as_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
     if size > 1e4 {
         1e4
     } else {
