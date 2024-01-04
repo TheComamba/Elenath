@@ -8,7 +8,7 @@ use crate::{
 };
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
-    units::{angle::Angle, length::Length},
+    units::angle::Angle,
 };
 use iced::{
     alignment::Horizontal,
@@ -25,8 +25,8 @@ impl TopViewState {
     ) -> iced::Vector {
         let three_dim_position = body.get_position();
         let rotated_position = three_dim_position.rotated(-view_angle, view_rotation_axis); //passive transformation
-        let x = rotated_position.x().as_astronomical_units() / self.au_per_pixel;
-        let y = -rotated_position.y().as_astronomical_units() / self.au_per_pixel; // y axis is inverted
+        let x = rotated_position.x() / self.length_per_pixel;
+        let y = -rotated_position.y() / self.length_per_pixel; // y axis is inverted
         iced::Vector::new(x as f32, y as f32)
     }
 
@@ -94,10 +94,10 @@ impl TopViewState {
     }
 
     fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {
-        const LENGTH: f32 = 200.0;
+        const LENGTH_IN_PX: f32 = 200.0;
         let start_pos = Point::ORIGIN + iced::Vector::new(50. as f32, bounds.height - 50. as f32);
-        let middle_pos = start_pos + iced::Vector::new(LENGTH as f32 / 2., 0.0 as f32);
-        let end_pos = start_pos + iced::Vector::new(LENGTH as f32, 0.0 as f32);
+        let middle_pos = start_pos + iced::Vector::new(LENGTH_IN_PX as f32 / 2., 0.0 as f32);
+        let end_pos = start_pos + iced::Vector::new(LENGTH_IN_PX as f32, 0.0 as f32);
         let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
 
         let scale = Path::new(|path_builder| {
@@ -115,10 +115,7 @@ impl TopViewState {
 
         let mut text = canvas::Text::default();
         text.color = Color::WHITE;
-        text.content = format!(
-            "{}",
-            Length::from_astronomical_units(LENGTH * self.au_per_pixel)
-        );
+        text.content = format!("{}", LENGTH_IN_PX * self.length_per_pixel);
         text.position = middle_pos;
         text.horizontal_alignment = Horizontal::Center;
         frame.fill_text(text);
