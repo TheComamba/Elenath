@@ -1,4 +1,7 @@
-use crate::gui::{gui_widget::GuiMessage, shared_widgets::control_field};
+use crate::gui::{
+    gui_widget::{GuiMessage, PADDING},
+    shared_widgets::control_field,
+};
 use astro_utils::{
     coordinates::ecliptic::EclipticCoordinates,
     units::{angle::Angle, length::Length},
@@ -90,6 +93,7 @@ impl TopViewState {
             .push(view_latitude_control_field)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
+            .spacing(PADDING)
             .into()
     }
 }

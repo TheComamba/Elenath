@@ -123,7 +123,6 @@ impl Sandbox for Gui {
         let toprow = Row::new()
             .push(Gui::gui_mode_tabs())
             .push(Gui::file_buttons())
-            .spacing(150.)
             .padding(PADDING);
         let mut col = Column::new().push(toprow);
 
@@ -168,6 +167,7 @@ impl Sandbox for Gui {
 
         col.width(iced::Length::Fill)
             .height(iced::Length::Fill)
+            .spacing(PADDING)
             .into()
     }
 

@@ -22,6 +22,7 @@ impl Gui {
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
+            .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -35,6 +36,7 @@ impl Gui {
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
+            .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -94,6 +96,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .push(planet_picker)
         .width(iced::Length::Fill)
         .align_items(Alignment::Center)
+        .spacing(PADDING)
         .into()
 }
 
