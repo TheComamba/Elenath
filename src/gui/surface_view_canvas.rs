@@ -67,6 +67,7 @@ impl SurfaceViewState {
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         celestial_bodies: &Vec<CelestialBody>,
+        display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
             .background_cache
@@ -82,6 +83,7 @@ impl SurfaceViewState {
                 bounds,
                 celestial_bodies,
                 frame,
+                display_names,
             );
         });
 
@@ -96,6 +98,7 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         celestial_bodies: &Vec<CelestialBody>,
         frame: &mut canvas::Frame,
+        display_names: bool,
     ) {
         let observer_normal = match selected_body {
             Some(body) => self.observer_normal(body, time_since_epoch),
@@ -115,6 +118,7 @@ impl SurfaceViewState {
                 &observer_normal,
                 pixel_per_viewport_width,
                 frame,
+                display_names,
             );
         }
     }
@@ -127,6 +131,7 @@ impl SurfaceViewState {
         observer_normal: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
+        display_names: bool,
     ) {
         let relative_position = body.get_position() - observer_position;
         let pos = canvas_position(
@@ -147,7 +152,9 @@ impl SurfaceViewState {
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
 
-            draw_body_name(body, color, pos, apparent_radius, frame);
+            if display_names {
+                draw_body_name(body, color, pos, apparent_radius, frame);
+            }
         }
     }
 }

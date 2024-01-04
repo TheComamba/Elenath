@@ -7,7 +7,7 @@ use super::{
 use astro_utils::units::time::Time;
 use iced::{
     alignment::{Horizontal, Vertical},
-    widget::{Button, Column, Container, PickList, Row, Text},
+    widget::{Button, Column, Container, PickList, Row, Text, Toggler},
     Alignment,
 };
 
@@ -76,6 +76,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
     time_step: &'a Time,
     celestial_bodies: &'a Vec<CelestialBody>,
     selected_body: &'a Option<CelestialBody>,
+    display_names: bool,
 ) -> iced::Element<'a, GuiMessage> {
     let time_control_field = control_field(
         "Time since Epoch:",
@@ -90,10 +91,15 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         GuiMessage::UpdateTimeStep(*time_step * 2.),
     );
     let planet_picker = planet_picker(celestial_bodies, selected_body);
+    let display_names_toggle =
+        Toggler::new(Some("Display Names".to_string()), display_names, |state| {
+            GuiMessage::SetShowNames(state)
+        });
     Column::new()
         .push(time_control_field)
         .push(time_step_control_field)
         .push(planet_picker)
+        .push(display_names_toggle)
         .width(iced::Length::Fill)
         .align_items(Alignment::Center)
         .spacing(PADDING)

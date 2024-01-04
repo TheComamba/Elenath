@@ -30,6 +30,7 @@ pub(crate) enum GuiMessage {
     UpdateTime(Time),
     UpdateTimeStep(Time),
     FocusedBodySelected(CelestialBody),
+    SetShowNames(bool),
 }
 
 #[derive(Debug, Clone)]
@@ -61,6 +62,7 @@ impl Sandbox for Gui {
             celestial_system,
             celestial_bodies,
             focused_body: selected_focus,
+            display_names: true,
         }
     }
 
@@ -115,6 +117,9 @@ impl Sandbox for Gui {
             GuiMessage::FocusedBodySelected(body) => {
                 self.focused_body = Some(body);
             }
+            GuiMessage::SetShowNames(display_names) => {
+                self.display_names = display_names;
+            }
         }
         self.redraw();
     }
@@ -134,6 +139,7 @@ impl Sandbox for Gui {
                         &self.time_step,
                         &self.celestial_bodies,
                         &self.focused_body,
+                        self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
                 col = col.push(control_row).push(
@@ -149,6 +155,7 @@ impl Sandbox for Gui {
                         &self.time_step,
                         &self.celestial_bodies,
                         &self.focused_body,
+                        self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
                 col = col.push(control_row).push(
@@ -195,12 +202,14 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 &self.focused_body,
                 self.time_since_epoch,
                 &self.celestial_bodies,
+                self.display_names,
             ),
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
                 &self.focused_body,
                 &self.celestial_bodies,
+                self.display_names,
             ),
             _ => {
                 println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
