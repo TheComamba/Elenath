@@ -118,6 +118,7 @@ impl SurfaceViewState {
                 &observer_normal,
                 pixel_per_viewport_width,
                 frame,
+                bounds,
                 display_names,
             );
         }
@@ -131,6 +132,7 @@ impl SurfaceViewState {
         observer_normal: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
         display_names: bool,
     ) {
         let relative_position = body.get_position() - observer_position;
@@ -140,20 +142,22 @@ impl SurfaceViewState {
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
+            let pos: Point = frame.center() + pos;
             let brightness = body_brightness(central_body, body, observer_position);
             let color = maximized_color(body);
             let apparent_radius =
                 canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
-            let pos = frame.center() + pos;
-
-            let solid_circle = Path::circle(pos, apparent_radius);
-            frame.fill(&solid_circle, color);
 
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
 
-            if display_names {
-                draw_body_name(body, color, pos, apparent_radius, frame);
+            if bounds.contains(pos) {
+                let solid_circle = Path::circle(pos, apparent_radius);
+                frame.fill(&solid_circle, color);
+
+                if display_names {
+                    draw_body_name(body, color, pos, apparent_radius, frame);
+                }
             }
         }
     }
