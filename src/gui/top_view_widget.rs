@@ -1,5 +1,5 @@
 use crate::gui::{
-    gui_widget::{GuiMessage, PADDING},
+    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING},
     shared_widgets::control_field,
 };
 use astro_utils::{
@@ -91,7 +91,7 @@ impl TopViewState {
             .push(length_scale_control_field)
             .push(view_longitude_control_field)
             .push(view_latitude_control_field)
-            .width(iced::Length::Fill)
+            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()

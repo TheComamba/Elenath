@@ -1,4 +1,7 @@
-use crate::gui::{gui_widget::PADDING, shared_widgets::control_field};
+use crate::gui::{
+    gui_widget::{BIG_COLUMN_WIDTH, PADDING},
+    shared_widgets::control_field,
+};
 
 use super::gui_widget::GuiMessage;
 use astro_utils::units::angle::Angle;
@@ -97,7 +100,7 @@ impl SurfaceViewState {
             .push(surface_longitude_control_field)
             .push(surface_latitude_control_field)
             .push(viewport_angle_control_field)
-            .width(iced::Length::Fill)
+            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()

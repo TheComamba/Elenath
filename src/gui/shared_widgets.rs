@@ -1,7 +1,7 @@
 use crate::model::celestial_body::CelestialBody;
 
 use super::{
-    gui_widget::{GuiMessage, PADDING},
+    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     Gui, GuiMode,
 };
 use astro_utils::units::time::Time;
@@ -22,7 +22,7 @@ impl Gui {
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
-            .width(iced::Length::Fill)
+            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -36,7 +36,7 @@ impl Gui {
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
-            .width(iced::Length::Fill)
+            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -50,23 +50,27 @@ fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
             .vertical_alignment(Vertical::Center),
     )
     .on_press(message)
-    .width(150.)
+    .width(SMALL_COLUMN_WIDTH)
 }
 
 pub(super) fn planet_picker<'a>(
     celestial_bodies: &'a Vec<CelestialBody>,
     selected_body: &'a Option<CelestialBody>,
 ) -> iced::Element<'a, GuiMessage> {
-    let text = Text::new("Focused body:").width(150.);
+    let text = Text::new("Focused body:")
+        .width(SMALL_COLUMN_WIDTH)
+        .horizontal_alignment(Horizontal::Right)
+        .vertical_alignment(Vertical::Center);
     let pick_list = PickList::new(
         celestial_bodies.clone(),
         selected_body.clone(),
         GuiMessage::FocusedBodySelected,
     )
-    .width(200.);
+    .width(1.25 * SMALL_COLUMN_WIDTH + PADDING);
     Row::new()
         .push(text)
         .push(pick_list)
+        .spacing(PADDING)
         .align_items(Alignment::Center)
         .into()
 }
@@ -91,16 +95,18 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         GuiMessage::UpdateTimeStep(*time_step * 2.),
     );
     let planet_picker = planet_picker(celestial_bodies, selected_body);
-    let display_names_toggle =
-        Toggler::new(Some("Display Names".to_string()), display_names, |state| {
-            GuiMessage::SetShowNames(state)
-        });
+    let display_names_toggle = Container::new(Toggler::new(
+        Some("Display Names".to_string()),
+        display_names,
+        |state| GuiMessage::SetShowNames(state),
+    ))
+    .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
     Column::new()
         .push(time_control_field)
         .push(time_step_control_field)
         .push(planet_picker)
         .push(display_names_toggle)
-        .width(iced::Length::Fill)
+        .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
         .align_items(Alignment::Center)
         .spacing(PADDING)
         .into()
@@ -115,22 +121,24 @@ pub(super) fn control_field<'a, M>(
 where
     M: Into<GuiMessage>,
 {
-    let label = Container::new(Text::new(label))
-        .align_x(Horizontal::Center)
-        .width(iced::Length::Fixed(150.));
+    let label = Text::new(label)
+        .vertical_alignment(Vertical::Center)
+        .horizontal_alignment(Horizontal::Right)
+        .width(iced::Length::Fixed(SMALL_COLUMN_WIDTH));
     let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
         .align_x(Horizontal::Center)
-        .width(iced::Length::Fixed(50.));
-    let value = Container::new(Text::new(value))
-        .width(iced::Length::Fixed(100.))
-        .align_x(Horizontal::Center);
+        .width(iced::Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
+    let value = Text::new(value)
+        .width(iced::Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
+        .horizontal_alignment(Horizontal::Center);
     let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
         .align_x(Horizontal::Center)
-        .width(iced::Length::Fixed(50.));
+        .width(iced::Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
     Row::new()
         .push(label)
         .push(decrease_button)
         .push(value)
         .push(increase_button)
+        .spacing(PADDING)
         .align_items(Alignment::Center)
 }

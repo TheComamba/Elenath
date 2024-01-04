@@ -18,6 +18,8 @@ use iced::{
 };
 
 pub(super) const PADDING: f32 = 10.0;
+pub(super) const SMALL_COLUMN_WIDTH: f32 = 150.0;
+pub(super) const BIG_COLUMN_WIDTH: f32 = 3.5 * SMALL_COLUMN_WIDTH;
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
