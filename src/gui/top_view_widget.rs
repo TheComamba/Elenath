@@ -1,13 +1,7 @@
-use crate::{
-    gui::{
-        gui_widget::GuiMessage,
-        shared_widgets::{control_field, planet_picker, time_control_fields},
-    },
-    model::celestial_body::CelestialBody,
-};
+use crate::gui::{gui_widget::GuiMessage, shared_widgets::control_field};
 use astro_utils::{
     coordinates::ecliptic::EclipticCoordinates,
-    units::{angle::Angle, length::Length, time::Time},
+    units::{angle::Angle, length::Length},
 };
 use iced::{
     widget::{canvas::Cache, Column},
@@ -68,14 +62,7 @@ impl TopViewState {
         self.scale_cache.clear();
     }
 
-    pub(super) fn control_field<'a>(
-        &'a self,
-        time_since_epoch: &'a Time,
-        time_step: &'a Time,
-        celestial_bodies: &'a Vec<CelestialBody>,
-        selected_body: &'a Option<CelestialBody>,
-    ) -> iced::Element<'a, GuiMessage> {
-        let time_control_fields = time_control_fields(time_since_epoch, time_step);
+    pub(super) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
         let length_scale_control_field = control_field(
             "Length per 100px:",
             format!("{}", self.length_per_pixel * 100.),
@@ -97,13 +84,10 @@ impl TopViewState {
             TopViewMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
         );
-        let planet_picker = planet_picker(celestial_bodies, selected_body);
         Column::new()
-            .push(time_control_fields)
             .push(length_scale_control_field)
             .push(view_longitude_control_field)
             .push(view_latitude_control_field)
-            .push(planet_picker)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .into()

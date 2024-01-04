@@ -51,30 +51,6 @@ fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
     .width(150.)
 }
 
-pub(super) fn time_control_fields<'a>(
-    time_since_epoch: &'a Time,
-    time_step: &'a Time,
-) -> iced::Element<'a, GuiMessage> {
-    let time_control_field = control_field(
-        "Time since Epoch:",
-        format!("{}", time_since_epoch),
-        GuiMessage::UpdateTime(*time_since_epoch - *time_step),
-        GuiMessage::UpdateTime(*time_since_epoch + *time_step),
-    );
-    let time_step_control_field = control_field(
-        "Time step:",
-        format!("{}", time_step),
-        GuiMessage::UpdateTimeStep(*time_step / 2.),
-        GuiMessage::UpdateTimeStep(*time_step * 2.),
-    );
-    Column::new()
-        .push(time_control_field)
-        .push(time_step_control_field)
-        .width(iced::Length::Fill)
-        .align_items(Alignment::Center)
-        .into()
-}
-
 pub(super) fn planet_picker<'a>(
     celestial_bodies: &'a Vec<CelestialBody>,
     selected_body: &'a Option<CelestialBody>,
@@ -89,6 +65,34 @@ pub(super) fn planet_picker<'a>(
     Row::new()
         .push(text)
         .push(pick_list)
+        .align_items(Alignment::Center)
+        .into()
+}
+
+pub(super) fn surface_and_top_view_shared_control<'a>(
+    time_since_epoch: &'a Time,
+    time_step: &'a Time,
+    celestial_bodies: &'a Vec<CelestialBody>,
+    selected_body: &'a Option<CelestialBody>,
+) -> iced::Element<'a, GuiMessage> {
+    let time_control_field = control_field(
+        "Time since Epoch:",
+        format!("{}", time_since_epoch),
+        GuiMessage::UpdateTime(*time_since_epoch - *time_step),
+        GuiMessage::UpdateTime(*time_since_epoch + *time_step),
+    );
+    let time_step_control_field = control_field(
+        "Time step:",
+        format!("{}", time_step),
+        GuiMessage::UpdateTimeStep(*time_step / 2.),
+        GuiMessage::UpdateTimeStep(*time_step * 2.),
+    );
+    let planet_picker = planet_picker(celestial_bodies, selected_body);
+    Column::new()
+        .push(time_control_field)
+        .push(time_step_control_field)
+        .push(planet_picker)
+        .width(iced::Length::Fill)
         .align_items(Alignment::Center)
         .into()
 }

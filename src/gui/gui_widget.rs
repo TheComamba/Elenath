@@ -1,4 +1,5 @@
 use super::{
+    shared_widgets::surface_and_top_view_shared_control,
     surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
     table_view::TableViewState,
     top_view_widget::{TopViewMessage, TopViewState},
@@ -13,7 +14,7 @@ use crate::{
 use astro_utils::units::time::Time;
 use iced::{
     widget::{canvas, Column, Row},
-    Alignment, Sandbox,
+    Sandbox,
 };
 
 pub(super) const PADDING: f32 = 10.0;
@@ -128,12 +129,14 @@ impl Sandbox for Gui {
 
         match self.mode {
             GuiMode::SurfaceView => {
-                let control_row = Row::new().push(self.surface_view_state.control_field(
-                    &self.time_since_epoch,
-                    &self.time_step,
-                    &self.celestial_bodies,
-                    &self.focused_body,
-                ));
+                let control_row = Row::new()
+                    .push(surface_and_top_view_shared_control(
+                        &self.time_since_epoch,
+                        &self.time_step,
+                        &self.celestial_bodies,
+                        &self.focused_body,
+                    ))
+                    .push(self.surface_view_state.control_field());
                 col = col.push(control_row).push(
                     canvas(self)
                         .width(iced::Length::Fill)
@@ -141,12 +144,14 @@ impl Sandbox for Gui {
                 )
             }
             GuiMode::TopView => {
-                let control_row = Row::new().push(self.top_view_state.control_field(
-                    &self.time_since_epoch,
-                    &self.time_step,
-                    &self.celestial_bodies,
-                    &self.focused_body,
-                ));
+                let control_row = Row::new()
+                    .push(surface_and_top_view_shared_control(
+                        &self.time_since_epoch,
+                        &self.time_step,
+                        &self.celestial_bodies,
+                        &self.focused_body,
+                    ))
+                    .push(self.top_view_state.control_field());
                 col = col.push(control_row).push(
                     canvas(self)
                         .width(iced::Length::Fill)
