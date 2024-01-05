@@ -23,48 +23,15 @@ impl TableViewState {
         }
     }
 
-    pub(super) fn table_view(&self, planets: Vec<&PlanetData>) -> Element<'_, GuiMessage> {
+    pub(super) fn table_view<'a>(
+        &'a self,
+        planets: Vec<&'a PlanetData>,
+    ) -> Element<'_, GuiMessage> {
         Column::new()
-            .push(twoway_scrollable(
-                self.table(planets, &self.planet_col_data),
-            ))
+            .push(twoway_scrollable(table(planets, &self.planet_col_data)))
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
-    }
-
-    fn table<T>(
-        &self,
-        bodies: Vec<&T>,
-        table_col_data: &Vec<TableColData<T>>,
-    ) -> Element<'_, GuiMessage> {
-        let width = CELL_WIDTH + CELL_WIDTH * table_col_data.len() as f32;
-        let mut col = Column::new()
-            .push(self.table_header(table_col_data))
-            .push(Rule::horizontal(10));
-        for body in bodies {
-            col = col.push(self.table_row(body, table_col_data));
-        }
-        Container::new(col).width(iced::Length::Fixed(width)).into()
-    }
-
-    fn table_header<T>(&self, table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMessage> {
-        let mut row = Row::new()
-            .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
-        for col in table_col_data {
-            row = row.push(table_cell(Text::new(col.header).into()));
-        }
-        row.align_items(Alignment::Center)
-    }
-
-    fn table_row<T>(&self, data: &T, table_col_data: &Vec<TableColData<T>>) -> Row<'_, GuiMessage> {
-        let edit_button = Container::new(Button::new(Text::new("Edit")))
-            .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
-        let mut row = Row::new().push(edit_button);
-        for col in table_col_data.iter() {
-            row = row.push(table_cell(Text::new((col.content_closure)(data)).into()));
-        }
-        row.align_items(Alignment::Center)
     }
 }
 
@@ -78,6 +45,39 @@ fn twoway_scrollable<'a>(child: impl Into<Element<'a, GuiMessage>>) -> Element<'
         .width(iced::Length::Fill)
         .height(iced::Length::Fill)
         .into()
+}
+
+fn table<'a, T>(
+    bodies: Vec<&'a T>,
+    table_col_data: &'a Vec<TableColData<T>>,
+) -> Element<'a, GuiMessage> {
+    let width = CELL_WIDTH + CELL_WIDTH * table_col_data.len() as f32;
+    let mut col = Column::new()
+        .push(table_header(table_col_data))
+        .push(Rule::horizontal(10));
+    for body in bodies {
+        col = col.push(table_row(body, table_col_data));
+    }
+    Container::new(col).width(iced::Length::Fixed(width)).into()
+}
+
+fn table_header<T>(table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMessage> {
+    let mut row = Row::new()
+        .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
+    for col in table_col_data {
+        row = row.push(table_cell(Text::new(col.header).into()));
+    }
+    row.align_items(Alignment::Center)
+}
+
+fn table_row<'a, T>(data: &'a T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage> {
+    let edit_button = Container::new(Button::new(Text::new("Edit")))
+        .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
+    let mut row = Row::new().push(edit_button);
+    for col in table_col_data.iter() {
+        row = row.push(table_cell(Text::new((col.content_closure)(data)).into()));
+    }
+    row.align_items(Alignment::Center)
 }
 
 fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {
