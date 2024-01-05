@@ -12,13 +12,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
-    central_body: StellarProperties,
+    central_body: DistantStar,
     planets: Vec<PlanetData>,
     distant_stars: Vec<DistantStar>,
 }
 
 impl CelestialSystem {
     pub(crate) fn new(central_body: StellarProperties) -> Self {
+        let central_body = DistantStar::new(central_body, Direction::Z, Length::ZERO);
         CelestialSystem {
             central_body,
             planets: vec![],
@@ -41,12 +42,13 @@ impl CelestialSystem {
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StellarProperties {
-        &self.central_body
+        &self.central_body.get_stellar_properties()
     }
 
     pub(crate) fn get_current_data(&self, time: Time) -> Vec<CelestialBody> {
         let mut bodies = Vec::new();
-        let central_body = CelestialBody::central_body(self.central_body.clone());
+        let central_body =
+            CelestialBody::central_body(self.central_body.get_stellar_properties().clone());
         bodies.push(central_body.clone());
         for planet in &self.planets {
             bodies.push(CelestialBody::from_planet(planet, &central_body, time));
@@ -65,10 +67,6 @@ impl CelestialSystem {
         self.distant_stars.push(star);
     }
 
-    fn central_body_as_distant_star(&self) -> DistantStar {
-        DistantStar::new(self.central_body.clone(), Direction::Z, Length::ZERO)
-    }
-
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
@@ -79,7 +77,7 @@ impl CelestialSystem {
 
     pub(crate) fn get_star_data(&self) -> Vec<&DistantStar> {
         let mut bodies = Vec::new();
-        //bodies.push(&self.central_body_as_distant_star());
+        bodies.push(&self.central_body);
         for star in &self.distant_stars {
             bodies.push(star);
         }
