@@ -40,4 +40,12 @@ impl DistantStar {
     pub(crate) fn get_color(&self) -> &sRGBColor {
         &self.color
     }
+
+    pub(crate) const fn get_direction(&self) -> &Direction {
+        &self.direction
+    }
+
+    pub(crate) const fn get_distance(&self) -> Length {
+        self.distance
+    }
 }
