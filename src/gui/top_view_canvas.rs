@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{draw_body_name, maximized_color},
+    shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
     top_view_widget::TopViewState,
 };
 use crate::{
@@ -36,6 +36,7 @@ impl TopViewState {
         bounds: iced::Rectangle,
         selected_body: &Option<CelestialBody>,
         celestial_bodies: &Vec<CelestialBody>,
+        display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
             .background_cache
@@ -44,7 +45,13 @@ impl TopViewState {
             });
 
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            self.draw_bodies(selected_body, celestial_bodies, frame);
+            self.draw_bodies(
+                selected_body,
+                celestial_bodies,
+                &bounds,
+                frame,
+                display_names,
+            );
         });
 
         let scale = self.scale_cache.draw(renderer, bounds.size(), |frame| {
@@ -58,7 +65,9 @@ impl TopViewState {
         &self,
         selected_body: &Option<CelestialBody>,
         celestial_bodies: &Vec<CelestialBody>,
+        bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
+        display_names: bool,
     ) {
         let view_direction = &self.view_ecliptic.get_spherical().to_direction();
         let (view_angle, view_rotation_axis) =
@@ -70,7 +79,15 @@ impl TopViewState {
         };
         for body in celestial_bodies.iter() {
             if !body.is_distant_star() {
-                self.draw_body(frame, body, view_angle, &view_rotation_axis, offset);
+                self.draw_body(
+                    frame,
+                    &bounds,
+                    body,
+                    view_angle,
+                    &view_rotation_axis,
+                    offset,
+                    display_names,
+                );
             }
         }
     }
@@ -78,19 +95,25 @@ impl TopViewState {
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
+        bounds: &iced::Rectangle,
         body: &CelestialBody,
         view_angle: Angle,
         view_rotation_axis: &Direction,
         offset: iced::Vector,
+        display_names: bool,
     ) {
         let radius = body_radius(body);
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
-        let circle = Path::circle(pos, radius);
-        let color = body_color(body);
-        frame.fill(&circle, color);
+        if contains_workaround(bounds, pos) {
+            let circle = Path::circle(pos, radius);
+            let color = body_color(body);
+            frame.fill(&circle, color);
 
-        draw_body_name(body, color, pos, radius, frame);
+            if display_names {
+                draw_body_name(body, color, pos, radius, frame);
+            }
+        }
     }
 
     fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {

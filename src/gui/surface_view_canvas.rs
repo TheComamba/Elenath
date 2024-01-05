@@ -1,11 +1,10 @@
 use super::{
-    shared_canvas_functionality::{draw_body_name, maximized_color},
+    shared_canvas_functionality::{
+        contains_workaround, draw_background, draw_body_name, maximized_color,
+    },
     surface_view_widget::SurfaceViewState,
 };
-use crate::{
-    gui::shared_canvas_functionality::draw_background,
-    model::celestial_body::{CelestialBody, CelestialBodyData},
-};
+use crate::model::celestial_body::{CelestialBody, CelestialBodyData};
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
@@ -22,11 +21,11 @@ use iced::{
     Color, Point,
 };
 
-const BRIGHTNESS_EXPONENT: f32 = 0.25;
-const BRIGHTNESS_FACTOR: f32 = 8e1;
+const BRIGHTNESS_EXPONENT: f32 = 3.;
+const BRIGHTNESS_FACTOR: f32 = 2e-2;
 const GRADIENT_ALPHA: f32 = 1.;
 const GRADIENT_STEPS: i32 = 100;
-const GRADIENT_SHARPNESS_EXPONENT: i32 = 3;
+const GRADIENT_SHARPNESS_EXPONENT: i32 = 5;
 
 impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
@@ -67,6 +66,7 @@ impl SurfaceViewState {
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         celestial_bodies: &Vec<CelestialBody>,
+        display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
             .background_cache
@@ -82,6 +82,7 @@ impl SurfaceViewState {
                 bounds,
                 celestial_bodies,
                 frame,
+                display_names,
             );
         });
 
@@ -96,6 +97,7 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         celestial_bodies: &Vec<CelestialBody>,
         frame: &mut canvas::Frame,
+        display_names: bool,
     ) {
         let observer_normal = match selected_body {
             Some(body) => self.observer_normal(body, time_since_epoch),
@@ -105,6 +107,8 @@ impl SurfaceViewState {
             Some(body) => self.observer_position(body, &observer_normal),
             None => CartesianCoordinates::ORIGIN,
         };
+        let observer_view_direction =
+            SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for body in celestial_bodies.iter() {
@@ -113,8 +117,11 @@ impl SurfaceViewState {
                 body,
                 &observer_position,
                 &observer_normal,
+                &observer_view_direction,
                 pixel_per_viewport_width,
                 frame,
+                bounds,
+                display_names,
             );
         }
     }
@@ -125,29 +132,37 @@ impl SurfaceViewState {
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
+        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        display_names: bool,
     ) {
         let relative_position = body.get_position() - observer_position;
         let pos = canvas_position(
             &relative_position,
             observer_normal,
+            observer_view_direction,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
+            let pos: Point = frame.center() + pos;
             let brightness = body_brightness(central_body, body, observer_position);
             let color = maximized_color(body);
             let apparent_radius =
                 canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
-            let pos = frame.center() + pos;
-
-            let solid_circle = Path::circle(pos, apparent_radius);
-            frame.fill(&solid_circle, color);
 
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
 
-            draw_body_name(body, color, pos, apparent_radius, frame);
+            if contains_workaround(&bounds, pos) {
+                let solid_circle = Path::circle(pos, apparent_radius);
+                frame.fill(&solid_circle, color);
+
+                if display_names {
+                    draw_body_name(body, color, pos, apparent_radius, frame);
+                }
+            }
         }
     }
 }
@@ -167,10 +182,12 @@ fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut c
 fn canvas_position(
     relative_position: &CartesianCoordinates,
     observer_normal: &Direction,
+    observer_view_direction: &Direction,
     pixel_per_viewport_width: Float,
 ) -> Option<iced::Vector> {
     let direction = relative_position.to_direction();
     let direction = direction_relative_to_surface_normal(&direction, observer_normal);
+    let direction = direction_relative_to_surface_normal(&direction, observer_view_direction);
     if direction.z() > 0.0 {
         let x = direction.x() * pixel_per_viewport_width;
         let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
@@ -216,9 +233,16 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    let size = brightness.as_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
-    if size > 1e4 {
-        1e4
+    const DIMMEST_VISIBLE_APP_MAG: Float = 6.5;
+    let app_mag = brightness.as_apparent_magnitude();
+    let app_mag_diff = DIMMEST_VISIBLE_APP_MAG - app_mag;
+    let size = if app_mag_diff > 0.0 {
+        app_mag_diff.powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR
+    } else {
+        0.0
+    };
+    if size > 1e5 {
+        1e5
     } else {
         size
     }

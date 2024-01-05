@@ -26,6 +26,7 @@ pub(crate) struct Gui {
     celestial_system: CelestialSystem,
     celestial_bodies: Vec<CelestialBody>,
     focused_body: Option<CelestialBody>,
+    display_names: bool,
 }
 
 impl Gui {
