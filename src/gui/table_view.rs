@@ -24,12 +24,8 @@ impl TableViewState {
     }
 
     pub(super) fn table_view(&self, bodies: &Vec<&PlanetData>) -> Element<'_, GuiMessage> {
-        let direction = Direction::Both {
-            vertical: Properties::default(),
-            horizontal: Properties::default(),
-        };
-        Scrollable::new(self.table(bodies))
-            .direction(direction)
+        Column::new()
+            .push(twoway_scrollable(self.table(bodies)))
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
@@ -71,4 +67,16 @@ impl TableViewState {
     fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {
         Container::new(content).width(iced::Length::Fixed(Self::CELL_WIDTH))
     }
+}
+
+fn twoway_scrollable<'a>(child: impl Into<Element<'a, GuiMessage>>) -> Element<'a, GuiMessage> {
+    let direction = Direction::Both {
+        vertical: Properties::default(),
+        horizontal: Properties::default(),
+    };
+    Scrollable::new(child)
+        .direction(direction)
+        .width(iced::Length::Fill)
+        .height(iced::Length::Fill)
+        .into()
 }
