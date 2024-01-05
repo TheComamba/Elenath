@@ -75,9 +75,45 @@ impl TableColData<PlanetData> {
 
 impl TableColData<DistantStar> {
     pub(super) fn default_star_col_data() -> Vec<TableColData<DistantStar>> {
-        vec![TableColData {
-            header: "Name",
-            content_closure: Box::new(|body| body.get_stellar_properties().get_name().to_string()),
-        }]
+        vec![
+            TableColData {
+                header: "Name",
+                content_closure: Box::new(|body| {
+                    body.get_stellar_properties().get_name().to_string()
+                }),
+            },
+            TableColData {
+                header: "Mass",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_stellar_properties().get_mass())
+                }),
+            },
+            TableColData {
+                header: "Radius",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_stellar_properties().get_radius())
+                }),
+            },
+            TableColData {
+                header: "Absolute magnitude",
+                content_closure: Box::new(|body| {
+                    format!("{}", body.get_stellar_properties().get_absolute_magnitude())
+                }),
+            },
+            TableColData {
+                header: "Temperature",
+                content_closure: Box::new(|body| {
+                    format!("{:?}", body.get_stellar_properties().get_temperature())
+                }),
+            },
+            TableColData {
+                header: "Direction in Ecliptic",
+                content_closure: Box::new(|body| format!("{}", body.get_direction())),
+            },
+            TableColData {
+                header: "Distance",
+                content_closure: Box::new(|body| format!("{}", body.get_distance())),
+            },
+        ]
     }
 }
