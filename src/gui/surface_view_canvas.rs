@@ -22,11 +22,11 @@ use iced::{
     Color, Point,
 };
 
-const BRIGHTNESS_EXPONENT: f32 = 0.25;
-const BRIGHTNESS_FACTOR: f32 = 8e1;
+const BRIGHTNESS_EXPONENT: f32 = 3.;
+const BRIGHTNESS_FACTOR: f32 = 2e-2;
 const GRADIENT_ALPHA: f32 = 1.;
 const GRADIENT_STEPS: i32 = 100;
-const GRADIENT_SHARPNESS_EXPONENT: i32 = 3;
+const GRADIENT_SHARPNESS_EXPONENT: i32 = 5;
 
 impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
@@ -227,9 +227,16 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    let size = brightness.as_lux().powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR;
-    if size > 1e4 {
-        1e4
+    const DIMMEST_VISIBLE_APP_MAG: Float = 6.5;
+    let app_mag = brightness.as_apparent_magnitude();
+    let app_mag_diff = DIMMEST_VISIBLE_APP_MAG - app_mag;
+    let size = if app_mag_diff > 0.0 {
+        app_mag_diff.powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR
+    } else {
+        0.0
+    };
+    if size > 1e5 {
+        1e5
     } else {
         size
     }
