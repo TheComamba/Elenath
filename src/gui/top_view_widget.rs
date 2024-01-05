@@ -54,7 +54,11 @@ impl TopViewState {
                 self.view_ecliptic.set_longitude(longitude);
             }
             TopViewMessage::UpdateViewLatitude(mut latitude) => {
-                latitude.normalize();
+                if latitude.as_degrees() < -90. {
+                    latitude = Angle::from_degrees(-90.);
+                } else if latitude.as_degrees() > 90. {
+                    latitude = Angle::from_degrees(90.);
+                }
                 self.view_ecliptic.set_latitude(latitude);
             }
         }

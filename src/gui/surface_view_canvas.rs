@@ -1,11 +1,10 @@
 use super::{
-    shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
+    shared_canvas_functionality::{
+        contains_workaround, draw_background, draw_body_name, maximized_color,
+    },
     surface_view_widget::SurfaceViewState,
 };
-use crate::{
-    gui::shared_canvas_functionality::draw_background,
-    model::celestial_body::{CelestialBody, CelestialBodyData},
-};
+use crate::model::celestial_body::{CelestialBody, CelestialBodyData};
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
