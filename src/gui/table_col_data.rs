@@ -1,12 +1,12 @@
 use crate::model::planet_data::PlanetData;
 
-pub(super) struct TableColData {
+pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
-    pub(super) content_closure: Box<dyn Fn(&PlanetData) -> String>,
+    pub(super) content_closure: Box<dyn Fn(&T) -> String>,
 }
 
-impl TableColData {
-    pub(super) fn default_planet_col_data() -> Vec<TableColData> {
+impl TableColData<PlanetData> {
+    pub(super) fn default_planet_col_data() -> Vec<TableColData<PlanetData>> {
         vec![
             TableColData {
                 header: "Name",

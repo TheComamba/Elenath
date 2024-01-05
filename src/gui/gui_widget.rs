@@ -169,7 +169,7 @@ impl Sandbox for Gui {
             GuiMode::TableView => {
                 col = col.push(
                     self.table_view_state
-                        .table_view(&self.celestial_system.get_planets_data()),
+                        .table_view(self.celestial_system.get_planets_data()),
                 )
             }
         }

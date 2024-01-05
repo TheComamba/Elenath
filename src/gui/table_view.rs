@@ -13,7 +13,7 @@ const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(super) struct TableViewState {
-    pub(super) planet_col_data: Vec<TableColData>,
+    pub(super) planet_col_data: Vec<TableColData<PlanetData>>,
 }
 
 impl TableViewState {
@@ -23,7 +23,7 @@ impl TableViewState {
         }
     }
 
-    pub(super) fn table_view(&self, planets: &Vec<&PlanetData>) -> Element<'_, GuiMessage> {
+    pub(super) fn table_view(&self, planets: Vec<&PlanetData>) -> Element<'_, GuiMessage> {
         Column::new()
             .push(twoway_scrollable(
                 self.table(planets, &self.planet_col_data),
@@ -33,10 +33,10 @@ impl TableViewState {
             .into()
     }
 
-    fn table(
+    fn table<T>(
         &self,
-        bodies: &Vec<&PlanetData>,
-        table_col_data: &Vec<TableColData>,
+        bodies: Vec<&T>,
+        table_col_data: &Vec<TableColData<T>>,
     ) -> Element<'_, GuiMessage> {
         let width = CELL_WIDTH + CELL_WIDTH * table_col_data.len() as f32;
         let mut col = Column::new()
@@ -48,7 +48,7 @@ impl TableViewState {
         Container::new(col).width(iced::Length::Fixed(width)).into()
     }
 
-    fn table_header(&self, table_col_data: &Vec<TableColData>) -> Row<'static, GuiMessage> {
+    fn table_header<T>(&self, table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMessage> {
         let mut row = Row::new()
             .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
         for col in table_col_data {
@@ -57,11 +57,7 @@ impl TableViewState {
         row.align_items(Alignment::Center)
     }
 
-    fn table_row(
-        &self,
-        data: &PlanetData,
-        table_col_data: &Vec<TableColData>,
-    ) -> Row<'_, GuiMessage> {
+    fn table_row<T>(&self, data: &T, table_col_data: &Vec<TableColData<T>>) -> Row<'_, GuiMessage> {
         let edit_button = Container::new(Button::new(Text::new("Edit")))
             .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
         let mut row = Row::new().push(edit_button);
