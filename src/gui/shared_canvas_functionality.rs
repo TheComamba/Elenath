@@ -1,7 +1,7 @@
 use crate::model::celestial_body::CelestialBody;
 use iced::{
     widget::canvas::{self, Path},
-    Color, Point,
+    Color, Point, Rectangle,
 };
 
 pub(super) fn draw_background(bounds: iced::Rectangle, frame: &mut canvas::Frame) {
@@ -31,4 +31,12 @@ pub(super) fn maximized_color(body: &CelestialBody) -> Color {
     let g = g / max_rgb;
     let b = b / max_rgb;
     Color::from_rgb(r, g, b)
+}
+
+/*
+ * Iced's bound.contains is currently broken:
+ * https://github.com/TheComamba/IcedPlayground/blob/main/canvas_coordinates/src/main.rs
+ */
+pub(super) fn contains_workaround(bounds: &Rectangle, point: Point) -> bool {
+    return point.x >= 0. && point.x <= bounds.width && point.y >= 0. && point.y <= bounds.height;
 }

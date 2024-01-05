@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{draw_body_name, maximized_color},
+    shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
     surface_view_widget::SurfaceViewState,
 };
 use crate::{
@@ -151,7 +151,7 @@ impl SurfaceViewState {
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
 
-            if bounds.contains(pos) {
+            if contains_workaround(&bounds, pos) {
                 let solid_circle = Path::circle(pos, apparent_radius);
                 frame.fill(&solid_circle, color);
 
