@@ -3,7 +3,11 @@ use std::path::PathBuf;
 use super::celestial_body::CelestialBody;
 use super::distant_star::DistantStar;
 use super::planet_data::PlanetData;
-use astro_utils::{stellar_properties::StellarProperties, units::time::Time};
+use astro_utils::{
+    coordinates::direction::Direction,
+    stellar_properties::StellarProperties,
+    units::{length::Length, time::Time},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -61,10 +65,23 @@ impl CelestialSystem {
         self.distant_stars.push(star);
     }
 
+    fn central_body_as_distant_star(&self) -> DistantStar {
+        DistantStar::new(self.central_body.clone(), Direction::Z, Length::ZERO)
+    }
+
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
             bodies.push(planet);
+        }
+        bodies
+    }
+
+    pub(crate) fn get_star_data(&self) -> Vec<&DistantStar> {
+        let mut bodies = Vec::new();
+        //bodies.push(&self.central_body_as_distant_star());
+        for star in &self.distant_stars {
+            bodies.push(star);
         }
         bodies
     }

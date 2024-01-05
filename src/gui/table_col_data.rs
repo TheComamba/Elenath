@@ -1,4 +1,4 @@
-use crate::model::planet_data::PlanetData;
+use crate::model::{distant_star::DistantStar, planet_data::PlanetData};
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
@@ -70,5 +70,14 @@ impl TableColData<PlanetData> {
                 content_closure: Box::new(|body| format!("{}", body.get_rotation_axis())),
             },
         ]
+    }
+}
+
+impl TableColData<DistantStar> {
+    pub(super) fn default_star_col_data() -> Vec<TableColData<DistantStar>> {
+        vec![TableColData {
+            header: "Name",
+            content_closure: Box::new(|body| body.get_stellar_properties().get_name().to_string()),
+        }]
     }
 }

@@ -1,6 +1,6 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use crate::model::planet_data::PlanetData;
+use crate::model::{distant_star::DistantStar, planet_data::PlanetData};
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -13,22 +13,26 @@ const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(super) struct TableViewState {
-    pub(super) planet_col_data: Vec<TableColData<PlanetData>>,
+    planet_col_data: Vec<TableColData<PlanetData>>,
+    star_col_data: Vec<TableColData<DistantStar>>,
 }
 
 impl TableViewState {
     pub(super) fn new() -> TableViewState {
         TableViewState {
             planet_col_data: TableColData::default_planet_col_data(),
+            star_col_data: TableColData::default_star_col_data(),
         }
     }
 
     pub(super) fn table_view<'a>(
         &'a self,
         planets: Vec<&'a PlanetData>,
+        stars: Vec<&'a DistantStar>,
     ) -> Element<'_, GuiMessage> {
         Column::new()
             .push(twoway_scrollable(table(planets, &self.planet_col_data)))
+            .push(twoway_scrollable(table(stars, &self.star_col_data)))
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
