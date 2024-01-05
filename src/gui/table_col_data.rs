@@ -6,7 +6,7 @@ pub(super) struct TableColData {
 }
 
 impl TableColData {
-    pub(super) fn default_table_col_data() -> Vec<TableColData> {
+    pub(super) fn default_planet_col_data() -> Vec<TableColData> {
         vec![
             TableColData {
                 header: "Name",
