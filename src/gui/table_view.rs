@@ -31,7 +31,11 @@ impl TableViewState {
         stars: Vec<&'a DistantStar>,
     ) -> Element<'_, GuiMessage> {
         Column::new()
+            .push(table_header(&self.planet_col_data))
+            .push(Rule::horizontal(10))
             .push(twoway_scrollable(table(planets, &self.planet_col_data)))
+            .push(table_header(&self.star_col_data))
+            .push(Rule::horizontal(10))
             .push(twoway_scrollable(table(stars, &self.star_col_data)))
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
@@ -55,14 +59,11 @@ fn table<'a, T>(
     bodies: Vec<&'a T>,
     table_col_data: &'a Vec<TableColData<T>>,
 ) -> Element<'a, GuiMessage> {
-    let width = CELL_WIDTH + CELL_WIDTH * table_col_data.len() as f32;
-    let mut col = Column::new()
-        .push(table_header(table_col_data))
-        .push(Rule::horizontal(10));
+    let mut col = Column::new();
     for body in bodies {
         col = col.push(table_row(body, table_col_data));
     }
-    Container::new(col).width(iced::Length::Fixed(width)).into()
+    col.into()
 }
 
 fn table_header<T>(table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMessage> {
