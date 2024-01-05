@@ -108,7 +108,7 @@ impl SurfaceViewState {
             None => CartesianCoordinates::ORIGIN,
         };
         let observer_view_direction =
-            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude).to_direction();
+            SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for body in celestial_bodies.iter() {
