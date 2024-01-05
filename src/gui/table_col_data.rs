@@ -103,7 +103,7 @@ impl TableColData<DistantStar> {
             TableColData {
                 header: "Temperature",
                 content_closure: Box::new(|body| {
-                    format!("{:?}", body.get_stellar_properties().get_temperature())
+                    format!("{}", body.get_stellar_properties().get_temperature())
                 }),
             },
             TableColData {
@@ -113,6 +113,15 @@ impl TableColData<DistantStar> {
             TableColData {
                 header: "Distance",
                 content_closure: Box::new(|body| format!("{}", body.get_distance())),
+            },
+            TableColData {
+                header: "Apparent magnitude",
+                content_closure: Box::new(|body| {
+                    let abs_mag = body.get_stellar_properties().get_absolute_magnitude();
+                    let distance = body.get_distance();
+                    let apparent_magnitude = abs_mag.to_illuminance(&distance);
+                    format!("{}", apparent_magnitude)
+                }),
             },
         ]
     }
