@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{draw_body_name, maximized_color},
+    shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
     top_view_widget::TopViewState,
 };
 use crate::{
@@ -45,7 +45,13 @@ impl TopViewState {
             });
 
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            self.draw_bodies(selected_body, celestial_bodies, frame, display_names);
+            self.draw_bodies(
+                selected_body,
+                celestial_bodies,
+                &bounds,
+                frame,
+                display_names,
+            );
         });
 
         let scale = self.scale_cache.draw(renderer, bounds.size(), |frame| {
@@ -59,6 +65,7 @@ impl TopViewState {
         &self,
         selected_body: &Option<CelestialBody>,
         celestial_bodies: &Vec<CelestialBody>,
+        bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
     ) {
@@ -74,6 +81,7 @@ impl TopViewState {
             if !body.is_distant_star() {
                 self.draw_body(
                     frame,
+                    &bounds,
                     body,
                     view_angle,
                     &view_rotation_axis,
@@ -87,6 +95,7 @@ impl TopViewState {
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
+        bounds: &iced::Rectangle,
         body: &CelestialBody,
         view_angle: Angle,
         view_rotation_axis: &Direction,
@@ -96,12 +105,14 @@ impl TopViewState {
         let radius = body_radius(body);
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
-        let circle = Path::circle(pos, radius);
-        let color = body_color(body);
-        frame.fill(&circle, color);
+        if contains_workaround(bounds, pos) {
+            let circle = Path::circle(pos, radius);
+            let color = body_color(body);
+            frame.fill(&circle, color);
 
-        if display_names {
-            draw_body_name(body, color, pos, radius, frame);
+            if display_names {
+                draw_body_name(body, color, pos, radius, frame);
+            }
         }
     }
 
