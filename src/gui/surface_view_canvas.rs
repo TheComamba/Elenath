@@ -107,6 +107,8 @@ impl SurfaceViewState {
             Some(body) => self.observer_position(body, &observer_normal),
             None => CartesianCoordinates::ORIGIN,
         };
+        let observer_view_direction =
+            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude).to_direction();
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for body in celestial_bodies.iter() {
@@ -115,6 +117,7 @@ impl SurfaceViewState {
                 body,
                 &observer_position,
                 &observer_normal,
+                &observer_view_direction,
                 pixel_per_viewport_width,
                 frame,
                 bounds,
@@ -129,6 +132,7 @@ impl SurfaceViewState {
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
+        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
@@ -138,6 +142,7 @@ impl SurfaceViewState {
         let pos = canvas_position(
             &relative_position,
             observer_normal,
+            observer_view_direction,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
@@ -177,10 +182,12 @@ fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut c
 fn canvas_position(
     relative_position: &CartesianCoordinates,
     observer_normal: &Direction,
+    observer_view_direction: &Direction,
     pixel_per_viewport_width: Float,
 ) -> Option<iced::Vector> {
     let direction = relative_position.to_direction();
     let direction = direction_relative_to_surface_normal(&direction, observer_normal);
+    let direction = direction_relative_to_surface_normal(&direction, observer_view_direction);
     if direction.z() > 0.0 {
         let x = direction.x() * pixel_per_viewport_width;
         let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted

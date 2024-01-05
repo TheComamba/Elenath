@@ -21,6 +21,8 @@ pub(super) struct SurfaceViewState {
     pub(super) bodies_cache: canvas::Cache,
     pub(super) surface_longitude: Angle,
     pub(super) surface_latitude: Angle,
+    pub(super) observer_longitude: Angle,
+    pub(super) observer_latitude: Angle,
     pub(super) viewport_horizontal_opening_angle: Angle,
 }
 
@@ -28,6 +30,8 @@ pub(super) struct SurfaceViewState {
 pub(crate) enum SurfaceViewMessage {
     UpdateSurfaceLongitude(Angle),
     UpdateSurfaceLatitude(Angle),
+    UpdateViewLongitude(Angle),
+    UpdateViewLatitude(Angle),
     UpdateViewportOpeningAngle(Angle),
 }
 
@@ -44,6 +48,8 @@ impl SurfaceViewState {
             bodies_cache: canvas::Cache::default(),
             surface_longitude: Angle::ZERO,
             surface_latitude: Angle::ZERO,
+            observer_longitude: Angle::ZERO,
+            observer_latitude: Angle::from_degrees(90.),
             viewport_horizontal_opening_angle: HUMAN_EYE_OPENING_ANGLE,
         }
     }
@@ -62,6 +68,18 @@ impl SurfaceViewState {
                 }
                 self.surface_latitude = latitude;
             }
+            SurfaceViewMessage::UpdateViewLongitude(mut longitude) => {
+                longitude.normalize();
+                self.observer_longitude = longitude;
+            }
+            SurfaceViewMessage::UpdateViewLatitude(mut latitude) => {
+                if latitude.as_degrees() < 10. {
+                    latitude = Angle::from_degrees(10.);
+                } else if latitude.as_degrees() > 90. {
+                    latitude = Angle::from_degrees(90.);
+                }
+                self.observer_latitude = latitude;
+            }
             SurfaceViewMessage::UpdateViewportOpeningAngle(mut angle) => {
                 if angle.as_degrees() < 10. {
                     angle = Angle::from_degrees(10.);
@@ -79,20 +97,38 @@ impl SurfaceViewState {
 
     pub(super) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
         const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
-        let longitude = self.surface_longitude;
+        let surface_long = self.surface_longitude;
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",
-            format!("{}", longitude),
-            SurfaceViewMessage::UpdateSurfaceLongitude(longitude - ANGLE_STEP),
-            SurfaceViewMessage::UpdateSurfaceLongitude(longitude + ANGLE_STEP),
+            format!("{}", surface_long),
+            SurfaceViewMessage::UpdateSurfaceLongitude(surface_long - ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLongitude(surface_long + ANGLE_STEP),
         );
-        let latitude = self.surface_latitude;
+
+        let surface_lat = self.surface_latitude;
         let surface_latitude_control_field = control_field(
             "Surface Latitude:",
-            format!("{}", latitude),
-            SurfaceViewMessage::UpdateSurfaceLatitude(latitude - ANGLE_STEP),
-            SurfaceViewMessage::UpdateSurfaceLatitude(latitude + ANGLE_STEP),
+            format!("{}", surface_lat),
+            SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat - ANGLE_STEP),
+            SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat + ANGLE_STEP),
         );
+
+        let view_long = self.observer_longitude;
+        let view_longitude_control_field = control_field(
+            "Observer Longitude:",
+            format!("{}", view_long),
+            SurfaceViewMessage::UpdateViewLongitude(view_long - ANGLE_STEP),
+            SurfaceViewMessage::UpdateViewLongitude(view_long + ANGLE_STEP),
+        );
+
+        let view_lat = self.observer_latitude;
+        let view_latitude_control_field = control_field(
+            "Observer Latitude:",
+            format!("{}", view_lat),
+            SurfaceViewMessage::UpdateViewLatitude(view_lat - ANGLE_STEP),
+            SurfaceViewMessage::UpdateViewLatitude(view_lat + ANGLE_STEP),
+        );
+
         let viewport_angle = self.viewport_horizontal_opening_angle;
         let viewport_angle_control_field = control_field(
             "Horizontal Viewport Opening Angle:",
@@ -103,6 +139,8 @@ impl SurfaceViewState {
         Column::new()
             .push(surface_longitude_control_field)
             .push(surface_latitude_control_field)
+            .push(view_longitude_control_field)
+            .push(view_latitude_control_field)
             .push(viewport_angle_control_field)
             .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
