@@ -1,6 +1,6 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use crate::model::planet_data::PlanetData;
+use crate::model::planet_data::Planet;
 use astro_utils::stars::star::Star;
 use iced::{
     widget::{
@@ -14,7 +14,7 @@ const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(super) struct TableViewState {
-    planet_col_data: Vec<TableColData<PlanetData>>,
+    planet_col_data: Vec<TableColData<Planet>>,
     star_col_data: Vec<TableColData<Star>>,
 }
 
@@ -28,7 +28,7 @@ impl TableViewState {
 
     pub(super) fn table_view<'a>(
         &'a self,
-        planets: Vec<&'a PlanetData>,
+        planets: Vec<&'a Planet>,
         stars: Vec<&'a Star>,
     ) -> Element<'_, GuiMessage> {
         Column::new()

@@ -1,4 +1,4 @@
-use crate::model::planet_data::PlanetData;
+use crate::model::planet_data::Planet;
 use astro_utils::stars::star::Star;
 
 pub(super) struct TableColData<T> {
@@ -6,8 +6,8 @@ pub(super) struct TableColData<T> {
     pub(super) content_closure: Box<dyn Fn(&T) -> String>,
 }
 
-impl TableColData<PlanetData> {
-    pub(super) fn default_planet_col_data() -> Vec<TableColData<PlanetData>> {
+impl TableColData<Planet> {
+    pub(super) fn default_planet_col_data() -> Vec<TableColData<Planet>> {
         vec![
             TableColData {
                 header: "Name",

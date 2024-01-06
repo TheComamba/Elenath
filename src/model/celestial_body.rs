@@ -1,7 +1,7 @@
-use super::planet_data::PlanetData;
 use astro_utils::{
     color::sRGBColor,
     coordinates::{cartesian::CartesianCoordinates, direction::Direction},
+    planets::planet::Planet,
     stars::star::Star,
     units::{length::Length, mass::Mass, time::Time},
 };
@@ -17,7 +17,7 @@ pub(crate) struct CelestialBody {
 pub(crate) enum CelestialBodyData {
     CentralBody(Star),
     Star(Star),
-    Planet(PlanetData),
+    Planet(Planet),
 }
 
 impl PartialEq for CelestialBody {
@@ -49,7 +49,7 @@ impl CelestialBody {
         }
     }
 
-    pub(crate) fn from_planet(data: &PlanetData, central_body: &Self, time: Time) -> Self {
+    pub(crate) fn from_planet(data: &Planet, central_body: &Star, time: Time) -> Self {
         let position =
             data.get_orbital_parameters()
                 .calculate_position(data.get_mass(), &central_body, time);

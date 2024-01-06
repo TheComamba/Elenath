@@ -1,14 +1,13 @@
 use std::path::PathBuf;
 
 use super::celestial_body::CelestialBody;
-use super::planet_data::PlanetData;
-use astro_utils::{stars::star::Star, units::time::Time};
+use astro_utils::{planets::planet::Planet, stars::star::Star, units::time::Time};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
     central_body: Star,
-    planets: Vec<PlanetData>,
+    planets: Vec<Planet>,
     distant_stars: Vec<Star>,
 }
 
@@ -45,7 +44,7 @@ impl CelestialSystem {
         let central_body = CelestialBody::central_body(self.central_body.clone());
         bodies.push(central_body.clone());
         for planet in &self.planets {
-            bodies.push(CelestialBody::from_planet(planet, &central_body, time));
+            bodies.push(CelestialBody::from_planet(planet, &self.central_body, time));
         }
         for star in &self.distant_stars {
             bodies.push(CelestialBody::from_distant_star(star));
@@ -53,7 +52,7 @@ impl CelestialSystem {
         bodies
     }
 
-    pub(crate) fn add_planet(&mut self, planet: PlanetData) {
+    pub(crate) fn add_planet(&mut self, planet: Planet) {
         self.planets.push(planet);
     }
 
@@ -61,7 +60,7 @@ impl CelestialSystem {
         self.distant_stars.push(star);
     }
 
-    pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
+    pub(crate) fn get_planets_data(&self) -> Vec<&Planet> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
             bodies.push(planet);
