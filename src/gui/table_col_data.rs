@@ -1,5 +1,4 @@
-use crate::model::planet_data::Planet;
-use astro_utils::stars::star::Star;
+use astro_utils::{planets::planet::Planet, stars::star::Star};
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,

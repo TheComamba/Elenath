@@ -3,7 +3,7 @@ use astro_utils::{
     coordinates::{cartesian::CartesianCoordinates, direction::Direction},
     planets::planet::Planet,
     stars::star::Star,
-    units::{length::Length, mass::Mass, time::Time},
+    units::{length::Length, time::Time},
 };
 use std::fmt::{Display, Formatter};
 
@@ -75,14 +75,6 @@ impl CelestialBody {
             CelestialBodyData::CentralBody(data) => data.get_color(),
             CelestialBodyData::Star(data) => data.get_color(),
             CelestialBodyData::Planet(data) => data.get_color(),
-        }
-    }
-
-    pub(crate) fn get_mass(&self) -> Mass {
-        match &self.data {
-            CelestialBodyData::CentralBody(data) => data.get_mass(),
-            CelestialBodyData::Star(data) => data.get_mass(),
-            CelestialBodyData::Planet(data) => data.get_mass(),
         }
     }
 

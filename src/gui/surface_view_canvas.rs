@@ -10,9 +10,9 @@ use astro_utils::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
-    planet_brightness::planet_brightness,
+    planets::planet_brightness::planet_brightness,
+    planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     stars::star::Star,
-    surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     units::{angle::Angle, illuminance::Illuminance, time::Time},
     Float,
 };

@@ -1,7 +1,6 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use crate::model::planet_data::Planet;
-use astro_utils::stars::star::Star;
+use astro_utils::{planets::planet::Planet, stars::star::Star};
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
