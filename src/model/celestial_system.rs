@@ -1,25 +1,20 @@
 use std::path::PathBuf;
 
 use super::celestial_body::CelestialBody;
-use super::distant_star::DistantStar;
 use super::planet_data::PlanetData;
-use astro_utils::{
-    coordinates::direction::Direction,
-    stellar_properties::StellarProperties,
-    units::{length::Length, time::Time},
-};
+use astro_utils::{stars::star::Star, units::time::Time};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
-    central_body: DistantStar,
+    central_body: Star,
     planets: Vec<PlanetData>,
-    distant_stars: Vec<DistantStar>,
+    distant_stars: Vec<Star>,
 }
 
 impl CelestialSystem {
-    pub(crate) fn new(central_body: StellarProperties) -> Self {
-        let central_body = DistantStar::new(central_body, Direction::Z, Length::ZERO);
+    pub(crate) fn new(central_body: Star) -> Self {
+        let central_body = central_body;
         CelestialSystem {
             central_body,
             planets: vec![],
@@ -41,14 +36,13 @@ impl CelestialSystem {
         Ok(celestial_system)
     }
 
-    pub(crate) fn get_central_body_data(&self) -> &StellarProperties {
-        &self.central_body.get_stellar_properties()
+    pub(crate) fn get_central_body(&self) -> &Star {
+        &self.central_body
     }
 
     pub(crate) fn get_current_data(&self, time: Time) -> Vec<CelestialBody> {
         let mut bodies = Vec::new();
-        let central_body =
-            CelestialBody::central_body(self.central_body.get_stellar_properties().clone());
+        let central_body = CelestialBody::central_body(self.central_body.clone());
         bodies.push(central_body.clone());
         for planet in &self.planets {
             bodies.push(CelestialBody::from_planet(planet, &central_body, time));
@@ -63,7 +57,7 @@ impl CelestialSystem {
         self.planets.push(planet);
     }
 
-    pub(crate) fn add_distant_star(&mut self, star: DistantStar) {
+    pub(crate) fn add_distant_star(&mut self, star: Star) {
         self.distant_stars.push(star);
     }
 
@@ -75,7 +69,7 @@ impl CelestialSystem {
         bodies
     }
 
-    pub(crate) fn get_star_data(&self) -> Vec<&DistantStar> {
+    pub(crate) fn get_star_data(&self) -> Vec<&Star> {
         let mut bodies = Vec::new();
         bodies.push(&self.central_body);
         for star in &self.distant_stars {
