@@ -11,7 +11,7 @@ use astro_utils::{
         spherical::SphericalCoordinates,
     },
     planet_brightness::planet_brightness,
-    stellar_properties::StellarProperties,
+    stars::star::Star,
     surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     units::{angle::Angle, illuminance::Illuminance, time::Time},
     Float,
@@ -62,7 +62,7 @@ impl SurfaceViewState {
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
-        central_body: &StellarProperties,
+        central_body: &Star,
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         celestial_bodies: &Vec<CelestialBody>,
@@ -91,7 +91,7 @@ impl SurfaceViewState {
 
     fn draw_bodies(
         &self,
-        central_body: &StellarProperties,
+        central_body: &Star,
         selected_body: &Option<CelestialBody>,
         time_since_epoch: Time,
         bounds: iced::Rectangle,
@@ -128,7 +128,7 @@ impl SurfaceViewState {
 
     fn draw_body(
         &self,
-        central_body: &StellarProperties,
+        central_body: &Star,
         body: &CelestialBody,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
@@ -198,7 +198,7 @@ fn canvas_position(
 }
 
 fn body_brightness(
-    central_body: &StellarProperties,
+    central_body: &Star,
     body: &CelestialBody,
     observer_position: &CartesianCoordinates,
 ) -> Illuminance {
@@ -208,7 +208,7 @@ fn body_brightness(
             data.get_absolute_magnitude()
                 .to_illuminance(&distance.length())
         }
-        CelestialBodyData::DistantStar(data) => {
+        CelestialBodyData::Star(data) => {
             let distance = body.get_position() - observer_position;
             data.get_absolute_magnitude()
                 .to_illuminance(&distance.length())

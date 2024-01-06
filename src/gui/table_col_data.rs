@@ -1,4 +1,5 @@
-use crate::model::{distant_star::DistantStar, planet_data::PlanetData};
+use crate::model::planet_data::PlanetData;
+use astro_utils::stars::star::Star;
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
@@ -73,42 +74,32 @@ impl TableColData<PlanetData> {
     }
 }
 
-impl TableColData<DistantStar> {
-    pub(super) fn default_star_col_data() -> Vec<TableColData<DistantStar>> {
+impl TableColData<Star> {
+    pub(super) fn default_star_col_data() -> Vec<TableColData<Star>> {
         vec![
             TableColData {
                 header: "Name",
-                content_closure: Box::new(|body| {
-                    body.get_stellar_properties().get_name().to_string()
-                }),
+                content_closure: Box::new(|body| body.get_name().to_string()),
             },
             TableColData {
                 header: "Mass",
-                content_closure: Box::new(|body| {
-                    format!("{}", body.get_stellar_properties().get_mass())
-                }),
+                content_closure: Box::new(|body| format!("{}", body.get_mass())),
             },
             TableColData {
                 header: "Radius",
-                content_closure: Box::new(|body| {
-                    format!("{}", body.get_stellar_properties().get_radius())
-                }),
+                content_closure: Box::new(|body| format!("{}", body.get_radius())),
             },
             TableColData {
                 header: "Absolute magnitude",
-                content_closure: Box::new(|body| {
-                    format!("{}", body.get_stellar_properties().get_absolute_magnitude())
-                }),
+                content_closure: Box::new(|body| format!("{}", body.get_absolute_magnitude())),
             },
             TableColData {
                 header: "Temperature",
-                content_closure: Box::new(|body| {
-                    format!("{}", body.get_stellar_properties().get_temperature())
-                }),
+                content_closure: Box::new(|body| format!("{}", body.get_temperature())),
             },
             TableColData {
                 header: "Direction in Ecliptic",
-                content_closure: Box::new(|body| format!("{}", body.get_direction())),
+                content_closure: Box::new(|body| format!("{}", body.get_direction_in_ecliptic())),
             },
             TableColData {
                 header: "Distance",
@@ -117,7 +108,7 @@ impl TableColData<DistantStar> {
             TableColData {
                 header: "Apparent magnitude",
                 content_closure: Box::new(|body| {
-                    let abs_mag = body.get_stellar_properties().get_absolute_magnitude();
+                    let abs_mag = body.get_absolute_magnitude();
                     let distance = body.get_distance();
                     let apparent_magnitude = abs_mag.to_illuminance(&distance);
                     format!("{}", apparent_magnitude)

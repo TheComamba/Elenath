@@ -1,8 +1,8 @@
-use super::{celestial_system::CelestialSystem, distant_star::DistantStar};
+use super::celestial_system::CelestialSystem;
 use crate::model::{orbital_parameters::OrbitalParameters, planet_data::PlanetData};
 use astro_utils::{
-    coordinates::earth_equatorial::EarthEquatorialCoordinates,
     data::{planets::*, stars::*},
+    stars::star::Star,
 };
 
 fn mercury() -> PlanetData {
@@ -193,7 +193,7 @@ fn _moon() -> PlanetData {
 }
 
 pub(crate) fn solar_system() -> CelestialSystem {
-    let mut system = CelestialSystem::new(SUN_PROPERTIES);
+    let mut system = CelestialSystem::new(Star::from_data(SUN_DATA));
     system.add_planet(mercury());
     system.add_planet(venus());
     system.add_planet(earth());
@@ -205,11 +205,8 @@ pub(crate) fn solar_system() -> CelestialSystem {
     system.add_planet(neptune());
     system.add_planet(pluto());
 
-    for (props, ra, dec, dist) in STARS_TO_TWO_POINT_FIVE_APPARENT_MAG {
-        let ra = ra.to_angle();
-        let dec = dec.to_angle();
-        let pos = EarthEquatorialCoordinates::new(ra, dec);
-        system.add_distant_star(DistantStar::new(props, pos.to_direction(), dist));
+    for data in STARS_TO_TWO_POINT_FIVE_APPARENT_MAG {
+        system.add_distant_star(Star::from_data(data));
     }
 
     system

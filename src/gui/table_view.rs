@@ -1,6 +1,7 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use crate::model::{distant_star::DistantStar, planet_data::PlanetData};
+use crate::model::planet_data::PlanetData;
+use astro_utils::stars::star::Star;
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -14,7 +15,7 @@ const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(super) struct TableViewState {
     planet_col_data: Vec<TableColData<PlanetData>>,
-    star_col_data: Vec<TableColData<DistantStar>>,
+    star_col_data: Vec<TableColData<Star>>,
 }
 
 impl TableViewState {
@@ -28,7 +29,7 @@ impl TableViewState {
     pub(super) fn table_view<'a>(
         &'a self,
         planets: Vec<&'a PlanetData>,
-        stars: Vec<&'a DistantStar>,
+        stars: Vec<&'a Star>,
     ) -> Element<'_, GuiMessage> {
         Column::new()
             .push(table_header(&self.planet_col_data))

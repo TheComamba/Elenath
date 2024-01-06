@@ -48,7 +48,7 @@ impl Sandbox for Gui {
     fn new() -> Self {
         let celestial_system = solar_system();
         let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
-        let central_body_data = celestial_system.get_central_body_data();
+        let central_body_data = celestial_system.get_central_body();
         let selected_focus = celestial_bodies
             .iter()
             .find(|body| body.get_name() == central_body_data.get_name())
@@ -200,7 +200,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::SurfaceView => self.surface_view_state.canvas(
                 renderer,
                 bounds,
-                self.celestial_system.get_central_body_data(),
+                self.celestial_system.get_central_body(),
                 &self.focused_body,
                 self.time_since_epoch,
                 &self.celestial_bodies,
