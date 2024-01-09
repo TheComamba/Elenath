@@ -8,7 +8,7 @@ use crate::{
 };
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
-    units::angle::Angle,
+    units::{angle::Angle, length::Length},
 };
 use iced::{
     alignment::Horizontal,
@@ -147,7 +147,8 @@ impl TopViewState {
 
 fn body_radius(body: &CelestialBody) -> f32 {
     const SIZE_NUMBER: f32 = 0.3;
-    body.get_radius().as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
+    let radius = body.get_radius().unwrap_or(Length::ZERO);
+    radius.as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
 }
 
 fn body_color(body: &CelestialBody) -> Color {

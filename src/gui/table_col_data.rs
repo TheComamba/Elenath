@@ -86,7 +86,13 @@ impl TableColData<Star> {
             },
             TableColData {
                 header: "Radius",
-                content_closure: Box::new(|body| format!("{}", body.get_radius())),
+                content_closure: Box::new(|body| {
+                    if let Some(radius) = body.get_radius() {
+                        format!("{}", radius)
+                    } else {
+                        String::from("N/A")
+                    }
+                }),
             },
             TableColData {
                 header: "Absolute magnitude",

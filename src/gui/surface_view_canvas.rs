@@ -13,7 +13,7 @@ use astro_utils::{
     planets::planet_brightness::planet_brightness,
     planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     stars::star::Star,
-    units::{angle::Angle, illuminance::Illuminance, time::Time},
+    units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
     Float,
 };
 use iced::{
@@ -48,7 +48,7 @@ impl SurfaceViewState {
         selected_body: &CelestialBody,
         observer_normal: &Direction,
     ) -> CartesianCoordinates {
-        let body_radius = selected_body.get_radius();
+        let body_radius = selected_body.get_radius().unwrap_or(Length::ZERO);
         selected_body.get_position().clone() + observer_normal.to_cartesian(body_radius)
     }
 
@@ -229,7 +229,12 @@ fn canvas_apparent_radius(
     relative_position: &CartesianCoordinates,
     pixel_per_viewport_width: f32,
 ) -> f32 {
-    body.get_radius() / relative_position.length() * pixel_per_viewport_width
+    let radius = body.get_radius();
+    if let Some(radius) = radius {
+        radius / relative_position.length() * pixel_per_viewport_width
+    } else {
+        0.0
+    }
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {

@@ -28,6 +28,20 @@ impl Gui {
             .into()
     }
 
+    pub(super) fn adding_buttons() -> iced::Element<'static, GuiMessage> {
+        let add_planet_button = std_button("Add Planet", GuiMessage::AddPlanet);
+        let add_star_button = std_button("Add Star", GuiMessage::AddStar);
+        let generate_stars_button = std_button("Generate Stars", GuiMessage::GenerateStars);
+        Row::new()
+            .push(add_planet_button)
+            .push(add_star_button)
+            .push(generate_stars_button)
+            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
+            .align_items(Alignment::Center)
+            .spacing(PADDING)
+            .into()
+    }
+
     pub(super) fn file_buttons() -> iced::Element<'static, GuiMessage> {
         let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
         let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);

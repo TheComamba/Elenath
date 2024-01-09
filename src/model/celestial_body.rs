@@ -106,11 +106,11 @@ impl CelestialBody {
         }
     }
 
-    pub(crate) fn get_radius(&self) -> Length {
+    pub(crate) fn get_radius(&self) -> Option<Length> {
         match &self.data {
             CelestialBodyData::CentralBody(data) => data.get_radius(),
             CelestialBodyData::Star(data) => data.get_radius(),
-            CelestialBodyData::Planet(data) => data.get_radius(),
+            CelestialBodyData::Planet(data) => Some(data.get_radius()),
         }
     }
 }
