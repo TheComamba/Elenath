@@ -29,6 +29,9 @@ pub(crate) enum GuiMessage {
     SaveToNewFile,
     OpenFile,
     ModeSelected(GuiMode),
+    AddPlanet,
+    AddStar,
+    GenerateStars,
     UpdateTime(Time),
     UpdateTimeStep(Time),
     FocusedBodySelected(CelestialBody),
@@ -80,6 +83,18 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTopView(message) => {
                 self.top_view_state.update(message);
             }
+            GuiMessage::AddPlanet => {
+                todo!("Implement adding planets.");
+                // self.update_bodies();
+            }
+            GuiMessage::AddStar => {
+                todo!("Implement adding stars.");
+                // self.update_bodies();
+            }
+            GuiMessage::GenerateStars => {
+                todo!("Implement generating random stars.");
+                // self.update_bodies();
+            }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
                     self.opened_file = file_dialog::new();
@@ -129,6 +144,7 @@ impl Sandbox for Gui {
     fn view(&self) -> iced::Element<'_, Self::Message> {
         let toprow = Row::new()
             .push(Gui::gui_mode_tabs())
+            .push(Gui::adding_buttons())
             .push(Gui::file_buttons())
             .padding(PADDING);
         let mut col = Column::new().push(toprow);
