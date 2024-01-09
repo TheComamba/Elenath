@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/random-star-populations#98caea7f40bcb51f00dcc0dc41dc7a10bf1e43ae"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#ce0ce86a27625657c14b3bf756d80d33ab06097c"
 dependencies = [
  "directories",
  "flate2",
