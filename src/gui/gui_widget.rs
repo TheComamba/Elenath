@@ -11,7 +11,10 @@ use crate::{
         celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
     },
 };
-use astro_utils::units::time::Time;
+use astro_utils::{
+    stars::random_stars::generate_random_stars,
+    units::{length::Length, time::Time},
+};
 use iced::{
     widget::{canvas, Column, Row},
     Sandbox,
@@ -92,8 +95,10 @@ impl Sandbox for Gui {
                 // self.update_bodies();
             }
             GuiMessage::GenerateStars => {
-                todo!("Implement generating random stars.");
-                // self.update_bodies();
+                let max_distance = Length::from_light_years(100.0);
+                let stars = generate_random_stars(max_distance).unwrap();
+                self.celestial_system.add_distant_stars(stars);
+                self.update_bodies();
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {

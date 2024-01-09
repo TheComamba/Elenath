@@ -60,6 +60,10 @@ impl CelestialSystem {
         self.distant_stars.push(star);
     }
 
+    pub(crate) fn add_distant_stars(&mut self, stars: Vec<Star>) {
+        self.distant_stars.extend(stars);
+    }
+
     pub(crate) fn get_planets_data(&self) -> Vec<&Planet> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
