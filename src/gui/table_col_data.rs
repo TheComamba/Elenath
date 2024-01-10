@@ -82,7 +82,13 @@ impl TableColData<Star> {
             },
             TableColData {
                 header: "Mass",
-                content_closure: Box::new(|body| format!("{}", body.get_mass())),
+                content_closure: Box::new(|body| {
+                    if let Some(mass) = body.get_mass() {
+                        format!("{}", mass)
+                    } else {
+                        String::from("N/A")
+                    }
+                }),
             },
             TableColData {
                 header: "Radius",
@@ -100,7 +106,13 @@ impl TableColData<Star> {
             },
             TableColData {
                 header: "Temperature",
-                content_closure: Box::new(|body| format!("{}", body.get_temperature())),
+                content_closure: Box::new(|body| {
+                    if let Some(temperature) = body.get_temperature() {
+                        format!("{}", temperature)
+                    } else {
+                        String::from("N/A")
+                    }
+                }),
             },
             TableColData {
                 header: "Direction in Ecliptic",
