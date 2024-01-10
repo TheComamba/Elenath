@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use astro_utils::{
-    stars::random_stars::generate_random_stars,
+    stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::{length::Length, time::Time},
 };
 use iced::{
@@ -35,6 +35,7 @@ pub(crate) enum GuiMessage {
     AddPlanet,
     AddStar,
     GenerateStars,
+    FetchGaiaData,
     UpdateTime(Time),
     UpdateTimeStep(Time),
     FocusedBodySelected(CelestialBody),
@@ -98,6 +99,12 @@ impl Sandbox for Gui {
                 let max_distance = Length::from_light_years(100.0);
                 let stars = generate_random_stars(max_distance).unwrap();
                 self.celestial_system.add_distant_stars(stars);
+                self.update_bodies();
+            }
+            GuiMessage::FetchGaiaData => {
+                let stars = fetch_brightest_stars().unwrap();
+                self.celestial_system
+                    .add_distant_stars_without_duplicates(stars);
                 self.update_bodies();
             }
             GuiMessage::SaveToFile => {
