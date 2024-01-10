@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use super::celestial_body::CelestialBody;
+use super::{celestial_body::CelestialBody, star::Star};
 use astro_utils::{
     planets::planet::Planet,
-    stars::{gaia_data::star_is_already_known, star::Star},
+    stars::{gaia_data::star_is_already_known, star::StarData},
     units::time::Time,
 };
 use serde::{Deserialize, Serialize};
@@ -16,7 +16,7 @@ pub(crate) struct CelestialSystem {
 }
 
 impl CelestialSystem {
-    pub(crate) fn new(central_body: Star) -> Self {
+    pub(crate) fn new(central_body: StarData) -> Self {
         let central_body = central_body;
         CelestialSystem {
             central_body,
@@ -39,7 +39,7 @@ impl CelestialSystem {
         Ok(celestial_system)
     }
 
-    pub(crate) fn get_central_body(&self) -> &Star {
+    pub(crate) fn get_central_body(&self) -> &StarData {
         &self.central_body
     }
 
@@ -60,11 +60,11 @@ impl CelestialSystem {
         self.planets.push(planet);
     }
 
-    pub(crate) fn add_distant_star(&mut self, star: Star) {
+    pub(crate) fn add_distant_star(&mut self, star: StarData) {
         self.distant_stars.push(star);
     }
 
-    pub(crate) fn add_distant_stars(&mut self, stars: Vec<Star>) {
+    pub(crate) fn add_distant_stars(&mut self, stars: Vec<StarData>) {
         self.distant_stars.extend(stars);
     }
 

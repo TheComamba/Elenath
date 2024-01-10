@@ -2,7 +2,6 @@ use astro_utils::{
     color::sRGBColor,
     coordinates::{cartesian::CartesianCoordinates, direction::Direction},
     planets::planet::Planet,
-    stars::star::Star,
     units::{length::Length, time::Time},
 };
 use std::fmt::{Display, Formatter};

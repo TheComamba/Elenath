@@ -12,7 +12,6 @@ use astro_utils::{
     },
     planets::planet_brightness::planet_brightness,
     planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
-    stars::star::Star,
     units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
     Float,
 };
