@@ -21,11 +21,15 @@ use iced::{
     Color, Point,
 };
 
-const BRIGHTNESS_EXPONENT: f32 = 3.;
-const BRIGHTNESS_FACTOR: f32 = 2e-2;
+// dimmest apparent magnitude: 6.5
+// as lux: 10.powf((-14.18 - 6.5) / 2.5);
+// A magnitude 6.5 star should appear with size between 0.1 and 1
+// So the factor is (0.1 to 1.) / sqrt(10.powf((-14.18 - 6.5) / 2.5))
+// which equals 1367.7 to 13677
+const BRIGHTNESS_FACTOR: f32 = 5000.;
 const GRADIENT_ALPHA: f32 = 1.;
 const GRADIENT_STEPS: i32 = 100;
-const GRADIENT_SHARPNESS_EXPONENT: i32 = 5;
+const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
 
 impl SurfaceViewState {
     fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
@@ -238,14 +242,8 @@ fn canvas_apparent_radius(
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    const DIMMEST_VISIBLE_APP_MAG: Float = 6.5;
-    let app_mag = brightness.as_apparent_magnitude();
-    let app_mag_diff = DIMMEST_VISIBLE_APP_MAG - app_mag;
-    let size = if app_mag_diff > 0.0 {
-        app_mag_diff.powf(BRIGHTNESS_EXPONENT) * BRIGHTNESS_FACTOR
-    } else {
-        0.0
-    };
+    let lux = brightness.as_lux();
+    let size = lux.sqrt() * BRIGHTNESS_FACTOR;
     if size > 1e5 {
         1e5
     } else {
