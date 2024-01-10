@@ -28,7 +28,7 @@ use iced::{
 // which equals 1367.7 to 13677
 const BRIGHTNESS_FACTOR: f32 = 5000.;
 const GRADIENT_ALPHA: f32 = 1.;
-const GRADIENT_STEPS: i32 = 100;
+const GRADIENT_STEPS: i32 = 10;
 const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
 
 impl SurfaceViewState {
