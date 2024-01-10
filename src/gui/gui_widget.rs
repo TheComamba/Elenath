@@ -12,7 +12,7 @@ use crate::{
     },
 };
 use astro_utils::{
-    stars::random_stars::generate_random_stars,
+    stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::{length::Length, time::Time},
 };
 use iced::{
@@ -35,6 +35,7 @@ pub(crate) enum GuiMessage {
     AddPlanet,
     AddStar,
     GenerateStars,
+    FetchGaiaData,
     UpdateTime(Time),
     UpdateTimeStep(Time),
     FocusedBodySelected(CelestialBody),
@@ -100,6 +101,12 @@ impl Sandbox for Gui {
                 self.celestial_system.add_distant_stars(stars);
                 self.update_bodies();
             }
+            GuiMessage::FetchGaiaData => {
+                let stars = fetch_brightest_stars().unwrap();
+                self.celestial_system
+                    .add_distant_stars_without_duplicates(stars);
+                self.update_bodies();
+            }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
                     self.opened_file = file_dialog::new();
@@ -151,7 +158,8 @@ impl Sandbox for Gui {
             .push(Gui::gui_mode_tabs())
             .push(Gui::adding_buttons())
             .push(Gui::file_buttons())
-            .padding(PADDING);
+            .padding(PADDING)
+            .spacing(PADDING);
         let mut col = Column::new().push(toprow);
 
         match self.mode {

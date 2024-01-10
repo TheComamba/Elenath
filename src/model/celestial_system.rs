@@ -1,7 +1,11 @@
 use std::path::PathBuf;
 
 use super::celestial_body::CelestialBody;
-use astro_utils::{planets::planet::Planet, stars::star::Star, units::time::Time};
+use astro_utils::{
+    planets::planet::Planet,
+    stars::{gaia_data::star_is_already_known, star::Star},
+    units::time::Time,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -62,6 +66,14 @@ impl CelestialSystem {
 
     pub(crate) fn add_distant_stars(&mut self, stars: Vec<Star>) {
         self.distant_stars.extend(stars);
+    }
+
+    pub(crate) fn add_distant_stars_without_duplicates(&mut self, stars: Vec<Star>) {
+        for star in stars {
+            if !star_is_already_known(&star, &self.distant_stars.iter().collect::<Vec<_>>()) {
+                self.distant_stars.push(star);
+            }
+        }
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&Planet> {

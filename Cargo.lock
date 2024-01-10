@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#ce0ce86a27625657c14b3bf756d80d33ab06097c"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#d978209959741b29da11a2ba7445d40243cc665c"
 dependencies = [
  "directories",
  "flate2",
@@ -131,6 +131,7 @@ dependencies = [
  "rand",
  "reqwest",
  "serde",
+ "serde_json",
  "tar",
 ]
 
@@ -2744,9 +2745,9 @@ dependencies = [
 
 [[package]]
 name = "termcolor"
-version = "1.4.0"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
+checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
 ]

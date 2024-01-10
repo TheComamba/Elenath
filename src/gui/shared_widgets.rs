@@ -22,7 +22,6 @@ impl Gui {
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
-            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -32,11 +31,12 @@ impl Gui {
         let add_planet_button = std_button("Add Planet", GuiMessage::AddPlanet);
         let add_star_button = std_button("Add Star", GuiMessage::AddStar);
         let generate_stars_button = std_button("Generate Stars", GuiMessage::GenerateStars);
+        let fetch_gaia_data_button = std_button("Fetch Gaia Data", GuiMessage::FetchGaiaData);
         Row::new()
             .push(add_planet_button)
             .push(add_star_button)
             .push(generate_stars_button)
-            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
+            .push(fetch_gaia_data_button)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
@@ -50,7 +50,6 @@ impl Gui {
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
-            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
