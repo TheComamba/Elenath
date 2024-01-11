@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/star-overhaul#04c0fe3bd11d17d63fea02a235d7da9eab47bdb0"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/star-overhaul#99669721f72179c888fb1f8637f79fcf91a0ca70"
 dependencies = [
  "directories",
  "flate2",
@@ -171,9 +171,9 @@ dependencies = [
 
 [[package]]
 name = "base64"
-version = "0.21.6"
+version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c79fed4cdb43e993fcdadc7e58a09fd0e3e649c4436fa11da71c9f1f3ee7feb9"
+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
 name = "bit-set"
