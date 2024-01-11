@@ -1,12 +1,12 @@
-use astro_utils::{planets::planet::Planet, stars::star_data::StarData};
+use astro_utils::{planets::planet_data::PlanetData, stars::star_data::StarData};
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
     pub(super) content_closure: Box<dyn Fn(&T) -> String>,
 }
 
-impl TableColData<Planet> {
-    pub(super) fn default_planet_col_data() -> Vec<TableColData<Planet>> {
+impl TableColData<PlanetData> {
+    pub(super) fn default_planet_col_data() -> Vec<TableColData<PlanetData>> {
         vec![
             TableColData {
                 header: "Name",
@@ -101,9 +101,9 @@ impl TableColData<StarData> {
                 }),
             },
             TableColData {
-                header: "Absolute magnitude",
+                header: "Luminosity",
                 content_closure: Box::new(|body| {
-                    if let Some(luminosity) = body.get_absolute_magnitude() {
+                    if let Some(luminosity) = body.get_luminosity() {
                         format!("{}", luminosity)
                     } else {
                         String::from("N/A")
@@ -135,10 +135,10 @@ impl TableColData<StarData> {
                 }),
             },
             TableColData {
-                header: "Apparent magnitude",
+                header: "Apparent Brightness",
                 content_closure: Box::new(|body| {
                     if let (Some(abs_mag), Some(distance)) =
-                        (body.get_absolute_magnitude(), body.get_distance)
+                        (body.get_luminosity(), body.get_distance())
                     {
                         let apparent_magnitude = abs_mag.to_illuminance(&distance);
                         format!("{}", apparent_magnitude)
