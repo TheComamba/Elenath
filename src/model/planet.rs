@@ -16,4 +16,12 @@ impl Planet {
             .calculate_position(mass, central_body, time);
         Self { data, pos }
     }
+
+    pub(crate) fn get_data(&self) -> &PlanetData {
+        &self.data
+    }
+
+    pub(crate) fn get_position(&self) -> &CartesianCoordinates {
+        &self.pos
+    }
 }

@@ -1,19 +1,18 @@
-use crate::model::celestial_system::{self, CelestialSystem};
-
 use super::{
     shared_canvas_functionality::{
         contains_workaround, draw_background, draw_body_name, maximized_color,
     },
     surface_view_widget::SurfaceViewState,
 };
+use crate::model::{celestial_system::CelestialSystem, planet::Planet};
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
     planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
-    planets::{planet::Planet, planet_brightness::planet_brightness},
-    units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
+    stars::star_appearance::StarAppearance,
+    units::{angle::Angle, illuminance::Illuminance, time::Time},
     Float,
 };
 use iced::{
@@ -35,7 +34,7 @@ impl SurfaceViewState {
     fn observer_normal(&self, selected_planet: &Planet, time_since_epoch: Time) -> Direction {
         let observer_equatorial_position = EquatorialCoordinates::new(
             SphericalCoordinates::new(self.surface_longitude, self.surface_latitude),
-            selected_planet.get_rotation_axis().clone(),
+            selected_planet.get_data().get_rotation_axis().clone(),
         );
         //TODO: Define Angle at Epoch
         let planet_angle_at_epoch = Angle::from_degrees(0.0);
@@ -43,7 +42,7 @@ impl SurfaceViewState {
             observer_equatorial_position,
             planet_angle_at_epoch,
             time_since_epoch,
-            selected_planet.get_sideral_rotation_period(),
+            selected_planet.get_data().get_sideral_rotation_period(),
         )
     }
 
@@ -52,7 +51,7 @@ impl SurfaceViewState {
         selected_planet: &Planet,
         observer_normal: &Direction,
     ) -> CartesianCoordinates {
-        let body_radius = selected_planet.get_radius().unwrap_or(Length::ZERO);
+        let body_radius = selected_planet.get_data().get_radius();
         selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
     }
 
@@ -133,7 +132,7 @@ impl SurfaceViewState {
     fn draw_body(
         &self,
         central_body: &Star,
-        body: &CelestialBody,
+        body: &StarAppearance,
         observer_position: &CartesianCoordinates,
         observer_normal: &Direction,
         observer_view_direction: &Direction,
@@ -151,7 +150,7 @@ impl SurfaceViewState {
         );
         if let Some(pos) = pos {
             let pos: Point = frame.center() + pos;
-            let brightness = body_brightness(central_body, body, observer_position);
+            let brightness = body.get_illuminance();
             let color = maximized_color(body);
             let apparent_radius =
                 canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
@@ -198,33 +197,6 @@ fn canvas_position(
         Some(iced::Vector::new(x as f32, y as f32))
     } else {
         None
-    }
-}
-
-fn body_brightness(
-    central_body: &Star,
-    body: &CelestialBody,
-    observer_position: &CartesianCoordinates,
-) -> Illuminance {
-    match body.get_data() {
-        CelestialBodyData::CentralBody(data) => {
-            let distance = body.get_position() - observer_position;
-            data.get_absolute_magnitude()
-                .to_illuminance(&distance.length())
-        }
-        CelestialBodyData::Star(data) => {
-            let distance = body.get_position() - observer_position;
-            data.get_absolute_magnitude()
-                .to_illuminance(&distance.length())
-        }
-        CelestialBodyData::Planet(data) => planet_brightness(
-            central_body.get_absolute_magnitude(),
-            &CartesianCoordinates::ORIGIN,
-            body.get_position(),
-            observer_position,
-            data.get_radius(),
-            data.get_geometric_albedo(),
-        ),
     }
 }
 

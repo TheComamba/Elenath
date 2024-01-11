@@ -47,10 +47,10 @@ impl Gui {
             .celestial_system
             .get_planet_data()
             .iter()
-            .find(|p| p.get_name() == self.selected_planet_name);
+            .find(|p| p.get_name().eq(&self.selected_planet_name));
         planet_data.map(|data| {
             Planet::new(
-                data,
+                (*data).clone(),
                 self.celestial_system.get_central_body_data(),
                 self.time_since_epoch,
             )

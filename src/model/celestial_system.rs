@@ -92,7 +92,7 @@ impl CelestialSystem {
         let mut bodies = Vec::new();
         if let Some(central_body) = self.central_body.get_data() {
             for planet_data in &self.planets {
-                let planet = Planet::new(planet_data, central_body, time);
+                let planet = Planet::new(planet_data.clone(), central_body, time);
                 bodies.push(planet);
             }
         }
