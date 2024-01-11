@@ -62,7 +62,7 @@ impl Sandbox for Gui {
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             celestial_system,
-            selected_planet: None,
+            selected_planet_name: String::new(),
             display_names: true,
         }
     }
@@ -81,11 +81,9 @@ impl Sandbox for Gui {
             }
             GuiMessage::AddPlanet => {
                 todo!("Implement adding planets.");
-                // self.update_bodies();
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
-                // self.update_bodies();
             }
             GuiMessage::GenerateStars => {
                 let max_distance = Length::from_light_years(100.0);
@@ -93,13 +91,11 @@ impl Sandbox for Gui {
                 for star_data in stars {
                     self.celestial_system.add_star_from_data(star_data);
                 }
-                self.update_bodies();
             }
             GuiMessage::FetchGaiaData => {
                 let stars = fetch_brightest_stars().unwrap();
                 self.celestial_system
                     .add_star_appearances_without_duplicates(stars);
-                self.update_bodies();
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
@@ -124,7 +120,6 @@ impl Sandbox for Gui {
                 if let Some(path) = &self.opened_file {
                     self.celestial_system = CelestialSystem::read_from_file(path.clone())
                         .expect("Failed to read from file");
-                    self.update_bodies();
                 }
             }
             GuiMessage::ModeSelected(mode) => {
@@ -132,13 +127,12 @@ impl Sandbox for Gui {
             }
             GuiMessage::UpdateTime(time) => {
                 self.time_since_epoch = time;
-                self.update_bodies();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
             GuiMessage::PlanetSelected(name) => {
-                self.selected_planet = body;
+                self.selected_planet_name = name;
             }
             GuiMessage::SetShowNames(display_names) => {
                 self.display_names = display_names;
@@ -163,7 +157,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_system,
-                        &self.selected_planet,
+                        &self.selected_planet_name,
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -179,7 +173,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         self.celestial_system.get_planet_data(),
-                        &self.selected_planet,
+                        &self.selected_planet_name,
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
@@ -232,7 +226,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 renderer,
                 bounds,
                 self.celestial_system.get_central_body(),
-                &self.selected_planet,
+                &self.selected_planet_name,
                 self.time_since_epoch,
                 &self.celestial_system,
                 self.display_names,
@@ -240,7 +234,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.selected_planet,
+                &self.selected_planet_name,
                 &self.celestial_system,
                 self.display_names,
             ),

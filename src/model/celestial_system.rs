@@ -76,6 +76,10 @@ impl CelestialSystem {
         &self.central_body
     }
 
+    pub(crate) fn get_central_body_data(&self) -> &StarData {
+        &self.central_body.get_data().unwrap()
+    }
+
     pub(crate) fn get_planet_data(&self) -> Vec<&PlanetData> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
