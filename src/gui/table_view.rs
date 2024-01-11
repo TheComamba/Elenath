@@ -28,7 +28,7 @@ impl TableViewState {
     pub(super) fn table_view<'a>(
         &'a self,
         planets: Vec<&'a Planet>,
-        stars: Vec<&'a Star>,
+        stars: Vec<&'a StarData>,
     ) -> Element<'_, GuiMessage> {
         Column::new()
             .push(table_header(&self.planet_col_data))

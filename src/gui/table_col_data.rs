@@ -102,7 +102,13 @@ impl TableColData<StarData> {
             },
             TableColData {
                 header: "Absolute magnitude",
-                content_closure: Box::new(|body| format!("{}", body.get_absolute_magnitude())),
+                content_closure: Box::new(|body| {
+                    if let Some(luminosity) = body.get_absolute_magnitude() {
+                        format!("{}", luminosity)
+                    } else {
+                        String::from("N/A")
+                    }
+                }),
             },
             TableColData {
                 header: "Temperature",
@@ -120,15 +126,25 @@ impl TableColData<StarData> {
             },
             TableColData {
                 header: "Distance",
-                content_closure: Box::new(|body| format!("{}", body.get_distance())),
+                content_closure: Box::new(|body| {
+                    if let Some(distance) = body.get_distance() {
+                        format!("{}", distance)
+                    } else {
+                        String::from("N/A")
+                    }
+                }),
             },
             TableColData {
                 header: "Apparent magnitude",
                 content_closure: Box::new(|body| {
-                    let abs_mag = body.get_absolute_magnitude();
-                    let distance = body.get_distance();
-                    let apparent_magnitude = abs_mag.to_illuminance(&distance);
-                    format!("{}", apparent_magnitude)
+                    if let (Some(abs_mag), Some(distance)) =
+                        (body.get_absolute_magnitude(), body.get_distance)
+                    {
+                        let apparent_magnitude = abs_mag.to_illuminance(&distance);
+                        format!("{}", apparent_magnitude)
+                    } else {
+                        String::from("N/A")
+                    }
                 }),
             },
         ]

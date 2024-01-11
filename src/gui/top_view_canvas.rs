@@ -2,9 +2,15 @@ use super::{
     shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
     top_view_widget::TopViewState,
 };
-use crate::gui::shared_canvas_functionality::draw_background;
+use crate::{
+    gui::shared_canvas_functionality::draw_background,
+    model::celestial_system::{self, CelestialSystem},
+};
 use astro_utils::{
-    coordinates::{direction::Direction, rotations::get_rotation_parameters},
+    coordinates::{
+        cartesian::CartesianCoordinates, direction::Direction, rotations::get_rotation_parameters,
+    },
+    planets::planet::Planet,
     units::{angle::Angle, length::Length},
 };
 use iced::{
@@ -16,12 +22,11 @@ use iced::{
 impl TopViewState {
     fn canvas_position(
         &self,
-        body: &CelestialBody,
+        pos: &CartesianCoordinates,
         view_angle: Angle,
         view_rotation_axis: &Direction,
     ) -> iced::Vector {
-        let three_dim_position = body.get_position();
-        let rotated_position = three_dim_position.rotated(-view_angle, view_rotation_axis); //passive transformation
+        let rotated_position = pos.rotated(-view_angle, view_rotation_axis); //passive transformation
         let x = rotated_position.x() / self.length_per_pixel;
         let y = -rotated_position.y() / self.length_per_pixel; // y axis is inverted
         iced::Vector::new(x as f32, y as f32)
@@ -31,8 +36,8 @@ impl TopViewState {
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
-        selected_body: &Option<CelestialBody>,
-        celestial_bodies: &Vec<CelestialBody>,
+        selected_planet: &Option<Planet>,
+        celestial_system: &CelestialSystem,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -43,8 +48,8 @@ impl TopViewState {
 
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
             self.draw_bodies(
-                selected_body,
-                celestial_bodies,
+                selected_planet,
+                celestial_system,
                 &bounds,
                 frame,
                 display_names,
@@ -60,8 +65,8 @@ impl TopViewState {
 
     fn draw_bodies(
         &self,
-        selected_body: &Option<CelestialBody>,
-        celestial_bodies: &Vec<CelestialBody>,
+        selected_planet: &Option<Planet>,
+        celestial_system: &CelestialSystem,
         bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
@@ -70,22 +75,22 @@ impl TopViewState {
         let (view_angle, view_rotation_axis) =
             get_rotation_parameters(&Direction::Z, &view_direction);
 
-        let offset = match selected_body {
+        let offset = match selected_planet {
             Some(focus) => self.canvas_position(focus, view_angle, &view_rotation_axis),
             None => iced::Vector::new(0.0 as f32, 0.0 as f32),
         };
-        for body in celestial_bodies.iter() {
-            if !body.is_distant_star() {
-                self.draw_body(
-                    frame,
-                    &bounds,
-                    body,
-                    view_angle,
-                    &view_rotation_axis,
-                    offset,
-                    display_names,
-                );
-            }
+        for body in celestial_system.get_planets().iter() {
+            let radius = canvas_radius(body);
+            self.draw_body(
+                frame,
+                &bounds,
+                body,
+                radius,
+                view_angle,
+                &view_rotation_axis,
+                offset,
+                display_names,
+            );
         }
     }
 
@@ -94,12 +99,12 @@ impl TopViewState {
         frame: &mut canvas::Frame,
         bounds: &iced::Rectangle,
         body: &CelestialBody,
+        radius: f32,
         view_angle: Angle,
         view_rotation_axis: &Direction,
         offset: iced::Vector,
         display_names: bool,
     ) {
-        let radius = body_radius(body);
         let pos =
             frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
         if contains_workaround(bounds, pos) {
@@ -142,9 +147,9 @@ impl TopViewState {
     }
 }
 
-fn body_radius(body: &CelestialBody) -> f32 {
+fn canvas_radius(radius: &Option<Length>) -> f32 {
     const SIZE_NUMBER: f32 = 0.3;
-    let radius = body.get_radius().unwrap_or(Length::ZERO);
+    let radius = radius.unwrap_or(Length::ZERO);
     radius.as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
 }
 
