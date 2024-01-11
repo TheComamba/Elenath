@@ -2,7 +2,7 @@ use super::{
     gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     Gui, GuiMode,
 };
-use astro_utils::{planets::planet::Planet, units::time::Time};
+use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, Toggler},
@@ -65,8 +65,8 @@ fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
 }
 
 pub(super) fn planet_picker<'a>(
-    planets: &'a &Vec<Planet>,
-    selected_planet: &'a Option<Planet>,
+    planets: &'a &Vec<PlanetData>,
+    selected_planet: &'a Option<PlanetData>,
 ) -> iced::Element<'a, GuiMessage> {
     let text = Text::new("Focused body:")
         .width(SMALL_COLUMN_WIDTH)
@@ -97,8 +97,8 @@ pub(super) fn planet_picker<'a>(
 pub(super) fn surface_and_top_view_shared_control<'a>(
     time_since_epoch: &'a Time,
     time_step: &'a Time,
-    planets: &'a &Vec<Planet>,
-    selected_planet: &'a Option<Planet>,
+    planets: &'a &Vec<PlanetData>,
+    selected_planet: &'a Option<PlanetData>,
     display_names: bool,
 ) -> iced::Element<'a, GuiMessage> {
     let time_control_field = control_field(

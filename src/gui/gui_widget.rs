@@ -10,7 +10,6 @@ use crate::{
     model::{celestial_system::CelestialSystem, example::solar_system},
 };
 use astro_utils::{
-    planets::planet::Planet,
     stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::{length::Length, time::Time},
 };
@@ -63,7 +62,7 @@ impl Sandbox for Gui {
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             celestial_system,
-            focused_planet: None,
+            selected_planet: None,
             display_names: true,
         }
     }
@@ -138,8 +137,8 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
-            GuiMessage::PlanetSelected(body) => {
-                self.focused_planet = body;
+            GuiMessage::PlanetSelected(name) => {
+                self.selected_planet = body;
             }
             GuiMessage::SetShowNames(display_names) => {
                 self.display_names = display_names;
@@ -163,8 +162,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_planet,
+                        &self.celestial_system,
+                        &self.selected_planet,
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -179,8 +178,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_planet,
+                        self.celestial_system.get_planet_data(),
+                        &self.selected_planet,
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
@@ -191,10 +190,18 @@ impl Sandbox for Gui {
                 )
             }
             GuiMode::TableView => {
-                col = col.push(self.table_view_state.table_view(
-                    self.celestial_system.get_planets(),
-                    self.celestial_system.get_stars(),
-                ))
+                let star_data = self
+                    .celestial_system
+                    .get_stars()
+                    .iter()
+                    .map(|s| s.get_data())
+                    .filter(|s| s.is_some())
+                    .map(|s| s.unwrap())
+                    .collect();
+                col = col.push(
+                    self.table_view_state
+                        .table_view(self.celestial_system.get_planet_data(), star_data),
+                )
             }
         }
 
@@ -225,16 +232,16 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 renderer,
                 bounds,
                 self.celestial_system.get_central_body(),
-                &self.focused_planet,
+                &self.selected_planet,
                 self.time_since_epoch,
-                &self.celestial_bodies,
+                &self.celestial_system,
                 self.display_names,
             ),
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.focused_planet,
-                &self.celestial_bodies,
+                &self.selected_planet,
+                &self.celestial_system,
                 self.display_names,
             ),
             _ => {

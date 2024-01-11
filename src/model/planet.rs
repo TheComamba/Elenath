@@ -1,4 +1,7 @@
-use astro_utils::{coordinates::cartesian::CartesianCoordinates, planets::planet_data::PlanetData};
+use astro_utils::{
+    coordinates::cartesian::CartesianCoordinates, planets::planet_data::PlanetData,
+    stars::star_data::StarData, units::time::Time,
+};
 
 pub(crate) struct Planet {
     data: PlanetData,

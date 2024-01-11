@@ -1,3 +1,5 @@
+use crate::model::celestial_system::{self, CelestialSystem};
+
 use super::{
     shared_canvas_functionality::{
         contains_workaround, draw_background, draw_body_name, maximized_color,
@@ -65,9 +67,9 @@ impl SurfaceViewState {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
         central_body: &Star,
-        selected_body: &Option<CelestialBody>,
+        selected_planet: &Option<Planet>,
         time_since_epoch: Time,
-        celestial_bodies: &Vec<CelestialBody>,
+        celestial_system: &CelestialSystem,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -79,7 +81,7 @@ impl SurfaceViewState {
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
             self.draw_bodies(
                 central_body,
-                selected_body,
+                selected_planet,
                 time_since_epoch,
                 bounds,
                 celestial_bodies,
