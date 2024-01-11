@@ -2,10 +2,7 @@ use super::{
     shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
     top_view_widget::TopViewState,
 };
-use crate::{
-    gui::shared_canvas_functionality::draw_background,
-    model::celestial_body::{CelestialBody, CelestialBodyData},
-};
+use crate::gui::shared_canvas_functionality::draw_background;
 use astro_utils::{
     coordinates::{direction::Direction, rotations::get_rotation_parameters},
     units::{angle::Angle, length::Length},

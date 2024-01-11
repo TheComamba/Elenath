@@ -4,7 +4,6 @@ use super::{
     },
     surface_view_widget::SurfaceViewState,
 };
-use crate::model::celestial_body::{CelestialBody, CelestialBodyData};
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,

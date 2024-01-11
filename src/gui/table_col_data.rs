@@ -1,4 +1,4 @@
-use astro_utils::{planets::planet::Planet, stars::star::Star};
+use astro_utils::{planets::planet::Planet, stars::star_data::StarData};
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
@@ -73,8 +73,8 @@ impl TableColData<Planet> {
     }
 }
 
-impl TableColData<Star> {
-    pub(super) fn default_star_col_data() -> Vec<TableColData<Star>> {
+impl TableColData<StarData> {
+    pub(super) fn default_star_col_data() -> Vec<TableColData<StarData>> {
         vec![
             TableColData {
                 header: "Name",

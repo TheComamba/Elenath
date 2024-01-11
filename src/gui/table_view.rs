@@ -1,6 +1,6 @@
 use super::gui_widget::GuiMessage;
 use super::table_col_data::TableColData;
-use astro_utils::{planets::planet::Planet, stars::star::Star};
+use astro_utils::{planets::planet::Planet, stars::star_data::StarData};
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -14,7 +14,7 @@ const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(super) struct TableViewState {
     planet_col_data: Vec<TableColData<Planet>>,
-    star_col_data: Vec<TableColData<Star>>,
+    star_col_data: Vec<TableColData<StarData>>,
 }
 
 impl TableViewState {

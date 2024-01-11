@@ -1,7 +1,8 @@
 use self::gui_widget::GuiMode;
 use self::surface_view_widget::SurfaceViewState;
 use self::top_view_widget::TopViewState;
-use crate::model::{celestial_body::CelestialBody, celestial_system::CelestialSystem};
+use crate::model::celestial_system::CelestialSystem;
+use astro_utils::planets::planet::Planet;
 use astro_utils::units::time::Time;
 use std::path::PathBuf;
 
@@ -24,8 +25,7 @@ pub(crate) struct Gui {
     time_since_epoch: Time,
     time_step: Time,
     celestial_system: CelestialSystem,
-    celestial_bodies: Vec<CelestialBody>,
-    focused_body: Option<CelestialBody>,
+    focused_planet: Option<Planet>,
     display_names: bool,
 }
 
@@ -34,8 +34,8 @@ impl Gui {
         self.celestial_bodies = self
             .celestial_system
             .get_current_data(self.time_since_epoch);
-        if let Some(focus) = &self.focused_body {
-            self.focused_body = self
+        if let Some(focus) = &self.focused_planet {
+            self.focused_planet = self
                 .celestial_bodies
                 .iter()
                 .find(|body| body.get_name() == focus.get_name())

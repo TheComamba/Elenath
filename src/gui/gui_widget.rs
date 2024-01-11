@@ -7,11 +7,10 @@ use super::{
 };
 use crate::{
     file_dialog,
-    model::{
-        celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
-    },
+    model::{celestial_system::CelestialSystem, example::solar_system},
 };
 use astro_utils::{
+    planets::planet::Planet,
     stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::{length::Length, time::Time},
 };
@@ -38,7 +37,7 @@ pub(crate) enum GuiMessage {
     FetchGaiaData,
     UpdateTime(Time),
     UpdateTimeStep(Time),
-    FocusedBodySelected(CelestialBody),
+    PlanetSelected(String),
     SetShowNames(bool),
 }
 
@@ -54,12 +53,7 @@ impl Sandbox for Gui {
 
     fn new() -> Self {
         let celestial_system = solar_system();
-        let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
         let central_body_data = celestial_system.get_central_body();
-        let selected_focus = celestial_bodies
-            .iter()
-            .find(|body| body.get_name() == central_body_data.get_name())
-            .cloned();
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,
@@ -69,8 +63,7 @@ impl Sandbox for Gui {
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             celestial_system,
-            celestial_bodies,
-            focused_body: selected_focus,
+            focused_planet: None,
             display_names: true,
         }
     }
@@ -98,13 +91,15 @@ impl Sandbox for Gui {
             GuiMessage::GenerateStars => {
                 let max_distance = Length::from_light_years(100.0);
                 let stars = generate_random_stars(max_distance).unwrap();
-                self.celestial_system.add_distant_stars(stars);
+                for star_data in stars {
+                    self.celestial_system.add_star_from_data(star_data);
+                }
                 self.update_bodies();
             }
             GuiMessage::FetchGaiaData => {
                 let stars = fetch_brightest_stars().unwrap();
                 self.celestial_system
-                    .add_distant_stars_without_duplicates(stars);
+                    .add_star_appearances_without_duplicates(stars);
                 self.update_bodies();
             }
             GuiMessage::SaveToFile => {
@@ -143,8 +138,8 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
-            GuiMessage::FocusedBodySelected(body) => {
-                self.focused_body = Some(body);
+            GuiMessage::PlanetSelected(body) => {
+                self.focused_planet = body;
             }
             GuiMessage::SetShowNames(display_names) => {
                 self.display_names = display_names;
@@ -169,7 +164,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_bodies,
-                        &self.focused_body,
+                        &self.focused_planet,
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -185,7 +180,7 @@ impl Sandbox for Gui {
                         &self.time_since_epoch,
                         &self.time_step,
                         &self.celestial_bodies,
-                        &self.focused_body,
+                        &self.focused_planet,
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
@@ -230,7 +225,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 renderer,
                 bounds,
                 self.celestial_system.get_central_body(),
-                &self.focused_body,
+                &self.focused_planet,
                 self.time_since_epoch,
                 &self.celestial_bodies,
                 self.display_names,
@@ -238,7 +233,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.focused_body,
+                &self.focused_planet,
                 &self.celestial_bodies,
                 self.display_names,
             ),
