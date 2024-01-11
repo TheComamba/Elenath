@@ -9,8 +9,8 @@ use astro_utils::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
-    planets::planet_brightness::planet_brightness,
     planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
+    planets::{planet::Planet, planet_brightness::planet_brightness},
     units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
     Float,
 };
@@ -30,10 +30,10 @@ const GRADIENT_STEPS: i32 = 10;
 const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
 
 impl SurfaceViewState {
-    fn observer_normal(&self, selected_body: &CelestialBody, time_since_epoch: Time) -> Direction {
+    fn observer_normal(&self, selected_planet: &Planet, time_since_epoch: Time) -> Direction {
         let observer_equatorial_position = EquatorialCoordinates::new(
             SphericalCoordinates::new(self.surface_longitude, self.surface_latitude),
-            selected_body.get_rotation_axis().clone(),
+            selected_planet.get_rotation_axis().clone(),
         );
         //TODO: Define Angle at Epoch
         let planet_angle_at_epoch = Angle::from_degrees(0.0);
@@ -41,17 +41,17 @@ impl SurfaceViewState {
             observer_equatorial_position,
             planet_angle_at_epoch,
             time_since_epoch,
-            selected_body.get_sideral_rotation_period(),
+            selected_planet.get_sideral_rotation_period(),
         )
     }
 
     fn observer_position(
         &self,
-        selected_body: &CelestialBody,
+        selected_planet: &Planet,
         observer_normal: &Direction,
     ) -> CartesianCoordinates {
-        let body_radius = selected_body.get_radius().unwrap_or(Length::ZERO);
-        selected_body.get_position().clone() + observer_normal.to_cartesian(body_radius)
+        let body_radius = selected_planet.get_radius().unwrap_or(Length::ZERO);
+        selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
     }
 
     fn pixel_per_viewport_width(&self, canvas_width: f32) -> Float {
