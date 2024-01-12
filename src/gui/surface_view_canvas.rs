@@ -1,7 +1,5 @@
 use super::{
-    shared_canvas_functionality::{
-        contains_workaround, draw_background, draw_body_name, maximized_color,
-    },
+    shared_canvas_functionality::{contains_workaround, draw_background, draw_body_name},
     surface_view_widget::SurfaceViewState,
 };
 use crate::model::{celestial_system::CelestialSystem, planet::Planet};
@@ -65,10 +63,9 @@ impl SurfaceViewState {
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
-        central_body: &Star,
         selected_planet: &Option<Planet>,
-        time_since_epoch: Time,
         celestial_system: &CelestialSystem,
+        time_since_epoch: Time,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -77,43 +74,54 @@ impl SurfaceViewState {
                 draw_background(bounds, frame);
             });
 
-        let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            self.draw_bodies(
-                central_body,
-                selected_planet,
-                time_since_epoch,
-                bounds,
-                celestial_bodies,
-                frame,
-                display_names,
-            );
-        });
+        let bodies = if let Some(selected_planet) = selected_planet {
+            self.bodies_cache.draw(renderer, bounds.size(), |frame| {
+                self.draw_bodies(
+                    frame,
+                    bounds,
+                    *selected_planet,
+                    celestial_system,
+                    time_since_epoch,
+                    display_names,
+                );
+            })
+        } else {
+            self.bodies_cache.draw(renderer, bounds.size(), |frame| {
+                display_planet_selection_text(frame);
+            })
+        };
 
         vec![background, bodies]
     }
 
     fn draw_bodies(
         &self,
-        central_body: &Star,
-        selected_body: &Option<CelestialBody>,
-        time_since_epoch: Time,
-        bounds: iced::Rectangle,
-        celestial_bodies: &Vec<CelestialBody>,
         frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        selected_planet: Planet,
+        celestial_system: &CelestialSystem,
+        time_since_epoch: Time,
         display_names: bool,
     ) {
-        let observer_normal = match selected_body {
-            Some(body) => self.observer_normal(body, time_since_epoch),
-            None => Direction::Z,
-        };
-        let observer_position = match selected_body {
-            Some(body) => self.observer_position(body, &observer_normal),
-            None => CartesianCoordinates::ORIGIN,
-        };
+        let observer_normal = self.observer_normal(&selected_planet, time_since_epoch);
+        let observer_position = self.observer_position(&selected_planet, &observer_normal);
         let observer_view_direction =
             SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
+        for distant_star in celestial_system.get_stars() {
+            self.draw_body(
+                &selected_planet,
+                distant_star,
+                &observer_position,
+                &observer_normal,
+                &observer_view_direction,
+                pixel_per_viewport_width,
+                frame,
+                bounds,
+                display_names,
+            );
+        }
         for body in celestial_bodies.iter() {
             self.draw_body(
                 central_body,
@@ -168,6 +176,15 @@ impl SurfaceViewState {
             }
         }
     }
+}
+
+fn display_planet_selection_text(frame: &mut canvas::Frame) {
+    let mut name_widget = canvas::Text::default();
+    name_widget.size = 30.0;
+    name_widget.color = Color::WHITE;
+    name_widget.content = "Please select a planet.".to_string();
+    name_widget.position = frame.center();
+    frame.fill_text(name_widget)
 }
 
 // Radial gradients are not yet impelemented in iced.

@@ -225,10 +225,9 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::SurfaceView => self.surface_view_state.canvas(
                 renderer,
                 bounds,
-                self.celestial_system.get_central_body(),
-                &self.selected_planet_name,
-                self.time_since_epoch,
+                &self.get_selected_planet(),
                 &self.celestial_system,
+                self.time_since_epoch,
                 self.display_names,
             ),
             GuiMode::TopView => self.top_view_state.canvas(
