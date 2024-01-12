@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{contains_workaround, draw_body_name},
+    shared_canvas_functionality::{contains_workaround, draw_name},
     top_view_widget::TopViewState,
 };
 use crate::{
@@ -173,7 +173,7 @@ impl TopViewState {
             frame.fill(&circle, color);
 
             if display_names {
-                draw_body_name(name, color, pos, frame);
+                draw_name(name, color, pos, frame);
             }
         }
     }

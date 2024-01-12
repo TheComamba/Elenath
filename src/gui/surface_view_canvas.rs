@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{contains_workaround, draw_background, draw_body_name},
+    shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
     surface_view_widget::SurfaceViewState,
 };
 use crate::model::{celestial_system::CelestialSystem, planet::Planet};
@@ -116,7 +116,9 @@ impl SurfaceViewState {
             self.draw_star(
                 frame,
                 bounds,
+                celestial_system,
                 distant_star,
+                &observer_position,
                 &observer_view_direction,
                 pixel_per_viewport_width,
                 display_names,
@@ -139,7 +141,6 @@ impl SurfaceViewState {
                 bounds,
                 celestial_system,
                 &planet,
-                time_since_epoch,
                 &observer_position,
                 &observer_view_direction,
                 pixel_per_viewport_width,
@@ -152,31 +153,29 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        body: &StarAppearance,
+        celestial_system: &CelestialSystem,
+        star: &StarAppearance,
+        observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
         let pos = canvas_position(
-            body.get_direction_in_ecliptic(),
+            star.get_direction_in_ecliptic(),
             observer_view_direction,
             pixel_per_viewport_width,
         );
-        if let Some(pos) = pos {
-            let pos = frame.center() + pos;
-            let color = canvas_color(body);
-            self.draw_hue(
-                frame,
-                bounds,
-                body,
-                observer_view_direction,
-                pixel_per_viewport_width,
-                display_names,
-            );
-            if display_names {
-                draw_body_name(body.get_name(), color, pos, frame);
-            }
-        }
+        self.draw_body(
+            pos,
+            frame,
+            star.clone(),
+            bounds,
+            observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+            celestial_system,
+            observer_position,
+        );
     }
 
     fn draw_planets(
@@ -185,7 +184,6 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         celestial_system: &CelestialSystem,
         planet: &Planet,
-        time_since_epoch: Time,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
@@ -193,7 +191,7 @@ impl SurfaceViewState {
     ) {
         let planet_appearance = planet.get_data().to_star_appearance(
             celestial_system.get_central_body_data(),
-            &time_since_epoch,
+            &planet.get_position(),
             observer_position,
         );
         let pos = canvas_position(
@@ -201,32 +199,17 @@ impl SurfaceViewState {
             observer_view_direction,
             pixel_per_viewport_width,
         );
-        if let Some(pos) = pos {
-            let pos = frame.center() + pos;
-            let color = canvas_color(&planet_appearance);
-            self.draw_hue(
-                frame,
-                bounds,
-                &planet_appearance,
-                observer_view_direction,
-                pixel_per_viewport_width,
-                display_names,
-            );
-
-            let relative_position = planet.get_position() - observer_position;
-            self.draw_body(
-                frame,
-                pos,
-                &planet.get_data().get_radius(),
-                &relative_position,
-                color,
-                pixel_per_viewport_width,
-            );
-
-            if display_names {
-                draw_body_name(planet_appearance.get_name(), color, pos, frame);
-            }
-        }
+        self.draw_body(
+            pos,
+            frame,
+            planet_appearance,
+            bounds,
+            observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+            celestial_system,
+            observer_position,
+        );
     }
 
     fn draw_central_body(
@@ -249,6 +232,31 @@ impl SurfaceViewState {
             observer_view_direction,
             pixel_per_viewport_width,
         );
+        self.draw_body(
+            pos,
+            frame,
+            central_body_appearance,
+            bounds,
+            observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+            celestial_system,
+            observer_position,
+        );
+    }
+
+    fn draw_body(
+        &self,
+        pos: Option<iced::Vector>,
+        frame: &mut canvas::Frame,
+        central_body_appearance: StarAppearance,
+        bounds: iced::Rectangle,
+        observer_view_direction: &Direction,
+        pixel_per_viewport_width: f32,
+        display_names: bool,
+        celestial_system: &CelestialSystem,
+        observer_position: &CartesianCoordinates,
+    ) {
         if let Some(pos) = pos {
             let pos = frame.center() + pos;
             let color = canvas_color(&central_body_appearance);
@@ -260,9 +268,14 @@ impl SurfaceViewState {
                 pixel_per_viewport_width,
                 display_names,
             );
+
+            if !contains_workaround(&bounds, pos) {
+                return;
+            }
+
             if let Some(radius) = celestial_system.get_central_body_data().get_radius() {
-                let relative_position = &central_body_pos - observer_position;
-                self.draw_body(
+                let relative_position = -observer_position;
+                self.draw_disk(
                     frame,
                     pos,
                     &radius,
@@ -271,8 +284,9 @@ impl SurfaceViewState {
                     pixel_per_viewport_width,
                 );
             }
+
             if display_names {
-                draw_body_name(central_body_appearance.get_name(), color, pos, frame);
+                draw_name(central_body_appearance.get_name(), color, pos, frame);
             }
         }
     }
@@ -300,7 +314,7 @@ impl SurfaceViewState {
         }
     }
 
-    fn draw_body(
+    fn draw_disk(
         &self,
         frame: &mut canvas::Frame,
         pos: Point,
