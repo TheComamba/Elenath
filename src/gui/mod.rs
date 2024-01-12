@@ -3,6 +3,7 @@ use self::surface_view_widget::SurfaceViewState;
 use self::top_view_widget::TopViewState;
 use crate::model::celestial_system::CelestialSystem;
 use crate::model::planet::Planet;
+use astro_utils::planets::planet_data::PlanetData;
 use astro_utils::units::time::Time;
 use std::path::PathBuf;
 
@@ -43,17 +44,22 @@ impl Gui {
     }
 
     pub(super) fn get_selected_planet(&self) -> Option<Planet> {
-        let planet_data = self
-            .celestial_system
-            .get_planet_data()
-            .iter()
-            .find(|p| p.get_name().eq(&self.selected_planet_name));
-        planet_data.map(|data| {
+        self.get_selected_planet_data().map(|data| {
             Planet::new(
                 (*data).clone(),
                 self.celestial_system.get_central_body_data(),
                 self.time_since_epoch,
             )
         })
+    }
+
+    pub(super) fn get_selected_planet_data(&self) -> Option<&PlanetData> {
+        let planet_data = self
+            .celestial_system
+            .get_planet_data()
+            .iter()
+            .find(|p| p.get_name().eq(&self.selected_planet_name))
+            .map(|p| *p);
+        planet_data
     }
 }

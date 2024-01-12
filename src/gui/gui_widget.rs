@@ -156,8 +156,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_system,
-                        &self.selected_planet_name,
+                        &self.celestial_system.get_planet_data(),
+                        &self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -172,8 +172,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        self.celestial_system.get_planet_data(),
-                        &self.selected_planet_name,
+                        &self.celestial_system.get_planet_data(),
+                        &self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
@@ -234,8 +234,9 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.selected_planet_name,
+                &self.get_selected_planet(),
                 &self.celestial_system,
+                self.time_since_epoch,
                 self.display_names,
             ),
             _ => {
