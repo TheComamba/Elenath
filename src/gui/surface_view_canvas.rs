@@ -82,7 +82,7 @@ impl SurfaceViewState {
                 self.draw_bodies(
                     frame,
                     bounds,
-                    *selected_planet,
+                    selected_planet,
                     celestial_system,
                     time_since_epoch,
                     display_names,
@@ -101,7 +101,7 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        selected_planet: Planet,
+        selected_planet: &Planet,
         celestial_system: &CelestialSystem,
         time_since_epoch: Time,
         display_names: bool,
@@ -127,7 +127,7 @@ impl SurfaceViewState {
             frame,
             bounds,
             celestial_system,
-            observer_position,
+            &observer_position,
             &observer_view_direction,
             pixel_per_viewport_width,
             display_names,
@@ -234,7 +234,7 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
         celestial_system: &CelestialSystem,
-        observer_position: CartesianCoordinates,
+        observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
@@ -261,7 +261,7 @@ impl SurfaceViewState {
                 display_names,
             );
             if let Some(radius) = celestial_system.get_central_body_data().get_radius() {
-                let relative_position = central_body_pos - observer_position;
+                let relative_position = &central_body_pos - observer_position;
                 self.draw_body(
                     frame,
                     pos,

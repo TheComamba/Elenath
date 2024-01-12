@@ -16,9 +16,10 @@ impl Star {
     }
 
     pub(crate) fn from_data(data: StarData) -> Self {
+        let appearance = data.to_star_appearance();
         Star {
             data: Some(data),
-            appearance: data.to_star_appearance(),
+            appearance,
         }
     }
 

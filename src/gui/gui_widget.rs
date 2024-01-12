@@ -155,8 +155,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_system.get_planet_data(),
-                        &self.get_selected_planet_data(),
+                        self.celestial_system.get_planet_data(),
+                        self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -171,8 +171,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_system.get_planet_data(),
-                        &self.get_selected_planet_data(),
+                        self.celestial_system.get_planet_data(),
+                        self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
