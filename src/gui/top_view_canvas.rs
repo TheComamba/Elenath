@@ -1,5 +1,5 @@
 use super::{
-    shared_canvas_functionality::{contains_workaround, draw_body_name, maximized_color},
+    shared_canvas_functionality::{contains_workaround, draw_body_name},
     top_view_widget::TopViewState,
 };
 use crate::{
@@ -11,7 +11,7 @@ use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, rotations::get_rotation_parameters,
     },
-    units::{angle::Angle, length::Length},
+    units::{angle::Angle, length::Length, time::Time},
     Float,
 };
 use iced::{
@@ -39,6 +39,7 @@ impl TopViewState {
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &CelestialSystem,
+        time_since_epoch: Time,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -51,6 +52,7 @@ impl TopViewState {
             self.draw_bodies(
                 selected_planet,
                 celestial_system,
+                time_since_epoch,
                 &bounds,
                 frame,
                 display_names,
@@ -68,6 +70,7 @@ impl TopViewState {
         &self,
         selected_planet: &Option<Planet>,
         celestial_system: &CelestialSystem,
+        time_since_epoch: Time,
         bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
@@ -83,25 +86,29 @@ impl TopViewState {
             None => iced::Vector::new(0.0 as f32, 0.0 as f32),
         };
 
-        //TODO: draw central body
-        self.draw_body(
+        self.draw_central_body(
+            celestial_system,
             frame,
             bounds,
-            body,
-            radius,
             view_angle,
             &view_rotation_axis,
             offset,
             display_names,
         );
 
-        for body in celestial_system.get_planets_().iter() {
-            let radius = body.get_radius();
+        for planet in celestial_system
+            .get_planets_at_time(time_since_epoch)
+            .iter()
+        {
+            let data = planet.get_data();
             self.draw_body(
                 frame,
                 &bounds,
-                body,
-                radius,
+                data.get_name(),
+                planet.get_position(),
+                data.get_color(),
+                Some(data.get_geometric_albedo()),
+                data.get_radius(),
                 view_angle,
                 &view_rotation_axis,
                 offset,
@@ -110,11 +117,47 @@ impl TopViewState {
         }
     }
 
+    fn draw_central_body(
+        &self,
+        celestial_system: &CelestialSystem,
+        frame: &mut canvas::Frame,
+        bounds: &iced::Rectangle,
+        view_angle: Angle,
+        view_rotation_axis: &Direction,
+        offset: iced::Vector,
+        display_names: bool,
+    ) {
+        //TODO: draw central body
+        let data = celestial_system.get_central_body_data();
+        let pos3d = CartesianCoordinates::ORIGIN;
+        let color = match data.get_temperature() {
+            Some(temperature) => sRGBColor::from_temperature(*temperature),
+            None => sRGBColor::from_sRGB(1., 1., 1.),
+        };
+        let radius = data.get_radius().unwrap_or(Length::ZERO);
+        self.draw_body(
+            frame,
+            bounds,
+            data.get_name(),
+            &pos3d,
+            &color,
+            None,
+            radius,
+            view_angle,
+            view_rotation_axis,
+            offset,
+            display_names,
+        );
+    }
+
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
         bounds: &iced::Rectangle,
-        body: &CelestialBody,
+        name: &str,
+        pos3d: &CartesianCoordinates,
+        color: &sRGBColor,
+        albedo: Option<Float>,
         radius: Length,
         view_angle: Angle,
         view_rotation_axis: &Direction,
@@ -123,14 +166,14 @@ impl TopViewState {
     ) {
         let radius = canvas_radius(&radius);
         let pos =
-            frame.center() + self.canvas_position(body, view_angle, &view_rotation_axis) - offset;
+            frame.center() + self.canvas_position(pos3d, view_angle, &view_rotation_axis) - offset;
         if contains_workaround(bounds, pos) {
             let circle = Path::circle(pos, radius);
-            let color = canvas_color(body);
+            let color = canvas_color(color, albedo);
             frame.fill(&circle, color);
 
             if display_names {
-                draw_body_name(body, color, pos, radius, frame);
+                draw_body_name(name, color, pos, radius, frame);
             }
         }
     }
@@ -169,8 +212,8 @@ fn canvas_radius(radius: &Length) -> f32 {
     radius.as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
 }
 
-fn canvas_color(mut color: sRGBColor, albedo: Float) -> Color {
-    let color = maximized_color(star);
-    color.a = albedo as f32;
-    color
+fn canvas_color(color: &sRGBColor, albedo: Option<Float>) -> Color {
+    let (r, g, b) = color.maximized_sRGB_tuple();
+    let a = albedo.unwrap_or(1.) as f32;
+    Color { r, g, b, a }
 }

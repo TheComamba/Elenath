@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/star-overhaul#762e4846cbf94daafa4b3c061adf5ba369fee937"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/star-overhaul#2aff1c054d6aaf6381571bb3e70945c5474882dc"
 dependencies = [
  "directories",
  "flate2",
