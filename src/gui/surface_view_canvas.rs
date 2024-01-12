@@ -110,7 +110,7 @@ impl SurfaceViewState {
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for distant_star in celestial_system.get_distant_star_appearances() {
-            self.draw_hue(
+            self.draw_star(
                 frame,
                 bounds,
                 distant_star,
@@ -130,16 +130,74 @@ impl SurfaceViewState {
             display_names,
         );
 
-        for planet in celestial_system.get_planets_at_time(time_since_epoch) {
-            self.draw_hue(
+        for planet in celestial_system.get_planet_data() {
+            self.draw_planets(
                 frame,
                 bounds,
+                celestial_system,
                 planet,
+                time_since_epoch,
+                &observer_position,
                 &observer_view_direction,
                 pixel_per_viewport_width,
                 display_names,
             );
-            self.draw_body();
+        }
+    }
+
+    fn draw_star(
+        &self,
+        frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        distant_star: &StarAppearance,
+        observer_view_direction: &Direction,
+        pixel_per_viewport_width: f32,
+        display_names: bool,
+    ) {
+        self.draw_hue(
+            frame,
+            bounds,
+            distant_star,
+            observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+        );
+        if display_names {
+            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
+        }
+    }
+
+    fn draw_planets(
+        &self,
+        frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        celestial_system: &CelestialSystem,
+        planet: &astro_utils::planets::planet_data::PlanetData,
+        time_since_epoch: Time,
+        observer_position: &CartesianCoordinates,
+        observer_view_direction: &Direction,
+        pixel_per_viewport_width: f32,
+        display_names: bool,
+    ) {
+        let central_body_luminosity = celestial_system.get_central_body_data().get_luminosity();
+        if let Some(central_body_luminosity) = central_body_luminosity {
+            let planet_appearance = planet.to_star_appearance(
+                central_body_luminosity,
+                &time_since_epoch,
+                observer_position,
+            );
+            self.draw_hue(
+                frame,
+                bounds,
+                &planet_appearance,
+                observer_view_direction,
+                pixel_per_viewport_width,
+                display_names,
+            );
+        }
+        self.draw_body();
+        if display_names {
+            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
         }
     }
 
@@ -167,6 +225,9 @@ impl SurfaceViewState {
             display_names,
         );
         self.draw_body();
+        if display_names {
+            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
+        }
     }
 
     fn draw_hue(
@@ -200,11 +261,7 @@ impl SurfaceViewState {
         let solid_circle = Path::circle(pos, apparent_radius);
         frame.fill(&solid_circle, color);
 
-        if contains_workaround(&bounds, pos) {
-            if display_names {
-                draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
-            }
-        }
+        if contains_workaround(&bounds, pos) {}
         todo!("Draw body");
     }
 }
