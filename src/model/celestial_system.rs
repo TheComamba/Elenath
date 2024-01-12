@@ -99,11 +99,13 @@ impl CelestialSystem {
         bodies
     }
 
-    pub(crate) fn get_stars(&self) -> Vec<&Star> {
+    pub(crate) fn get_star_data(&self) -> Vec<&StarData> {
         let mut bodies = Vec::new();
-        bodies.push(&self.central_body);
+        bodies.push(self.central_body.get_data().unwrap());
         for star in &self.distant_stars {
-            bodies.push(star);
+            if let Some(data) = star.get_data() {
+                bodies.push(data);
+            }
         }
         bodies
     }

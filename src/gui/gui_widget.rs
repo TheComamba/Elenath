@@ -184,18 +184,10 @@ impl Sandbox for Gui {
                 )
             }
             GuiMode::TableView => {
-                let star_data = self
-                    .celestial_system
-                    .get_stars()
-                    .iter()
-                    .map(|s| s.get_data())
-                    .filter(|s| s.is_some())
-                    .map(|s| s.unwrap())
-                    .collect();
-                col = col.push(
-                    self.table_view_state
-                        .table_view(self.celestial_system.get_planet_data(), star_data),
-                )
+                col = col.push(self.table_view_state.table_view(
+                    self.celestial_system.get_planet_data(),
+                    self.celestial_system.get_star_data(),
+                ))
             }
         }
 
