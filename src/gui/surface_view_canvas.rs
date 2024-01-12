@@ -8,10 +8,7 @@ use astro_utils::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
-    planets::{
-        planet_data::PlanetData,
-        surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
-    },
+    planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
     stars::star_appearance::StarAppearance,
     units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
     Float,
@@ -168,7 +165,7 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            star.clone(),
+            star,
             bounds,
             observer_view_direction,
             pixel_per_viewport_width,
@@ -202,7 +199,7 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            planet_appearance,
+            &planet_appearance,
             bounds,
             observer_view_direction,
             pixel_per_viewport_width,
@@ -235,7 +232,7 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            central_body_appearance,
+            &central_body_appearance,
             bounds,
             observer_view_direction,
             pixel_per_viewport_width,
@@ -249,7 +246,7 @@ impl SurfaceViewState {
         &self,
         pos: Option<iced::Vector>,
         frame: &mut canvas::Frame,
-        central_body_appearance: StarAppearance,
+        appearance: &StarAppearance,
         bounds: iced::Rectangle,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
@@ -259,14 +256,12 @@ impl SurfaceViewState {
     ) {
         if let Some(pos) = pos {
             let pos = frame.center() + pos;
-            let color = canvas_color(&central_body_appearance);
+            let color = canvas_color(&appearance);
             self.draw_hue(
                 frame,
-                bounds,
-                &central_body_appearance,
+                &appearance,
                 observer_view_direction,
                 pixel_per_viewport_width,
-                display_names,
             );
 
             if !contains_workaround(&bounds, pos) {
@@ -286,7 +281,7 @@ impl SurfaceViewState {
             }
 
             if display_names {
-                draw_name(central_body_appearance.get_name(), color, pos, frame);
+                draw_name(appearance.get_name(), color, pos, frame);
             }
         }
     }
@@ -294,21 +289,19 @@ impl SurfaceViewState {
     fn draw_hue(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
-        body: &StarAppearance,
+        appearance: &StarAppearance,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
-        display_names: bool,
     ) {
         let pos = canvas_position(
-            &body.get_direction_in_ecliptic(),
+            &appearance.get_direction_in_ecliptic(),
             observer_view_direction,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
             let pos: Point = frame.center() + pos;
-            let color = canvas_color(body);
-            let brightness = body.get_illuminance();
+            let color = canvas_color(appearance);
+            let brightness = appearance.get_illuminance();
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
         }

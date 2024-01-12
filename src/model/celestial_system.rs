@@ -48,11 +48,6 @@ impl CelestialSystem {
         self.distant_stars.push(Star::from_data(star_data));
     }
 
-    pub(crate) fn add_star_from_appearance(&mut self, star_appearance: StarAppearance) {
-        self.distant_stars
-            .push(Star::from_appearance(star_appearance));
-    }
-
     pub(crate) fn add_star_appearances_without_duplicates(
         &mut self,
         star_appearances: Vec<StarAppearance>,

@@ -8,13 +8,6 @@ pub(crate) struct Star {
 }
 
 impl Star {
-    pub(crate) fn new(data: StarData, appearance: StarAppearance) -> Self {
-        Star {
-            data: Some(data),
-            appearance,
-        }
-    }
-
     pub(crate) fn from_data(data: StarData) -> Self {
         let appearance = data.to_star_appearance();
         Star {
