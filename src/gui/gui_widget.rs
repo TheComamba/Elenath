@@ -52,7 +52,6 @@ impl Sandbox for Gui {
 
     fn new() -> Self {
         let celestial_system = solar_system();
-        let central_body_data = celestial_system.get_central_body();
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,

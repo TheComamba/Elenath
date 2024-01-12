@@ -109,4 +109,12 @@ impl CelestialSystem {
         }
         bodies
     }
+
+    pub(crate) fn get_distant_star_appearances(&self) -> Vec<&StarAppearance> {
+        let mut bodies = Vec::new();
+        for star in &self.distant_stars {
+            bodies.push(star.get_appearance());
+        }
+        bodies
+    }
 }

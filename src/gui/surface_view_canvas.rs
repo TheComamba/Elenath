@@ -109,72 +109,103 @@ impl SurfaceViewState {
             SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
-        for distant_star in celestial_system.get_stars() {
-            self.draw_body(
-                &selected_planet,
-                distant_star,
-                &observer_position,
-                &observer_normal,
-                &observer_view_direction,
-                pixel_per_viewport_width,
+        for distant_star in celestial_system.get_distant_star_appearances() {
+            self.draw_hue(
                 frame,
                 bounds,
+                distant_star,
+                &observer_view_direction,
+                pixel_per_viewport_width,
                 display_names,
             );
         }
-        for body in celestial_bodies.iter() {
-            self.draw_body(
-                central_body,
-                body,
-                &observer_position,
-                &observer_normal,
-                &observer_view_direction,
-                pixel_per_viewport_width,
+
+        self.draw_central_body(
+            frame,
+            bounds,
+            celestial_system,
+            observer_position,
+            &observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+        );
+
+        for planet in celestial_system.get_planets_at_time(time_since_epoch) {
+            self.draw_hue(
                 frame,
                 bounds,
+                planet,
+                &observer_view_direction,
+                pixel_per_viewport_width,
                 display_names,
             );
+            self.draw_body();
         }
     }
 
-    fn draw_body(
+    fn draw_central_body(
         &self,
-        central_body: &Star,
-        body: &StarAppearance,
-        observer_position: &CartesianCoordinates,
-        observer_normal: &Direction,
-        observer_view_direction: &Direction,
-        pixel_per_viewport_width: f32,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
+        celestial_system: &CelestialSystem,
+        observer_position: CartesianCoordinates,
+        observer_view_direction: &Direction,
+        pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let relative_position = body.get_position() - observer_position;
+        let central_body = celestial_system.get_central_body();
+        let central_body_pos = -observer_position;
+        let central_body_dir = central_body_pos.to_direction();
+        let mut central_body_appearance = central_body.get_appearance().clone();
+        central_body_appearance.set_direction_in_ecliptic(central_body_dir);
+        self.draw_hue(
+            frame,
+            bounds,
+            &central_body_appearance,
+            observer_view_direction,
+            pixel_per_viewport_width,
+            display_names,
+        );
+        self.draw_body();
+    }
+
+    fn draw_hue(
+        &self,
+        frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        body: &StarAppearance,
+        observer_view_direction: &Direction,
+        pixel_per_viewport_width: f32,
+        display_names: bool,
+    ) {
         let pos = canvas_position(
-            &relative_position,
-            observer_normal,
+            &body.get_direction_in_ecliptic(),
             observer_view_direction,
             pixel_per_viewport_width,
         );
         if let Some(pos) = pos {
             let pos: Point = frame.center() + pos;
+            let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+            let color = Color::from_rgb(r, g, b);
             let brightness = body.get_illuminance();
-            let color = maximized_color(body);
-            let apparent_radius =
-                canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
-
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
+        }
+    }
 
-            if contains_workaround(&bounds, pos) {
-                let solid_circle = Path::circle(pos, apparent_radius);
-                frame.fill(&solid_circle, color);
+    fn draw_body(&self) {
+        let apparent_radius =
+            canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
 
-                if display_names {
-                    draw_body_name(body, color, pos, apparent_radius, frame);
-                }
+        let solid_circle = Path::circle(pos, apparent_radius);
+        frame.fill(&solid_circle, color);
+
+        if contains_workaround(&bounds, pos) {
+            if display_names {
+                draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
             }
         }
+        todo!("Draw body");
     }
 }
 
@@ -200,14 +231,12 @@ fn fake_gradient(color: Color, brightness_radius: f32, pos: Point, frame: &mut c
 }
 
 fn canvas_position(
-    relative_position: &CartesianCoordinates,
-    observer_normal: &Direction,
+    direction_in_ecliptic: &Direction,
     observer_view_direction: &Direction,
     pixel_per_viewport_width: Float,
 ) -> Option<iced::Vector> {
-    let direction = relative_position.to_direction();
-    let direction = direction_relative_to_surface_normal(&direction, observer_normal);
-    let direction = direction_relative_to_surface_normal(&direction, observer_view_direction);
+    let direction =
+        direction_relative_to_surface_normal(&direction_in_ecliptic, observer_view_direction);
     if direction.z() > 0.0 {
         let x = direction.x() * pixel_per_viewport_width;
         let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
