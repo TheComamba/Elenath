@@ -113,7 +113,6 @@ impl SurfaceViewState {
             self.draw_star(
                 frame,
                 bounds,
-                celestial_system,
                 distant_star,
                 &observer_position,
                 &observer_view_direction,
@@ -150,7 +149,6 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        celestial_system: &CelestialSystem,
         star: &StarAppearance,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
@@ -165,12 +163,12 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            star,
             bounds,
+            star,
+            &None,
             observer_view_direction,
             pixel_per_viewport_width,
             display_names,
-            celestial_system,
             observer_position,
         );
     }
@@ -199,12 +197,12 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            &planet_appearance,
             bounds,
+            &planet_appearance,
+            &Some(planet.get_data().get_radius()),
             observer_view_direction,
             pixel_per_viewport_width,
             display_names,
-            celestial_system,
             observer_position,
         );
     }
@@ -232,12 +230,12 @@ impl SurfaceViewState {
         self.draw_body(
             pos,
             frame,
-            &central_body_appearance,
             bounds,
+            &central_body_appearance,
+            &celestial_system.get_central_body_data().get_radius(),
             observer_view_direction,
             pixel_per_viewport_width,
             display_names,
-            celestial_system,
             observer_position,
         );
     }
@@ -246,12 +244,12 @@ impl SurfaceViewState {
         &self,
         pos: Option<iced::Vector>,
         frame: &mut canvas::Frame,
-        appearance: &StarAppearance,
         bounds: iced::Rectangle,
+        appearance: &StarAppearance,
+        radius: &Option<Length>,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
-        celestial_system: &CelestialSystem,
         observer_position: &CartesianCoordinates,
     ) {
         if let Some(pos) = pos {
@@ -268,7 +266,7 @@ impl SurfaceViewState {
                 return;
             }
 
-            if let Some(radius) = celestial_system.get_central_body_data().get_radius() {
+            if let Some(radius) = radius {
                 let relative_position = -observer_position;
                 self.draw_disk(
                     frame,
