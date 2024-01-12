@@ -8,9 +8,12 @@ use astro_utils::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
         spherical::SphericalCoordinates,
     },
-    planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
+    planets::{
+        planet_data::PlanetData,
+        surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
+    },
     stars::star_appearance::StarAppearance,
-    units::{angle::Angle, illuminance::Illuminance, time::Time},
+    units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
     Float,
 };
 use iced::{
@@ -130,12 +133,12 @@ impl SurfaceViewState {
             display_names,
         );
 
-        for planet in celestial_system.get_planet_data() {
+        for planet in celestial_system.get_planets_at_time(time_since_epoch) {
             self.draw_planets(
                 frame,
                 bounds,
                 celestial_system,
-                planet,
+                &planet,
                 time_since_epoch,
                 &observer_position,
                 &observer_view_direction,
@@ -149,21 +152,30 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        distant_star: &StarAppearance,
+        body: &StarAppearance,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        self.draw_hue(
-            frame,
-            bounds,
-            distant_star,
+        let pos = canvas_position(
+            body.get_direction_in_ecliptic(),
             observer_view_direction,
             pixel_per_viewport_width,
-            display_names,
         );
-        if display_names {
-            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
+        if let Some(pos) = pos {
+            let pos = frame.center() + pos;
+            let color = canvas_color(body);
+            self.draw_hue(
+                frame,
+                bounds,
+                body,
+                observer_view_direction,
+                pixel_per_viewport_width,
+                display_names,
+            );
+            if display_names {
+                draw_body_name(body.get_name(), color, pos, frame);
+            }
         }
     }
 
@@ -172,20 +184,26 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
         celestial_system: &CelestialSystem,
-        planet: &astro_utils::planets::planet_data::PlanetData,
+        planet: &Planet,
         time_since_epoch: Time,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let central_body_luminosity = celestial_system.get_central_body_data().get_luminosity();
-        if let Some(central_body_luminosity) = central_body_luminosity {
-            let planet_appearance = planet.to_star_appearance(
-                central_body_luminosity,
-                &time_since_epoch,
-                observer_position,
-            );
+        let planet_appearance = planet.get_data().to_star_appearance(
+            celestial_system.get_central_body_data(),
+            &time_since_epoch,
+            observer_position,
+        );
+        let pos = canvas_position(
+            planet_appearance.get_direction_in_ecliptic(),
+            observer_view_direction,
+            pixel_per_viewport_width,
+        );
+        if let Some(pos) = pos {
+            let pos = frame.center() + pos;
+            let color = canvas_color(&planet_appearance);
             self.draw_hue(
                 frame,
                 bounds,
@@ -194,10 +212,20 @@ impl SurfaceViewState {
                 pixel_per_viewport_width,
                 display_names,
             );
-        }
-        self.draw_body();
-        if display_names {
-            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
+
+            let relative_position = planet.get_position() - observer_position;
+            self.draw_body(
+                frame,
+                pos,
+                &planet.get_data().get_radius(),
+                &relative_position,
+                color,
+                pixel_per_viewport_width,
+            );
+
+            if display_names {
+                draw_body_name(planet_appearance.get_name(), color, pos, frame);
+            }
         }
     }
 
@@ -216,17 +244,36 @@ impl SurfaceViewState {
         let central_body_dir = central_body_pos.to_direction();
         let mut central_body_appearance = central_body.get_appearance().clone();
         central_body_appearance.set_direction_in_ecliptic(central_body_dir);
-        self.draw_hue(
-            frame,
-            bounds,
-            &central_body_appearance,
+        let pos = canvas_position(
+            central_body_appearance.get_direction_in_ecliptic(),
             observer_view_direction,
             pixel_per_viewport_width,
-            display_names,
         );
-        self.draw_body();
-        if display_names {
-            draw_body_name(body.get_name(), color, pos, apparent_radius, frame);
+        if let Some(pos) = pos {
+            let pos = frame.center() + pos;
+            let color = canvas_color(&central_body_appearance);
+            self.draw_hue(
+                frame,
+                bounds,
+                &central_body_appearance,
+                observer_view_direction,
+                pixel_per_viewport_width,
+                display_names,
+            );
+            if let Some(radius) = celestial_system.get_central_body_data().get_radius() {
+                let relative_position = central_body_pos - observer_position;
+                self.draw_body(
+                    frame,
+                    pos,
+                    &radius,
+                    &relative_position,
+                    color,
+                    pixel_per_viewport_width,
+                );
+            }
+            if display_names {
+                draw_body_name(central_body_appearance.get_name(), color, pos, frame);
+            }
         }
     }
 
@@ -246,24 +293,34 @@ impl SurfaceViewState {
         );
         if let Some(pos) = pos {
             let pos: Point = frame.center() + pos;
-            let (r, g, b) = body.get_color().maximized_sRGB_tuple();
-            let color = Color::from_rgb(r, g, b);
+            let color = canvas_color(body);
             let brightness = body.get_illuminance();
             let brightness_radius = canvas_brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
         }
     }
 
-    fn draw_body(&self) {
+    fn draw_body(
+        &self,
+        frame: &mut canvas::Frame,
+        pos: Point,
+        radius: &Length,
+        relative_position: &CartesianCoordinates,
+        color: Color,
+        pixel_per_viewport_width: f32,
+    ) {
         let apparent_radius =
-            canvas_apparent_radius(body, &relative_position, pixel_per_viewport_width);
+            canvas_apparent_radius(radius, &relative_position, pixel_per_viewport_width);
 
         let solid_circle = Path::circle(pos, apparent_radius);
         frame.fill(&solid_circle, color);
-
-        if contains_workaround(&bounds, pos) {}
-        todo!("Draw body");
     }
+}
+
+fn canvas_color(body: &StarAppearance) -> Color {
+    let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+    let color = Color::from_rgb(r, g, b);
+    color
 }
 
 fn display_planet_selection_text(frame: &mut canvas::Frame) {
@@ -304,16 +361,11 @@ fn canvas_position(
 }
 
 fn canvas_apparent_radius(
-    body: &CelestialBody,
+    radius: &Length,
     relative_position: &CartesianCoordinates,
     pixel_per_viewport_width: f32,
 ) -> f32 {
-    let radius = body.get_radius();
-    if let Some(radius) = radius {
-        radius / relative_position.length() * pixel_per_viewport_width
-    } else {
-        0.0
-    }
+    radius / relative_position.length() * pixel_per_viewport_width
 }
 
 fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {

@@ -173,7 +173,7 @@ impl TopViewState {
             frame.fill(&circle, color);
 
             if display_names {
-                draw_body_name(name, color, pos, radius, frame);
+                draw_body_name(name, color, pos, frame);
             }
         }
     }

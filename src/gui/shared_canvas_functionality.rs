@@ -12,14 +12,13 @@ pub(super) fn draw_body_name(
     name: &str,
     color: Color,
     body_center: Point,
-    radius: f32,
     frame: &mut canvas::Frame,
 ) {
-    let ordinate_offset = (0.5 as f32).sqrt() * radius;
+    const ORDINATE_OFFSET: f32 = 10.;
     let mut name_widget = canvas::Text::default();
     name_widget.color = color;
     name_widget.content = name.to_string();
-    name_widget.position = body_center + iced::Vector::new(ordinate_offset, ordinate_offset);
+    name_widget.position = body_center + iced::Vector::new(ORDINATE_OFFSET, ORDINATE_OFFSET);
     frame.fill_text(name_widget);
 }
 
