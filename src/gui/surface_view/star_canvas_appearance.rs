@@ -1,11 +1,11 @@
 use astro_utils::stars::star_appearance::StarAppearance;
-use iced::{Color, Point};
+use iced::{Color, Vector};
 
 use super::viewport::Viewport;
 
 pub(super) struct StarCanvasAppearance<'a> {
     pub(super) name: &'a str,
-    pub(super) pos: Point,
+    pub(super) center_offset: Vector,
     pub(super) radius: f32,
     pub(super) color: Color,
 }
@@ -30,13 +30,13 @@ mod tests {
         stars::star_appearance::StarAppearance,
         units::{angle::Angle, illuminance::Illuminance},
     };
-    use iced::Point;
+    use iced::Vector;
 
     const SOME_ILLUMINANCE: Illuminance = Illuminance::from_lux(100.);
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);
     const SOME_HEIGHT: f32 = 100.;
 
-    fn points_equal(p1: Point, p2: Point) -> bool {
+    fn vecs_equal(p1: Vector, p2: Vector) -> bool {
         (p1.x - p2.x).abs() < 1e-5 && (p1.y - p2.y).abs() < 1e-5
     }
 
@@ -65,12 +65,9 @@ mod tests {
                     );
                     let canvas_appearance =
                         StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
-                    assert!(points_equal(
-                        canvas_appearance.pos,
-                        Point {
-                            x: SOME_HEIGHT / 2.,
-                            y: SOME_HEIGHT / 2.
-                        }
+                    assert!(vecs_equal(
+                        canvas_appearance.center_offset,
+                        Vector { x: 0., y: 0. }
                     ));
                 }
             }
@@ -141,32 +138,32 @@ mod tests {
                                 let right =
                                     StarCanvasAppearance::from_star_appearance(&right, &viewport);
 
-                                assert!(points_equal(
-                                    top.pos,
-                                    Point {
-                                        x: SOME_HEIGHT / 2.,
+                                assert!(vecs_equal(
+                                    top.center_offset,
+                                    Vector {
+                                        x: 0.,
+                                        y: -SOME_HEIGHT / 2.
+                                    }
+                                ));
+                                assert!(vecs_equal(
+                                    left.center_offset,
+                                    Vector {
+                                        x: -SOME_HEIGHT / 2.,
                                         y: 0.
                                     }
                                 ));
-                                assert!(points_equal(
-                                    left.pos,
-                                    Point {
+                                assert!(vecs_equal(
+                                    bottom.center_offset,
+                                    Vector {
                                         x: 0.,
                                         y: SOME_HEIGHT / 2.
                                     }
                                 ));
-                                assert!(points_equal(
-                                    bottom.pos,
-                                    Point {
+                                assert!(vecs_equal(
+                                    right.center_offset,
+                                    Vector {
                                         x: SOME_HEIGHT / 2.,
-                                        y: SOME_HEIGHT
-                                    }
-                                ));
-                                assert!(points_equal(
-                                    right.pos,
-                                    Point {
-                                        x: SOME_HEIGHT,
-                                        y: SOME_HEIGHT / 2.
+                                        y: 0.
                                     }
                                 ));
                             }
