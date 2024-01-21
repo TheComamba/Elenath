@@ -1,8 +1,8 @@
-use super::{
-    shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
-    surface_view_widget::SurfaceViewState,
+use super::surface_view_widget::SurfaceViewState;
+use crate::{
+    gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
+    model::{celestial_system::CelestialSystem, planet::Planet},
 };
-use crate::model::{celestial_system::CelestialSystem, planet::Planet};
 use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
@@ -59,7 +59,7 @@ impl SurfaceViewState {
         canvas_width / viewport_width
     }
 
-    pub(super) fn canvas(
+    pub(crate) fn canvas(
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,

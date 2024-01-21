@@ -1,9 +1,6 @@
-use super::{
-    shared_canvas_functionality::{contains_workaround, draw_name},
-    top_view_widget::TopViewState,
-};
+use super::top_view_widget::TopViewState;
 use crate::{
-    gui::shared_canvas_functionality::draw_background,
+    gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
@@ -33,7 +30,7 @@ impl TopViewState {
         iced::Vector::new(x as f32, y as f32)
     }
 
-    pub(super) fn canvas(
+    pub(crate) fn canvas(
         &self,
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,

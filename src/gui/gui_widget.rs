@@ -1,8 +1,8 @@
 use super::{
     shared_widgets::surface_and_top_view_shared_control,
-    surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
-    table_view::TableViewState,
-    top_view_widget::{TopViewMessage, TopViewState},
+    surface_view::surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
+    table_view::table_view_widget::TableViewState,
+    top_view::top_view_widget::{TopViewMessage, TopViewState},
     Gui,
 };
 use crate::{

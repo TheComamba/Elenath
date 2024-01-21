@@ -1,9 +1,7 @@
 use crate::gui::{
-    gui_widget::{BIG_COLUMN_WIDTH, PADDING},
+    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING},
     shared_widgets::control_field,
 };
-
-use super::gui_widget::GuiMessage;
 use astro_utils::units::angle::Angle;
 use iced::{
     widget::{
@@ -16,7 +14,7 @@ use std::f32::consts::PI;
 
 const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
 
-pub(super) struct SurfaceViewState {
+pub(crate) struct SurfaceViewState {
     pub(super) background_cache: canvas::Cache,
     pub(super) bodies_cache: canvas::Cache,
     pub(super) surface_longitude: Angle,
@@ -42,7 +40,7 @@ impl Into<GuiMessage> for SurfaceViewMessage {
 }
 
 impl SurfaceViewState {
-    pub(super) fn new() -> Self {
+    pub(crate) fn new() -> Self {
         SurfaceViewState {
             background_cache: canvas::Cache::default(),
             bodies_cache: canvas::Cache::default(),
@@ -54,7 +52,7 @@ impl SurfaceViewState {
         }
     }
 
-    pub(super) fn update(&mut self, message: SurfaceViewMessage) {
+    pub(crate) fn update(&mut self, message: SurfaceViewMessage) {
         match message {
             SurfaceViewMessage::UpdateSurfaceLongitude(mut longitude) => {
                 longitude.normalize();
@@ -91,11 +89,11 @@ impl SurfaceViewState {
         }
     }
 
-    pub(super) fn redraw(&mut self) {
+    pub(crate) fn redraw(&mut self) {
         self.bodies_cache.clear();
     }
 
-    pub(super) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
+    pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
         const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
         let surface_long = self.surface_longitude;
         let surface_longitude_control_field = control_field(
