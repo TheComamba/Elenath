@@ -34,7 +34,7 @@ mod tests {
 
     const SOME_ILLUMINANCE: Illuminance = Illuminance::from_lux(100.);
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);
-    const SOME_WIDTH: f32 = 100.;
+    const SOME_HEIGHT: f32 = 100.;
 
     fn points_equal(p1: Point, p2: Point) -> bool {
         (p1.x - p2.x).abs() < 1e-5 && (p1.y - p2.y).abs() < 1e-5
@@ -51,11 +51,11 @@ mod tests {
                         continue;
                     }
                     let center_direction = center_direction.unwrap();
-                    let right_direction = center_direction.some_orthogonal_vector();
+                    let top_direction = center_direction.some_orthogonal_vector();
                     let viewport = Viewport {
                         center_direction: center_direction.clone(),
-                        right_direction,
-                        width: SOME_WIDTH,
+                        top_direction,
+                        height: SOME_HEIGHT,
                     };
                     let star_appearance = StarAppearance::new(
                         String::new(),
@@ -68,8 +68,8 @@ mod tests {
                     assert!(points_equal(
                         canvas_appearance.pos,
                         Point {
-                            x: SOME_WIDTH / 2.,
-                            y: SOME_WIDTH / 2.
+                            x: SOME_HEIGHT / 2.,
+                            y: SOME_HEIGHT / 2.
                         }
                     ));
                 }
@@ -87,38 +87,31 @@ mod tests {
                         for y2 in ordinates.clone().iter() {
                             for z2 in ordinates.clone().iter() {
                                 let center_direction = Direction::new(*x1, *y1, *z1);
-                                let right_direction = Direction::new(*x2, *y2, *z2);
-                                if center_direction.is_err() || right_direction.is_err() {
+                                let top_direction = Direction::new(*x2, *y2, *z2);
+                                if center_direction.is_err() || top_direction.is_err() {
                                     continue;
                                 }
                                 let center = center_direction.unwrap();
-                                let right = right_direction.unwrap();
-                                if center.eq_within(&right, 1e-5)
-                                    || center.eq_within(&(-&right), 1e-5)
+                                let top = top_direction.unwrap();
+                                if center.eq_within(&top, 1e-5) || center.eq_within(&(-&top), 1e-5)
                                 {
                                     continue;
                                 }
-                                let bottom = right.rotated(Angle::from_degrees(90.), &center);
-                                let left = bottom.rotated(Angle::from_degrees(90.), &center);
-                                let top = left.rotated(Angle::from_degrees(90.), &center);
+                                let left = top.rotated(Angle::from_degrees(90.), &center);
+                                let bottom = left.rotated(Angle::from_degrees(90.), &center);
+                                let right = bottom.rotated(Angle::from_degrees(90.), &center);
 
                                 let viewport = Viewport {
                                     center_direction: center.clone(),
-                                    right_direction: right.clone(),
-                                    width: SOME_WIDTH,
+                                    top_direction: top.clone(),
+                                    height: SOME_HEIGHT,
                                 };
 
-                                let right = StarAppearance::new(
+                                let top = StarAppearance::new(
                                     String::new(),
                                     SOME_ILLUMINANCE,
                                     SOME_COLOR,
-                                    right,
-                                );
-                                let bottom = StarAppearance::new(
-                                    String::new(),
-                                    SOME_ILLUMINANCE,
-                                    SOME_COLOR,
-                                    bottom,
+                                    top,
                                 );
                                 let left = StarAppearance::new(
                                     String::new(),
@@ -126,48 +119,54 @@ mod tests {
                                     SOME_COLOR,
                                     left,
                                 );
-                                let top = StarAppearance::new(
+                                let bottom = StarAppearance::new(
                                     String::new(),
                                     SOME_ILLUMINANCE,
                                     SOME_COLOR,
-                                    top,
+                                    bottom,
+                                );
+                                let right = StarAppearance::new(
+                                    String::new(),
+                                    SOME_ILLUMINANCE,
+                                    SOME_COLOR,
+                                    right,
                                 );
 
-                                let right =
-                                    StarCanvasAppearance::from_star_appearance(&right, &viewport);
-                                let bottom =
-                                    StarCanvasAppearance::from_star_appearance(&bottom, &viewport);
-                                let left =
-                                    StarCanvasAppearance::from_star_appearance(&left, &viewport);
                                 let top =
                                     StarCanvasAppearance::from_star_appearance(&top, &viewport);
+                                let left =
+                                    StarCanvasAppearance::from_star_appearance(&left, &viewport);
+                                let bottom =
+                                    StarCanvasAppearance::from_star_appearance(&bottom, &viewport);
+                                let right =
+                                    StarCanvasAppearance::from_star_appearance(&right, &viewport);
 
                                 assert!(points_equal(
-                                    right.pos,
+                                    top.pos,
                                     Point {
-                                        x: SOME_WIDTH,
-                                        y: SOME_WIDTH / 2.
-                                    }
-                                ));
-                                assert!(points_equal(
-                                    bottom.pos,
-                                    Point {
-                                        x: SOME_WIDTH / 2.,
-                                        y: SOME_WIDTH
+                                        x: SOME_HEIGHT / 2.,
+                                        y: 0.
                                     }
                                 ));
                                 assert!(points_equal(
                                     left.pos,
                                     Point {
                                         x: 0.,
-                                        y: SOME_WIDTH / 2.
+                                        y: SOME_HEIGHT / 2.
                                     }
                                 ));
                                 assert!(points_equal(
-                                    top.pos,
+                                    bottom.pos,
                                     Point {
-                                        x: SOME_WIDTH / 2.,
-                                        y: 0.
+                                        x: SOME_HEIGHT / 2.,
+                                        y: SOME_HEIGHT
+                                    }
+                                ));
+                                assert!(points_equal(
+                                    right.pos,
+                                    Point {
+                                        x: SOME_HEIGHT,
+                                        y: SOME_HEIGHT / 2.
                                     }
                                 ));
                             }
@@ -188,8 +187,8 @@ mod tests {
         );
         let viewport = Viewport {
             center_direction: Direction::X,
-            right_direction: Direction::Y,
-            width: SOME_WIDTH,
+            top_direction: Direction::Y,
+            height: SOME_HEIGHT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
@@ -207,8 +206,8 @@ mod tests {
         );
         let viewport = Viewport {
             center_direction: Direction::X,
-            right_direction: Direction::Y,
-            width: SOME_WIDTH,
+            top_direction: Direction::Y,
+            height: SOME_HEIGHT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
@@ -226,8 +225,8 @@ mod tests {
         );
         let viewport = Viewport {
             center_direction: Direction::X,
-            right_direction: Direction::Y,
-            width: SOME_WIDTH,
+            top_direction: Direction::Y,
+            height: SOME_HEIGHT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
