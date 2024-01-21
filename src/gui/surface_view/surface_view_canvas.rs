@@ -1,16 +1,15 @@
-use super::surface_view_widget::SurfaceViewState;
+use super::{surface_view_widget::SurfaceViewState, viewport::observer_normal};
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
     coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction, equatorial::EquatorialCoordinates,
-        spherical::SphericalCoordinates,
+        cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
     },
-    planets::surface_normal::{direction_relative_to_surface_normal, surface_normal_at_time},
+    planets::surface_normal::direction_relative_to_surface_normal,
     stars::star_appearance::StarAppearance,
-    units::{angle::Angle, illuminance::Illuminance, length::Length, time::Time},
+    units::{illuminance::Illuminance, length::Length, time::Time},
     Float,
 };
 use iced::{
@@ -29,21 +28,6 @@ const GRADIENT_STEPS: i32 = 10;
 const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
 
 impl SurfaceViewState {
-    fn observer_normal(&self, selected_planet: &Planet, time_since_epoch: Time) -> Direction {
-        let observer_equatorial_position = EquatorialCoordinates::new(
-            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude),
-            selected_planet.get_data().get_rotation_axis().clone(),
-        );
-        //TODO: Define Angle at Epoch
-        let planet_angle_at_epoch = Angle::from_degrees(0.0);
-        surface_normal_at_time(
-            observer_equatorial_position,
-            planet_angle_at_epoch,
-            time_since_epoch,
-            selected_planet.get_data().get_sideral_rotation_period(),
-        )
-    }
-
     fn observer_position(
         &self,
         selected_planet: &Planet,
@@ -103,7 +87,13 @@ impl SurfaceViewState {
         time_since_epoch: Time,
         display_names: bool,
     ) {
-        let observer_normal = self.observer_normal(&selected_planet, time_since_epoch);
+        let surface_position =
+            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude);
+        let observer_normal = observer_normal(
+            selected_planet.get_data(),
+            surface_position,
+            time_since_epoch,
+        );
         let observer_position = self.observer_position(&selected_planet, &observer_normal);
         let observer_view_direction =
             SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
