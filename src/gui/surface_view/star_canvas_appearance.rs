@@ -177,4 +177,60 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn apparent_magnitude_6p5_star_is_barely_visible() {
+        let star_appearance = StarAppearance::new(
+            String::new(),
+            Illuminance::from_apparent_magnitude(6.5),
+            SOME_COLOR,
+            Direction::X,
+        );
+        let viewport = Viewport {
+            center_direction: Direction::X,
+            right_direction: Direction::Y,
+            width: SOME_WIDTH,
+        };
+        let canvas_appearance =
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+        assert!(canvas_appearance.radius > 0.);
+        assert!(canvas_appearance.radius < 1.);
+    }
+
+    #[test]
+    fn apparent_magnitude_0_star_is_bright() {
+        let star_appearance = StarAppearance::new(
+            String::new(),
+            Illuminance::from_apparent_magnitude(0.),
+            SOME_COLOR,
+            Direction::X,
+        );
+        let viewport = Viewport {
+            center_direction: Direction::X,
+            right_direction: Direction::Y,
+            width: SOME_WIDTH,
+        };
+        let canvas_appearance =
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+        assert!(canvas_appearance.radius > 1.);
+        assert!(canvas_appearance.radius < 10.);
+    }
+
+    #[test]
+    fn the_sun_is_very_bright() {
+        let star_appearance = StarAppearance::new(
+            String::new(),
+            Illuminance::from_apparent_magnitude(-26.72),
+            SOME_COLOR,
+            Direction::X,
+        );
+        let viewport = Viewport {
+            center_direction: Direction::X,
+            right_direction: Direction::Y,
+            width: SOME_WIDTH,
+        };
+        let canvas_appearance =
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+        assert!(canvas_appearance.radius > 500.);
+    }
 }
