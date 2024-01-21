@@ -1,10 +1,8 @@
-use crate::model::celestial_body::CelestialBody;
-
 use super::{
     gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     Gui, GuiMode,
 };
-use astro_utils::units::time::Time;
+use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, Toggler},
@@ -67,17 +65,25 @@ fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
 }
 
 pub(super) fn planet_picker<'a>(
-    celestial_bodies: &'a Vec<CelestialBody>,
-    selected_body: &'a Option<CelestialBody>,
+    planets: Vec<&PlanetData>,
+    selected_planet: Option<&PlanetData>,
 ) -> iced::Element<'a, GuiMessage> {
     let text = Text::new("Focused body:")
         .width(SMALL_COLUMN_WIDTH)
         .horizontal_alignment(Horizontal::Right)
         .vertical_alignment(Vertical::Center);
+    let mut planet_names = vec![String::new()];
+    for name in planets.iter().map(|p| p.get_name()) {
+        planet_names.push(name.clone());
+    }
+    let selected_planet_name = match selected_planet {
+        Some(planet) => planet.get_name().clone(),
+        None => String::new(),
+    };
     let pick_list = PickList::new(
-        celestial_bodies.clone(),
-        selected_body.clone(),
-        GuiMessage::FocusedBodySelected,
+        planet_names,
+        Some(selected_planet_name),
+        GuiMessage::PlanetSelected,
     )
     .width(1.25 * SMALL_COLUMN_WIDTH + PADDING);
     Row::new()
@@ -91,8 +97,8 @@ pub(super) fn planet_picker<'a>(
 pub(super) fn surface_and_top_view_shared_control<'a>(
     time_since_epoch: &'a Time,
     time_step: &'a Time,
-    celestial_bodies: &'a Vec<CelestialBody>,
-    selected_body: &'a Option<CelestialBody>,
+    planets: Vec<&PlanetData>,
+    selected_planet: Option<&PlanetData>,
     display_names: bool,
 ) -> iced::Element<'a, GuiMessage> {
     let time_control_field = control_field(
@@ -107,7 +113,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         GuiMessage::UpdateTimeStep(*time_step / 2.),
         GuiMessage::UpdateTimeStep(*time_step * 2.),
     );
-    let planet_picker = planet_picker(celestial_bodies, selected_body);
+    let planet_picker = planet_picker(planets, selected_planet);
     let display_names_toggle = Container::new(Toggler::new(
         Some("Display Names".to_string()),
         display_names,

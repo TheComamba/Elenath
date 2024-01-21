@@ -12,7 +12,7 @@ use iced::{
 };
 use std::f32::consts::PI;
 
-pub(super) struct TopViewState {
+pub(crate) struct TopViewState {
     pub(super) background_cache: Cache,
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
@@ -34,7 +34,7 @@ impl Into<GuiMessage> for TopViewMessage {
 }
 
 impl TopViewState {
-    pub(super) fn new() -> Self {
+    pub(crate) fn new() -> Self {
         TopViewState {
             background_cache: Cache::default(),
             bodies_cache: Cache::default(),
@@ -44,7 +44,7 @@ impl TopViewState {
         }
     }
 
-    pub(super) fn update(&mut self, message: TopViewMessage) {
+    pub(crate) fn update(&mut self, message: TopViewMessage) {
         match message {
             TopViewMessage::UpdateLengthScale(length_per_pixel) => {
                 self.length_per_pixel = length_per_pixel;
@@ -64,12 +64,12 @@ impl TopViewState {
         }
     }
 
-    pub(super) fn redraw(&mut self) {
+    pub(crate) fn redraw(&mut self) {
         self.bodies_cache.clear();
         self.scale_cache.clear();
     }
 
-    pub(super) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
+    pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
         let length_scale_control_field = control_field(
             "Length per 100px:",
             format!("{}", self.length_per_pixel * 100.),

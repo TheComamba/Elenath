@@ -1,15 +1,13 @@
 use super::{
     shared_widgets::surface_and_top_view_shared_control,
-    surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
-    table_view::TableViewState,
-    top_view_widget::{TopViewMessage, TopViewState},
+    surface_view::surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
+    table_view::table_view_widget::TableViewState,
+    top_view::top_view_widget::{TopViewMessage, TopViewState},
     Gui,
 };
 use crate::{
     file_dialog,
-    model::{
-        celestial_body::CelestialBody, celestial_system::CelestialSystem, example::solar_system,
-    },
+    model::{celestial_system::CelestialSystem, example::solar_system},
 };
 use astro_utils::{
     stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
@@ -38,7 +36,7 @@ pub(crate) enum GuiMessage {
     FetchGaiaData,
     UpdateTime(Time),
     UpdateTimeStep(Time),
-    FocusedBodySelected(CelestialBody),
+    PlanetSelected(String),
     SetShowNames(bool),
 }
 
@@ -54,12 +52,6 @@ impl Sandbox for Gui {
 
     fn new() -> Self {
         let celestial_system = solar_system();
-        let celestial_bodies = celestial_system.get_current_data(Time::from_days(0.0));
-        let central_body_data = celestial_system.get_central_body();
-        let selected_focus = celestial_bodies
-            .iter()
-            .find(|body| body.get_name() == central_body_data.get_name())
-            .cloned();
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,
@@ -69,8 +61,7 @@ impl Sandbox for Gui {
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             celestial_system,
-            celestial_bodies,
-            focused_body: selected_focus,
+            selected_planet_name: String::new(),
             display_names: true,
         }
     }
@@ -89,23 +80,21 @@ impl Sandbox for Gui {
             }
             GuiMessage::AddPlanet => {
                 todo!("Implement adding planets.");
-                // self.update_bodies();
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
-                // self.update_bodies();
             }
             GuiMessage::GenerateStars => {
                 let max_distance = Length::from_light_years(100.0);
                 let stars = generate_random_stars(max_distance).unwrap();
-                self.celestial_system.add_distant_stars(stars);
-                self.update_bodies();
+                for star_data in stars {
+                    self.celestial_system.add_star_from_data(star_data);
+                }
             }
             GuiMessage::FetchGaiaData => {
                 let stars = fetch_brightest_stars().unwrap();
                 self.celestial_system
-                    .add_distant_stars_without_duplicates(stars);
-                self.update_bodies();
+                    .add_star_appearances_without_duplicates(stars);
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
@@ -130,7 +119,6 @@ impl Sandbox for Gui {
                 if let Some(path) = &self.opened_file {
                     self.celestial_system = CelestialSystem::read_from_file(path.clone())
                         .expect("Failed to read from file");
-                    self.update_bodies();
                 }
             }
             GuiMessage::ModeSelected(mode) => {
@@ -138,13 +126,12 @@ impl Sandbox for Gui {
             }
             GuiMessage::UpdateTime(time) => {
                 self.time_since_epoch = time;
-                self.update_bodies();
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
             }
-            GuiMessage::FocusedBodySelected(body) => {
-                self.focused_body = Some(body);
+            GuiMessage::PlanetSelected(name) => {
+                self.selected_planet_name = name;
             }
             GuiMessage::SetShowNames(display_names) => {
                 self.display_names = display_names;
@@ -168,8 +155,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_body,
+                        self.celestial_system.get_planet_data(),
+                        self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.surface_view_state.control_field());
@@ -184,8 +171,8 @@ impl Sandbox for Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        &self.celestial_bodies,
-                        &self.focused_body,
+                        self.celestial_system.get_planet_data(),
+                        self.get_selected_planet_data(),
                         self.display_names,
                     ))
                     .push(self.top_view_state.control_field());
@@ -197,7 +184,7 @@ impl Sandbox for Gui {
             }
             GuiMode::TableView => {
                 col = col.push(self.table_view_state.table_view(
-                    self.celestial_system.get_planets_data(),
+                    self.celestial_system.get_planet_data(),
                     self.celestial_system.get_star_data(),
                 ))
             }
@@ -229,17 +216,17 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
             GuiMode::SurfaceView => self.surface_view_state.canvas(
                 renderer,
                 bounds,
-                self.celestial_system.get_central_body(),
-                &self.focused_body,
+                &self.get_selected_planet(),
+                &self.celestial_system,
                 self.time_since_epoch,
-                &self.celestial_bodies,
                 self.display_names,
             ),
             GuiMode::TopView => self.top_view_state.canvas(
                 renderer,
                 bounds,
-                &self.focused_body,
-                &self.celestial_bodies,
+                &self.get_selected_planet(),
+                &self.celestial_system,
+                self.time_since_epoch,
                 self.display_names,
             ),
             _ => {

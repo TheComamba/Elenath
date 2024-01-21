@@ -1,23 +1,24 @@
-use std::path::PathBuf;
-
-use super::celestial_body::CelestialBody;
+use super::{planet::Planet, star::Star};
 use astro_utils::{
-    planets::planet::Planet,
-    stars::{gaia_data::star_is_already_known, star::Star},
+    planets::planet_data::PlanetData,
+    stars::{
+        gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
+    },
     units::time::Time,
 };
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
     central_body: Star,
-    planets: Vec<Planet>,
+    planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
 }
 
 impl CelestialSystem {
-    pub(crate) fn new(central_body: Star) -> Self {
-        let central_body = central_body;
+    pub(crate) fn new(central_body_data: StarData) -> Self {
+        let central_body = Star::from_data(central_body_data);
         CelestialSystem {
             central_body,
             planets: vec![],
@@ -39,44 +40,42 @@ impl CelestialSystem {
         Ok(celestial_system)
     }
 
-    pub(crate) fn get_central_body(&self) -> &Star {
-        &self.central_body
-    }
-
-    pub(crate) fn get_current_data(&self, time: Time) -> Vec<CelestialBody> {
-        let mut bodies = Vec::new();
-        let central_body = CelestialBody::central_body(self.central_body.clone());
-        bodies.push(central_body.clone());
-        for planet in &self.planets {
-            bodies.push(CelestialBody::from_planet(planet, &self.central_body, time));
-        }
-        for star in &self.distant_stars {
-            bodies.push(CelestialBody::from_distant_star(star));
-        }
-        bodies
-    }
-
-    pub(crate) fn add_planet(&mut self, planet: Planet) {
+    pub(crate) fn add_planet_data(&mut self, planet: PlanetData) {
         self.planets.push(planet);
     }
 
-    pub(crate) fn add_distant_star(&mut self, star: Star) {
-        self.distant_stars.push(star);
+    pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
+        self.distant_stars.push(Star::from_data(star_data));
     }
 
-    pub(crate) fn add_distant_stars(&mut self, stars: Vec<Star>) {
-        self.distant_stars.extend(stars);
-    }
-
-    pub(crate) fn add_distant_stars_without_duplicates(&mut self, stars: Vec<Star>) {
-        for star in stars {
-            if !star_is_already_known(&star, &self.distant_stars.iter().collect::<Vec<_>>()) {
-                self.distant_stars.push(star);
+    pub(crate) fn add_star_appearances_without_duplicates(
+        &mut self,
+        star_appearances: Vec<StarAppearance>,
+    ) {
+        for star_appearance in star_appearances {
+            if !star_is_already_known(
+                &star_appearance,
+                &self
+                    .distant_stars
+                    .iter()
+                    .map(|s| s.get_appearance())
+                    .collect::<Vec<_>>(),
+            ) {
+                self.distant_stars
+                    .push(Star::from_appearance(star_appearance));
             }
         }
     }
 
-    pub(crate) fn get_planets_data(&self) -> Vec<&Planet> {
+    pub(crate) fn get_central_body(&self) -> &Star {
+        &self.central_body
+    }
+
+    pub(crate) fn get_central_body_data(&self) -> &StarData {
+        &self.central_body.get_data().unwrap()
+    }
+
+    pub(crate) fn get_planet_data(&self) -> Vec<&PlanetData> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
             bodies.push(planet);
@@ -84,11 +83,32 @@ impl CelestialSystem {
         bodies
     }
 
-    pub(crate) fn get_star_data(&self) -> Vec<&Star> {
+    pub(crate) fn get_planets_at_time(&self, time: Time) -> Vec<Planet> {
         let mut bodies = Vec::new();
-        bodies.push(&self.central_body);
+        if let Some(central_body) = self.central_body.get_data() {
+            for planet_data in &self.planets {
+                let planet = Planet::new(planet_data.clone(), central_body, time);
+                bodies.push(planet);
+            }
+        }
+        bodies
+    }
+
+    pub(crate) fn get_star_data(&self) -> Vec<&StarData> {
+        let mut bodies = Vec::new();
+        bodies.push(self.central_body.get_data().unwrap());
         for star in &self.distant_stars {
-            bodies.push(star);
+            if let Some(data) = star.get_data() {
+                bodies.push(data);
+            }
+        }
+        bodies
+    }
+
+    pub(crate) fn get_distant_star_appearances(&self) -> Vec<&StarAppearance> {
+        let mut bodies = Vec::new();
+        for star in &self.distant_stars {
+            bodies.push(star.get_appearance());
         }
         bodies
     }
