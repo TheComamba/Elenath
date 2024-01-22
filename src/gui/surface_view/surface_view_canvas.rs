@@ -118,7 +118,10 @@ impl SurfaceViewState {
         );
 
         for planet in celestial_system.get_planets_at_time(time_since_epoch) {
-            self.draw_planets(
+            if planet.get_data() == selected_planet.get_data() {
+                continue;
+            }
+            self.draw_planet(
                 frame,
                 bounds,
                 celestial_system,
@@ -153,7 +156,7 @@ impl SurfaceViewState {
         );
     }
 
-    fn draw_planets(
+    fn draw_planet(
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
