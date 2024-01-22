@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="dev/sturface-view-refactoring" }
+astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="main" }
 iced = { version = "0.10.0", features=["canvas"] }
 rfd = "0.13.0" # file dialogs
 serde = { version = "1.0", features = ["derive"] }

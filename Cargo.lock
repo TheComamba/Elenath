@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/sturface-view-refactoring#b6b91612727e1417c41c42c67bd2a847ca5aa590"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#35151b18fb6b3f15f9cfd7946edbe045d268f000"
 dependencies = [
  "directories",
  "flate2",

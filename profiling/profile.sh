@@ -3,7 +3,7 @@
 if ! command -v perf &> /dev/null
 then
     echo "Installing perf"
-    sudo aptitude install linux-tools-common linux-tools-generic
+    sudo aptitude install linux-tools-common
 fi
 
 if ! command -v cargo-flamegraph &> /dev/null
