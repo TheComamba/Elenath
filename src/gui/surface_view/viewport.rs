@@ -190,6 +190,15 @@ mod tests {
                                             let ortho = ortho.unwrap();
                                             let overlap =
                                                 ortho.dot_product(&viewport.top_direction);
+
+                                            println!(
+                                                "center_direction: {}",
+                                                viewport.center_direction
+                                            );
+                                            println!("top_direction: {}", viewport.top_direction);
+                                            println!("rotation_axis: {}", rotation_axis);
+                                            println!("ortho: {}", ortho);
+                                            println!("overlap: {}", overlap);
                                             assert!(overlap.abs() < TEST_ACCURACY);
                                         }
                                     }
