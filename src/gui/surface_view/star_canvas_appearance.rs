@@ -1,6 +1,6 @@
 use astro_utils::{
     planets::surface_normal::direction_relative_to_surface_normal,
-    stars::star_appearance::StarAppearance, units::illuminance::Illuminance,
+    stars::star_appearance::StarAppearance,
 };
 use iced::{Color, Vector};
 
@@ -14,22 +14,16 @@ pub(super) struct StarCanvasAppearance<'a> {
 }
 
 impl<'a> StarCanvasAppearance<'a> {
-    // dimmest apparent magnitude: 6.5
-    // as lux: 10.powf((-14.18 - 6.5) / 2.5);
-    // A magnitude 6.5 star should appear with size between 0.1 and 1
-    // So the factor is (0.1 to 1.) / sqrt(10.powf((-14.18 - 6.5) / 2.5))
-    // which equals 1367.7 to 13677
-    const BRIGHTNESS_FACTOR: f32 = 5000.;
-
     pub(super) fn from_star_appearance(
         appearance: &'a StarAppearance,
         viewport: &Viewport,
     ) -> Option<StarCanvasAppearance<'a>> {
+        let (color, radius) = color_and_radius(appearance);
         Some(Self {
             name: appearance.get_name(),
             center_offset: offset(appearance, viewport)?,
-            radius: brightness_radius(&appearance.get_illuminance()),
-            color: canvas_color(appearance),
+            radius,
+            color,
         })
     }
 }
@@ -49,20 +43,26 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     }
 }
 
-fn brightness_radius(brightness: &Illuminance) -> f32 {
-    let lux = brightness.as_lux();
-    let size = lux.sqrt() * StarCanvasAppearance::BRIGHTNESS_FACTOR;
-    if size > 1e5 {
-        1e5
-    } else {
-        size
-    }
-}
-
-fn canvas_color(body: &StarAppearance) -> Color {
+fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
+    const MIN_RADIUS: f32 = 0.5;
+    const MAX_RADIUS: f32 = 1e5;
+    const LUX_AT_MIN_RADIUS: f32 = 2.1e-7; //Apparent Magnitude of 2.5
     let (r, g, b) = body.get_color().maximized_sRGB_tuple();
-    let color = Color::from_rgb(r, g, b);
-    color
+    let lux = body.get_illuminance().as_lux();
+    if lux < LUX_AT_MIN_RADIUS {
+        let radius = MIN_RADIUS;
+        let alpha = lux / LUX_AT_MIN_RADIUS;
+        let color = Color::from_rgba(r, g, b, alpha);
+        (color, radius)
+    } else {
+        let radius = (lux / LUX_AT_MIN_RADIUS).sqrt() * MIN_RADIUS;
+        let color = Color::from_rgb(r, g, b);
+        if radius > MAX_RADIUS {
+            (color, MAX_RADIUS)
+        } else {
+            (color, radius)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -262,8 +262,10 @@ mod tests {
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
+        println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 0.);
-        assert!(canvas_appearance.radius < 1.);
+        assert!(canvas_appearance.color.a > 0.);
+        assert!(canvas_appearance.color.a < 0.1);
     }
 
     #[test]
@@ -281,8 +283,29 @@ mod tests {
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
+        println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 1.);
         assert!(canvas_appearance.radius < 10.);
+    }
+
+    #[test]
+    fn venus_is_not_too_big() {
+        let star_appearance = StarAppearance::new(
+            String::new(),
+            Illuminance::from_apparent_magnitude(-4.92),
+            SOME_COLOR,
+            Direction::X,
+        );
+        let viewport = Viewport {
+            center_direction: Direction::X,
+            top_direction: Direction::Y,
+            px_per_unit_height: SOME_FLOAT,
+        };
+        let canvas_appearance =
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
+        println!("radius: {}", canvas_appearance.radius);
+        assert!(canvas_appearance.radius > 1.);
+        assert!(canvas_appearance.radius < 16.);
     }
 
     #[test]
@@ -300,6 +323,7 @@ mod tests {
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
+        println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 500.);
     }
 }
