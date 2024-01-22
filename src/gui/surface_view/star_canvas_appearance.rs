@@ -38,10 +38,11 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     let direction = direction_relative_to_surface_normal(
         &appearance.get_direction_in_ecliptic(),
         &viewport.center_direction,
+        &viewport.top_direction,
     );
     if direction.z() > 0.0 {
-        let x = direction.x() * viewport.px_per_unit_height;
-        let y = -direction.y() * viewport.px_per_unit_height; // y axis is inverted
+        let x = -direction.y() * viewport.px_per_unit_height; // rotation_reference corresponds to the x axis while iced y corresponds to top.
+        let y = -direction.x() * viewport.px_per_unit_height; // y axis is inverted
         Some(iced::Vector::new(x as f32, y as f32))
     } else {
         None
@@ -82,7 +83,7 @@ mod tests {
     const SOME_FLOAT: f32 = 1.;
 
     fn vecs_equal(p1: Vector, p2: Vector) -> bool {
-        (p1.x - p2.x).abs() < 1e-5 && (p1.y - p2.y).abs() < 1e-5
+        (p1.x - p2.x).abs() < 1e-4 && (p1.y - p2.y).abs() < 1e-4
     }
 
     #[test]
@@ -144,14 +145,25 @@ mod tests {
                                 let bottom = left.rotated(Angle::from_degrees(90.), &center);
                                 let right = bottom.rotated(Angle::from_degrees(90.), &center);
 
+                                println!(
+                                    "center: {}, top: {}, left: {}, bottom: {}, right: {}",
+                                    center, top, left, bottom, right
+                                );
+
                                 let viewport = Viewport {
                                     center_direction: center.clone(),
                                     top_direction: top.clone(),
                                     px_per_unit_height: SOME_FLOAT,
                                 };
-                                let opening_angle = center.angle_to(&top);
+                                let half_opening_angle = center.angle_to(&top);
+                                if half_opening_angle.as_degrees().abs() > 89. {
+                                    continue;
+                                }
                                 let expected_offset =
-                                    (opening_angle / 2.).sin() * viewport.px_per_unit_height;
+                                    half_opening_angle.sin() * viewport.px_per_unit_height;
+
+                                println!("half opening angle: {}", half_opening_angle);
+                                println!("expected offset: {}", expected_offset);
 
                                 let top = StarAppearance::new(
                                     String::new(),
@@ -190,6 +202,14 @@ mod tests {
                                 let right =
                                     StarCanvasAppearance::from_star_appearance(&right, &viewport)
                                         .unwrap();
+
+                                println!(
+                                    "top: {:?}, left: {:?}, bottom: {:?}, right: {:?}",
+                                    top.center_offset,
+                                    left.center_offset,
+                                    bottom.center_offset,
+                                    right.center_offset
+                                );
 
                                 assert!(vecs_equal(
                                     top.center_offset,

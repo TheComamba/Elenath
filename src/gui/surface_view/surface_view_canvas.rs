@@ -336,8 +336,11 @@ fn canvas_position(
     observer_view_direction: &Direction,
     pixel_per_viewport_width: Float,
 ) -> Option<iced::Vector> {
-    let direction =
-        direction_relative_to_surface_normal(&direction_in_ecliptic, observer_view_direction);
+    let direction = direction_relative_to_surface_normal(
+        &direction_in_ecliptic,
+        observer_view_direction,
+        &Direction::Z,
+    );
     if direction.z() > 0.0 {
         let x = direction.x() * pixel_per_viewport_width;
         let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
