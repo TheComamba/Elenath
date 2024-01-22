@@ -1,4 +1,8 @@
-use super::{surface_view_widget::SurfaceViewState, viewport::observer_normal};
+use super::{
+    star_canvas_appearance::{brightness_radius, canvas_color},
+    surface_view_widget::SurfaceViewState,
+    viewport::observer_normal,
+};
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
@@ -9,7 +13,7 @@ use astro_utils::{
     },
     planets::surface_normal::direction_relative_to_surface_normal,
     stars::star_appearance::StarAppearance,
-    units::{illuminance::Illuminance, length::Length, time::Time},
+    units::{length::Length, time::Time},
     Float,
 };
 use iced::{
@@ -17,12 +21,6 @@ use iced::{
     Color, Point,
 };
 
-// dimmest apparent magnitude: 6.5
-// as lux: 10.powf((-14.18 - 6.5) / 2.5);
-// A magnitude 6.5 star should appear with size between 0.1 and 1
-// So the factor is (0.1 to 1.) / sqrt(10.powf((-14.18 - 6.5) / 2.5))
-// which equals 1367.7 to 13677
-const BRIGHTNESS_FACTOR: f32 = 5000.;
 const GRADIENT_ALPHA: f32 = 1.;
 const GRADIENT_STEPS: i32 = 10;
 const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
@@ -290,7 +288,7 @@ impl SurfaceViewState {
             let pos: Point = frame.center() + pos;
             let color = canvas_color(appearance);
             let brightness = appearance.get_illuminance();
-            let brightness_radius = canvas_brightness_radius(&brightness);
+            let brightness_radius = brightness_radius(&brightness);
             fake_gradient(color, brightness_radius, pos, frame);
         }
     }
@@ -310,12 +308,6 @@ impl SurfaceViewState {
         let solid_circle = Path::circle(pos, apparent_radius);
         frame.fill(&solid_circle, color);
     }
-}
-
-fn canvas_color(body: &StarAppearance) -> Color {
-    let (r, g, b) = body.get_color().maximized_sRGB_tuple();
-    let color = Color::from_rgb(r, g, b);
-    color
 }
 
 fn display_planet_selection_text(frame: &mut canvas::Frame) {
@@ -361,14 +353,4 @@ fn canvas_apparent_radius(
     pixel_per_viewport_width: f32,
 ) -> f32 {
     radius / relative_position.length() * pixel_per_viewport_width
-}
-
-fn canvas_brightness_radius(brightness: &Illuminance) -> f32 {
-    let lux = brightness.as_lux();
-    let size = lux.sqrt() * BRIGHTNESS_FACTOR;
-    if size > 1e5 {
-        1e5
-    } else {
-        size
-    }
 }

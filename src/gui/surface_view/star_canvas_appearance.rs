@@ -1,4 +1,7 @@
-use astro_utils::stars::star_appearance::StarAppearance;
+use astro_utils::{
+    planets::surface_normal::direction_relative_to_surface_normal,
+    stars::star_appearance::StarAppearance, units::illuminance::Illuminance,
+};
 use iced::{Color, Vector};
 
 use super::viewport::Viewport;
@@ -11,12 +14,54 @@ pub(super) struct StarCanvasAppearance<'a> {
 }
 
 impl<'a> StarCanvasAppearance<'a> {
+    // dimmest apparent magnitude: 6.5
+    // as lux: 10.powf((-14.18 - 6.5) / 2.5);
+    // A magnitude 6.5 star should appear with size between 0.1 and 1
+    // So the factor is (0.1 to 1.) / sqrt(10.powf((-14.18 - 6.5) / 2.5))
+    // which equals 1367.7 to 13677
+    const BRIGHTNESS_FACTOR: f32 = 5000.;
+
     pub(super) fn from_star_appearance(
         appearance: &'a StarAppearance,
         viewport: &Viewport,
-    ) -> StarCanvasAppearance<'a> {
-        todo!()
+    ) -> Option<StarCanvasAppearance<'a>> {
+        Some(Self {
+            name: appearance.get_name(),
+            center_offset: offset(appearance, viewport)?,
+            radius: brightness_radius(&appearance.get_illuminance()),
+            color: canvas_color(appearance),
+        })
     }
+}
+
+fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
+    let direction = direction_relative_to_surface_normal(
+        &appearance.get_direction_in_ecliptic(),
+        &viewport.center_direction,
+    );
+    if direction.z() > 0.0 {
+        let x = direction.x() * viewport.px_per_unit_height;
+        let y = -direction.y() * viewport.px_per_unit_height; // y axis is inverted
+        Some(iced::Vector::new(x as f32, y as f32))
+    } else {
+        None
+    }
+}
+
+pub(super) fn brightness_radius(brightness: &Illuminance) -> f32 {
+    let lux = brightness.as_lux();
+    let size = lux.sqrt() * StarCanvasAppearance::BRIGHTNESS_FACTOR;
+    if size > 1e5 {
+        1e5
+    } else {
+        size
+    }
+}
+
+pub(super) fn canvas_color(body: &StarAppearance) -> Color {
+    let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+    let color = Color::from_rgb(r, g, b);
+    color
 }
 
 #[cfg(test)]
@@ -64,7 +109,8 @@ mod tests {
                         center_direction,
                     );
                     let canvas_appearance =
-                        StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+                        StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport)
+                            .unwrap();
                     assert!(vecs_equal(
                         canvas_appearance.center_offset,
                         Vector { x: 0., y: 0. }
@@ -133,13 +179,17 @@ mod tests {
                                 );
 
                                 let top =
-                                    StarCanvasAppearance::from_star_appearance(&top, &viewport);
+                                    StarCanvasAppearance::from_star_appearance(&top, &viewport)
+                                        .unwrap();
                                 let left =
-                                    StarCanvasAppearance::from_star_appearance(&left, &viewport);
+                                    StarCanvasAppearance::from_star_appearance(&left, &viewport)
+                                        .unwrap();
                                 let bottom =
-                                    StarCanvasAppearance::from_star_appearance(&bottom, &viewport);
+                                    StarCanvasAppearance::from_star_appearance(&bottom, &viewport)
+                                        .unwrap();
                                 let right =
-                                    StarCanvasAppearance::from_star_appearance(&right, &viewport);
+                                    StarCanvasAppearance::from_star_appearance(&right, &viewport)
+                                        .unwrap();
 
                                 assert!(vecs_equal(
                                     top.center_offset,
@@ -191,7 +241,7 @@ mod tests {
             px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
-            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         assert!(canvas_appearance.radius > 0.);
         assert!(canvas_appearance.radius < 1.);
     }
@@ -210,7 +260,7 @@ mod tests {
             px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
-            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         assert!(canvas_appearance.radius > 1.);
         assert!(canvas_appearance.radius < 10.);
     }
@@ -229,7 +279,7 @@ mod tests {
             px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
-            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
+            StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         assert!(canvas_appearance.radius > 500.);
     }
 }
