@@ -9,7 +9,7 @@ use astro_utils::{
 pub(super) struct Viewport {
     pub(super) center_direction: Direction,
     pub(super) top_direction: Direction,
-    pub(super) height: f32,
+    pub(super) px_per_unit_height: f32,
 }
 
 impl Viewport {
@@ -18,7 +18,7 @@ impl Viewport {
         local_view_direction: &SphericalCoordinates,
         opening_angle: Angle,
         rotation_axis: &Direction,
-        height: f32,
+        canvas_height: f32,
     ) -> Self {
         let view_direction = local_view_direction.to_direction();
         let center_direction = view_direction.active_rotation_to_new_z_axis(observer_normal);
@@ -30,10 +30,12 @@ impl Viewport {
             },
         };
         let top_direction = center_direction.rotated(opening_angle / 2., &ortho);
+        let viewport_height = (opening_angle / 2.).sin() * 2.; //Viewport is at unit distance
+        let px_per_unit_height = canvas_height / viewport_height;
         Self {
             center_direction,
             top_direction,
-            height,
+            px_per_unit_height,
         }
     }
 }

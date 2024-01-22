@@ -34,7 +34,7 @@ mod tests {
 
     const SOME_ILLUMINANCE: Illuminance = Illuminance::from_lux(100.);
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);
-    const SOME_HEIGHT: f32 = 100.;
+    const SOME_FLOAT: f32 = 1.;
 
     fn vecs_equal(p1: Vector, p2: Vector) -> bool {
         (p1.x - p2.x).abs() < 1e-5 && (p1.y - p2.y).abs() < 1e-5
@@ -55,7 +55,7 @@ mod tests {
                     let viewport = Viewport {
                         center_direction: center_direction.clone(),
                         top_direction,
-                        height: SOME_HEIGHT,
+                        px_per_unit_height: SOME_FLOAT,
                     };
                     let star_appearance = StarAppearance::new(
                         String::new(),
@@ -101,8 +101,11 @@ mod tests {
                                 let viewport = Viewport {
                                     center_direction: center.clone(),
                                     top_direction: top.clone(),
-                                    height: SOME_HEIGHT,
+                                    px_per_unit_height: SOME_FLOAT,
                                 };
+                                let opening_angle = center.angle_to(&top);
+                                let expected_offset =
+                                    (opening_angle / 2.).sin() * viewport.px_per_unit_height;
 
                                 let top = StarAppearance::new(
                                     String::new(),
@@ -142,13 +145,13 @@ mod tests {
                                     top.center_offset,
                                     Vector {
                                         x: 0.,
-                                        y: -SOME_HEIGHT / 2.
+                                        y: -expected_offset
                                     }
                                 ));
                                 assert!(vecs_equal(
                                     left.center_offset,
                                     Vector {
-                                        x: -SOME_HEIGHT / 2.,
+                                        x: -expected_offset,
                                         y: 0.
                                     }
                                 ));
@@ -156,13 +159,13 @@ mod tests {
                                     bottom.center_offset,
                                     Vector {
                                         x: 0.,
-                                        y: SOME_HEIGHT / 2.
+                                        y: expected_offset
                                     }
                                 ));
                                 assert!(vecs_equal(
                                     right.center_offset,
                                     Vector {
-                                        x: SOME_HEIGHT / 2.,
+                                        x: expected_offset,
                                         y: 0.
                                     }
                                 ));
@@ -185,7 +188,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            height: SOME_HEIGHT,
+            px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
@@ -204,7 +207,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            height: SOME_HEIGHT,
+            px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
@@ -223,7 +226,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            height: SOME_HEIGHT,
+            px_per_unit_height: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport);
