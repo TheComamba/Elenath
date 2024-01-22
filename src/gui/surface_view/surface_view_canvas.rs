@@ -19,10 +19,6 @@ use iced::{
     Color, Point,
 };
 
-const GRADIENT_ALPHA: f32 = 1.;
-const GRADIENT_STEPS: i32 = 10;
-const GRADIENT_SHARPNESS_EXPONENT: i32 = 2;
-
 impl SurfaceViewState {
     fn observer_position(
         &self,
@@ -253,14 +249,23 @@ impl SurfaceViewState {
 
     fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &StarCanvasAppearance) {
         // Radial gradients are not yet impelemented in iced.
+        let mut step_width = StarCanvasAppearance::MIN_RADIUS;
+        const MAX_STEPS: i32 = 100;
+        let mut steps = (0.99 * canvas_appearance.radius / step_width).ceil() as i32;
+        if steps > MAX_STEPS {
+            steps = MAX_STEPS;
+            step_width = canvas_appearance.radius / steps as f32;
+        }
         let pos: Point = frame.center() + canvas_appearance.center_offset;
-        let mut gradient_color = canvas_appearance.color.clone();
-        gradient_color.a = (GRADIENT_ALPHA as f32) / (GRADIENT_STEPS as f32);
-        for i in 1..=GRADIENT_STEPS {
-            let radius = canvas_appearance.radius
-                * (i as f32 / (GRADIENT_STEPS as f32)).powi(GRADIENT_SHARPNESS_EXPONENT);
-            let brightness_circle = Path::circle(pos, radius);
-            frame.fill(&brightness_circle, gradient_color);
+        let mut color = canvas_appearance.color.clone();
+        color.a = color.a / (steps as f32);
+        for i in 0..steps {
+            let mut radius = step_width * (i + 1) as f32;
+            if radius > canvas_appearance.radius {
+                radius = canvas_appearance.radius;
+            }
+            let circle = Path::circle(pos, radius);
+            frame.fill(&circle, color);
         }
     }
 

@@ -14,17 +14,40 @@ pub(super) struct StarCanvasAppearance<'a> {
 }
 
 impl<'a> StarCanvasAppearance<'a> {
+    pub(super) const MIN_RADIUS: f32 = 0.5;
+    const MAX_RADIUS: f32 = 1e5;
+    const LUX_AT_MIN_RADIUS: f32 = 2.1e-7; //Apparent Magnitude of 2.5
+
     pub(super) fn from_star_appearance(
         appearance: &'a StarAppearance,
         viewport: &Viewport,
     ) -> Option<StarCanvasAppearance<'a>> {
-        let (color, radius) = color_and_radius(appearance);
+        let (color, radius) = Self::color_and_radius(appearance);
         Some(Self {
             name: appearance.get_name(),
             center_offset: offset(appearance, viewport)?,
             radius,
             color,
         })
+    }
+
+    fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
+        let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+        let lux = body.get_illuminance().as_lux();
+        if lux < Self::LUX_AT_MIN_RADIUS {
+            let radius = Self::MIN_RADIUS;
+            let alpha = lux / Self::LUX_AT_MIN_RADIUS;
+            let color = Color::from_rgba(r, g, b, alpha);
+            (color, radius)
+        } else {
+            let radius = (lux / Self::LUX_AT_MIN_RADIUS).sqrt() * Self::MIN_RADIUS;
+            let color = Color::from_rgb(r, g, b);
+            if radius > Self::MAX_RADIUS {
+                (color, Self::MAX_RADIUS)
+            } else {
+                (color, radius)
+            }
+        }
     }
 }
 
@@ -40,28 +63,6 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
         Some(iced::Vector::new(x as f32, y as f32))
     } else {
         None
-    }
-}
-
-fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
-    const MIN_RADIUS: f32 = 0.5;
-    const MAX_RADIUS: f32 = 1e5;
-    const LUX_AT_MIN_RADIUS: f32 = 2.1e-7; //Apparent Magnitude of 2.5
-    let (r, g, b) = body.get_color().maximized_sRGB_tuple();
-    let lux = body.get_illuminance().as_lux();
-    if lux < LUX_AT_MIN_RADIUS {
-        let radius = MIN_RADIUS;
-        let alpha = lux / LUX_AT_MIN_RADIUS;
-        let color = Color::from_rgba(r, g, b, alpha);
-        (color, radius)
-    } else {
-        let radius = (lux / LUX_AT_MIN_RADIUS).sqrt() * MIN_RADIUS;
-        let color = Color::from_rgb(r, g, b);
-        if radius > MAX_RADIUS {
-            (color, MAX_RADIUS)
-        } else {
-            (color, radius)
-        }
     }
 }
 
