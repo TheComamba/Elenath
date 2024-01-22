@@ -1,7 +1,7 @@
 use super::{
     star_canvas_appearance::{brightness_radius, canvas_color},
     surface_view_widget::SurfaceViewState,
-    viewport::observer_normal,
+    viewport::{observer_normal, Viewport},
 };
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
@@ -36,7 +36,7 @@ impl SurfaceViewState {
     }
 
     fn pixel_per_viewport_width(&self, canvas_width: f32) -> Float {
-        let opening_angle = self.viewport_horizontal_opening_angle;
+        let opening_angle = self.viewport_vertical_opening_angle;
         let viewport_width = (opening_angle / 2.).sin() * 2.; //Viewport is at unit distance
         canvas_width / viewport_width
     }
@@ -94,7 +94,14 @@ impl SurfaceViewState {
         );
         let observer_position = self.observer_position(&selected_planet, &observer_normal);
         let observer_view_direction =
-            SphericalCoordinates::new(self.view_longitude, self.view_latitude).to_direction();
+            SphericalCoordinates::new(self.view_longitude, self.view_latitude);
+        let viewport = Viewport::calculate(
+            &observer_normal,
+            &observer_view_direction,
+            self.viewport_vertical_opening_angle,
+            selected_planet.get_data().get_rotation_axis(),
+            bounds.height,
+        );
         let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for distant_star in celestial_system.get_distant_star_appearances() {
@@ -102,8 +109,9 @@ impl SurfaceViewState {
                 frame,
                 bounds,
                 distant_star,
+                &viewport,
                 &observer_position,
-                &observer_view_direction,
+                &observer_view_direction.to_direction(),
                 pixel_per_viewport_width,
                 display_names,
             );
@@ -113,8 +121,9 @@ impl SurfaceViewState {
             frame,
             bounds,
             celestial_system,
+            &viewport,
             &observer_position,
-            &observer_view_direction,
+            &observer_view_direction.to_direction(),
             pixel_per_viewport_width,
             display_names,
         );
@@ -125,8 +134,9 @@ impl SurfaceViewState {
                 bounds,
                 celestial_system,
                 &planet,
+                &viewport,
                 &observer_position,
-                &observer_view_direction,
+                &observer_view_direction.to_direction(),
                 pixel_per_viewport_width,
                 display_names,
             );
@@ -138,6 +148,7 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
         star: &StarAppearance,
+        viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
@@ -167,6 +178,7 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         celestial_system: &CelestialSystem,
         planet: &Planet,
+        viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
@@ -200,6 +212,7 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
         celestial_system: &CelestialSystem,
+        viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,

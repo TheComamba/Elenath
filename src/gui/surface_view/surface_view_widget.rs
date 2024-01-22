@@ -21,7 +21,7 @@ pub(crate) struct SurfaceViewState {
     pub(super) surface_latitude: Angle,
     pub(super) view_longitude: Angle,
     pub(super) view_latitude: Angle,
-    pub(super) viewport_horizontal_opening_angle: Angle,
+    pub(super) viewport_vertical_opening_angle: Angle,
 }
 
 #[derive(Debug, Clone)]
@@ -48,7 +48,7 @@ impl SurfaceViewState {
             surface_latitude: Angle::ZERO,
             view_longitude: Angle::ZERO,
             view_latitude: Angle::from_degrees(90.),
-            viewport_horizontal_opening_angle: HUMAN_EYE_OPENING_ANGLE,
+            viewport_vertical_opening_angle: HUMAN_EYE_OPENING_ANGLE,
         }
     }
 
@@ -84,7 +84,7 @@ impl SurfaceViewState {
                 } else if angle.as_degrees() > 170. {
                     angle = Angle::from_degrees(170.);
                 }
-                self.viewport_horizontal_opening_angle = angle;
+                self.viewport_vertical_opening_angle = angle;
             }
         }
     }
@@ -127,9 +127,9 @@ impl SurfaceViewState {
             SurfaceViewMessage::UpdateViewLatitude(view_lat + ANGLE_STEP),
         );
 
-        let viewport_angle = self.viewport_horizontal_opening_angle;
+        let viewport_angle = self.viewport_vertical_opening_angle;
         let viewport_angle_control_field = control_field(
-            "Horizontal Viewport Opening Angle:",
+            "Vertical Viewport Opening Angle:",
             format!("{}", viewport_angle),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
