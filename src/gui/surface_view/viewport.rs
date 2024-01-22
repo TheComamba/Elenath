@@ -18,8 +18,23 @@ impl Viewport {
         local_view_direction: &SphericalCoordinates,
         opening_angle: Angle,
         rotation_axis: &Direction,
+        height: f32,
     ) -> Self {
-        todo!()
+        let view_direction = local_view_direction.to_direction();
+        let center_direction = view_direction.active_rotation_to_new_z_axis(observer_normal);
+        let ortho = match center_direction.cross_product(rotation_axis) {
+            Ok(ortho) => ortho,
+            Err(_) => match observer_normal.cross_product(rotation_axis) {
+                Ok(ortho) => ortho,
+                Err(_) => center_direction.some_orthogonal_vector(),
+            },
+        };
+        let top_direction = center_direction.rotated(opening_angle / 2., &ortho);
+        Self {
+            center_direction,
+            top_direction,
+            height,
+        }
     }
 }
 
@@ -47,6 +62,7 @@ mod tests {
 
     const TEST_ACCURACY: f32 = 1e-5;
     const SOME_ANGLE: Angle = Angle::from_radians(1.0);
+    const SOME_HEIGHT: f32 = 100.;
 
     #[test]
     fn view_direction_z_does_not_influence_center_direction_and_makes_rotation_axis_irrelevant() {
@@ -70,6 +86,7 @@ mod tests {
                                     &view_direction,
                                     SOME_ANGLE,
                                     &rotation_axis,
+                                    SOME_HEIGHT,
                                 );
                                 assert!(viewport
                                     .center_direction
@@ -90,14 +107,34 @@ mod tests {
         let south_view = SphericalCoordinates::Y_DIRECTION;
         let east_view = -SphericalCoordinates::X_DIRECTION;
         let north_view = -SphericalCoordinates::Y_DIRECTION;
-        let westward_viewport =
-            Viewport::calculate(&observer_normal, &west_view, SOME_ANGLE, &rotation_axis);
-        let southward_viewport =
-            Viewport::calculate(&observer_normal, &south_view, SOME_ANGLE, &rotation_axis);
-        let eastward_viewport =
-            Viewport::calculate(&observer_normal, &east_view, SOME_ANGLE, &rotation_axis);
-        let northward_viewport =
-            Viewport::calculate(&observer_normal, &north_view, SOME_ANGLE, &rotation_axis);
+        let westward_viewport = Viewport::calculate(
+            &observer_normal,
+            &west_view,
+            SOME_ANGLE,
+            &rotation_axis,
+            SOME_HEIGHT,
+        );
+        let southward_viewport = Viewport::calculate(
+            &observer_normal,
+            &south_view,
+            SOME_ANGLE,
+            &rotation_axis,
+            SOME_HEIGHT,
+        );
+        let eastward_viewport = Viewport::calculate(
+            &observer_normal,
+            &east_view,
+            SOME_ANGLE,
+            &rotation_axis,
+            SOME_HEIGHT,
+        );
+        let northward_viewport = Viewport::calculate(
+            &observer_normal,
+            &north_view,
+            SOME_ANGLE,
+            &rotation_axis,
+            SOME_HEIGHT,
+        );
         assert!(westward_viewport
             .center_direction
             .eq_within(&-&Direction::Y, TEST_ACCURACY));
@@ -142,6 +179,7 @@ mod tests {
                                                 &view_direction,
                                                 SOME_ANGLE,
                                                 &rotation_axis,
+                                                SOME_HEIGHT,
                                             );
 
                                             let ortho = rotation_axis
@@ -174,9 +212,9 @@ mod tests {
             &view_direction,
             Angle::from_degrees(0.0),
             &rotation_axis,
+            SOME_HEIGHT,
         );
         let expected_top_direction = viewport.center_direction;
-        assert!(viewport.height.abs() < TEST_ACCURACY);
         assert!(viewport
             .top_direction
             .eq_within(&expected_top_direction, TEST_ACCURACY));
@@ -192,10 +230,10 @@ mod tests {
             &view_direction,
             Angle::from_degrees(90.0),
             &rotation_axis,
+            SOME_HEIGHT,
         );
 
         let expected_top_direction = Direction::new(1., 0., 1.).unwrap();
-        assert!(viewport.height.abs() < TEST_ACCURACY);
         assert!(viewport
             .top_direction
             .eq_within(&expected_top_direction, TEST_ACCURACY));
@@ -211,10 +249,10 @@ mod tests {
             &view_direction,
             Angle::from_degrees(180.0),
             &rotation_axis,
+            SOME_HEIGHT,
         );
 
         let expected_top_direction = rotation_axis;
-        assert!(viewport.height.abs() < TEST_ACCURACY);
         assert!(viewport
             .top_direction
             .eq_within(&expected_top_direction, TEST_ACCURACY));
