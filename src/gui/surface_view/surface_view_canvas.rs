@@ -1,5 +1,5 @@
 use super::{
-    star_canvas_appearance::{brightness_radius, canvas_color, StarCanvasAppearance},
+    star_canvas_appearance::StarCanvasAppearance,
     surface_view_widget::SurfaceViewState,
     viewport::{observer_normal, Viewport},
 };
@@ -11,10 +11,8 @@ use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
     },
-    planets::surface_normal::direction_relative_to_surface_normal,
     stars::star_appearance::StarAppearance,
     units::{length::Length, time::Time},
-    Float,
 };
 use iced::{
     widget::canvas::{self, Path},
@@ -33,12 +31,6 @@ impl SurfaceViewState {
     ) -> CartesianCoordinates {
         let body_radius = selected_planet.get_data().get_radius();
         selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
-    }
-
-    fn pixel_per_viewport_width(&self, canvas_width: f32) -> Float {
-        let opening_angle = self.viewport_vertical_opening_angle;
-        let viewport_width = (opening_angle / 2.).sin() * 2.; //Viewport is at unit distance
-        canvas_width / viewport_width
     }
 
     pub(crate) fn canvas(
@@ -102,7 +94,6 @@ impl SurfaceViewState {
             selected_planet.get_data().get_rotation_axis(),
             bounds.height,
         );
-        let pixel_per_viewport_width = self.pixel_per_viewport_width(bounds.width);
 
         for distant_star in celestial_system.get_distant_star_appearances() {
             self.draw_star(
@@ -111,8 +102,7 @@ impl SurfaceViewState {
                 distant_star,
                 &viewport,
                 &observer_position,
-                &observer_view_direction.to_direction(),
-                pixel_per_viewport_width,
+                viewport.px_per_unit_height,
                 display_names,
             );
         }
@@ -123,8 +113,7 @@ impl SurfaceViewState {
             celestial_system,
             &viewport,
             &observer_position,
-            &observer_view_direction.to_direction(),
-            pixel_per_viewport_width,
+            viewport.px_per_unit_height,
             display_names,
         );
 
@@ -136,8 +125,7 @@ impl SurfaceViewState {
                 &planet,
                 &viewport,
                 &observer_position,
-                &observer_view_direction.to_direction(),
-                pixel_per_viewport_width,
+                viewport.px_per_unit_height,
                 display_names,
             );
         }
@@ -150,24 +138,15 @@ impl SurfaceViewState {
         star: &StarAppearance,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
-        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
         let canvas_appearance = StarCanvasAppearance::from_star_appearance(star, viewport);
-        let pos = canvas_position(
-            star.get_direction_in_ecliptic(),
-            observer_view_direction,
-            pixel_per_viewport_width,
-        );
         self.draw_body(
-            pos,
             frame,
             bounds,
-            star,
             &canvas_appearance,
             &None,
-            observer_view_direction,
             pixel_per_viewport_width,
             display_names,
             observer_position,
@@ -182,7 +161,6 @@ impl SurfaceViewState {
         planet: &Planet,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
-        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
@@ -194,19 +172,11 @@ impl SurfaceViewState {
 
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&planet_appearance, viewport);
-        let pos = canvas_position(
-            planet_appearance.get_direction_in_ecliptic(),
-            observer_view_direction,
-            pixel_per_viewport_width,
-        );
         self.draw_body(
-            pos,
             frame,
             bounds,
-            &planet_appearance,
             &canvas_appearance,
             &Some(planet.get_data().get_radius()),
-            observer_view_direction,
             pixel_per_viewport_width,
             display_names,
             observer_position,
@@ -220,7 +190,6 @@ impl SurfaceViewState {
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
-        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
@@ -231,19 +200,11 @@ impl SurfaceViewState {
         central_body_appearance.set_direction_in_ecliptic(central_body_dir);
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&central_body_appearance, viewport);
-        let pos = canvas_position(
-            central_body_appearance.get_direction_in_ecliptic(),
-            observer_view_direction,
-            pixel_per_viewport_width,
-        );
         self.draw_body(
-            pos,
             frame,
             bounds,
-            &central_body_appearance,
             &canvas_appearance,
             &celestial_system.get_central_body_data().get_radius(),
-            observer_view_direction,
             pixel_per_viewport_width,
             display_names,
             observer_position,
@@ -252,27 +213,18 @@ impl SurfaceViewState {
 
     fn draw_body(
         &self,
-        pos: Option<iced::Vector>,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        appearance: &StarAppearance,
         canvas_appearance: &Option<StarCanvasAppearance>,
         radius: &Option<Length>,
-        observer_view_direction: &Direction,
         pixel_per_viewport_width: f32,
         display_names: bool,
         observer_position: &CartesianCoordinates,
     ) {
         if let Some(canvas_appearance) = canvas_appearance {
             let pos = frame.center() + canvas_appearance.center_offset;
-            let color = canvas_color(&appearance);
-            self.draw_hue(
-                frame,
-                &appearance,
-                &canvas_appearance,
-                observer_view_direction,
-                pixel_per_viewport_width,
-            );
+            let color = canvas_appearance.color;
+            self.draw_hue(frame, &canvas_appearance);
 
             if !contains_workaround(&bounds, pos) {
                 return;
@@ -291,19 +243,12 @@ impl SurfaceViewState {
             }
 
             if display_names {
-                draw_name(appearance.get_name(), color, pos, frame);
+                draw_name(canvas_appearance.name, color, pos, frame);
             }
         }
     }
 
-    fn draw_hue(
-        &self,
-        frame: &mut canvas::Frame,
-        appearance: &StarAppearance,
-        canvas_appearance: &StarCanvasAppearance,
-        observer_view_direction: &Direction,
-        pixel_per_viewport_width: f32,
-    ) {
+    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &StarCanvasAppearance) {
         // Radial gradients are not yet impelemented in iced.
         let pos: Point = frame.center() + canvas_appearance.center_offset;
         let mut gradient_color = canvas_appearance.color.clone();
@@ -340,44 +285,6 @@ fn display_planet_selection_text(frame: &mut canvas::Frame) {
     name_widget.content = "Please select a planet.".to_string();
     name_widget.position = frame.center();
     frame.fill_text(name_widget)
-}
-
-fn fake_gradient(
-    appearance: &StarCanvasAppearance,
-    color: Color,
-    brightness_radius: f32,
-    pos: Point,
-    frame: &mut canvas::Frame,
-) {
-    // Radial gradients are not yet impelemented in iced.
-    let pos: Point = frame.center() + appearance.center_offset;
-    let mut gradient_color = appearance.color.clone();
-    gradient_color.a = (GRADIENT_ALPHA as f32) / (GRADIENT_STEPS as f32);
-    for i in 1..=GRADIENT_STEPS {
-        let radius = appearance.radius
-            * (i as f32 / (GRADIENT_STEPS as f32)).powi(GRADIENT_SHARPNESS_EXPONENT);
-        let brightness_circle = Path::circle(pos, radius);
-        frame.fill(&brightness_circle, gradient_color);
-    }
-}
-
-fn canvas_position(
-    direction_in_ecliptic: &Direction,
-    observer_view_direction: &Direction,
-    pixel_per_viewport_width: Float,
-) -> Option<iced::Vector> {
-    let direction = direction_relative_to_surface_normal(
-        &direction_in_ecliptic,
-        observer_view_direction,
-        &Direction::Z,
-    );
-    if direction.z() > 0.0 {
-        let x = direction.x() * pixel_per_viewport_width;
-        let y = -direction.y() * pixel_per_viewport_width; // y axis is inverted
-        Some(iced::Vector::new(x as f32, y as f32))
-    } else {
-        None
-    }
 }
 
 fn canvas_apparent_radius(

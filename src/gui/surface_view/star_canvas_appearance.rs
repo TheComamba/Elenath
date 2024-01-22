@@ -49,7 +49,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     }
 }
 
-pub(super) fn brightness_radius(brightness: &Illuminance) -> f32 {
+fn brightness_radius(brightness: &Illuminance) -> f32 {
     let lux = brightness.as_lux();
     let size = lux.sqrt() * StarCanvasAppearance::BRIGHTNESS_FACTOR;
     if size > 1e5 {
@@ -59,7 +59,7 @@ pub(super) fn brightness_radius(brightness: &Illuminance) -> f32 {
     }
 }
 
-pub(super) fn canvas_color(body: &StarAppearance) -> Color {
+fn canvas_color(body: &StarAppearance) -> Color {
     let (r, g, b) = body.get_color().maximized_sRGB_tuple();
     let color = Color::from_rgb(r, g, b);
     color
