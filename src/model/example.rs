@@ -14,7 +14,7 @@ pub(crate) fn solar_system() -> CelestialSystem {
     system.add_planet_data(NEPTUNE.to_planet_data());
     system.add_planet_data(PLUTO.to_planet_data());
 
-    for data in STARS_TO_TWO_POINT_FIVE_APPARENT_MAG {
+    for data in BRIGHTEST_STARS.iter() {
         system.add_star_from_data(data.to_star_data());
     }
 

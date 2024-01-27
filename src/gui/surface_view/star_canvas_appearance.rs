@@ -14,7 +14,7 @@ pub(super) struct StarCanvasAppearance<'a> {
 }
 
 impl<'a> StarCanvasAppearance<'a> {
-    pub(super) const MIN_RADIUS: f32 = 0.5;
+    pub(super) const MIN_RADIUS: f32 = 1.;
     const MAX_RADIUS: f32 = 1e5;
     const LUX_AT_MIN_RADIUS: f32 = 2.1e-7; //Apparent Magnitude of 2.5
 
