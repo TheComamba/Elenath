@@ -1,8 +1,8 @@
-use super::celestial_system::CelestialSystem;
+use super::celestial_system::{CelestialSystem, SystemType};
 use astro_utils::data::{planets::*, stars::*};
 
 pub(crate) fn solar_system() -> CelestialSystem {
-    let mut system = CelestialSystem::new(SUN_DATA.to_star_data());
+    let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
     system.add_planet_data(MERCURY.to_planet_data());
     system.add_planet_data(VENUS.to_planet_data());
     system.add_planet_data(EARTH.to_planet_data());

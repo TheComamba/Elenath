@@ -11,15 +11,23 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct CelestialSystem {
+    system_type: SystemType,
     central_body: Star,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
 }
 
+#[derive(Serialize, Deserialize)]
+pub(crate) enum SystemType {
+    Real,
+    Generated,
+}
+
 impl CelestialSystem {
-    pub(crate) fn new(central_body_data: StarData) -> Self {
+    pub(crate) fn new(system_type: SystemType, central_body_data: StarData) -> Self {
         let central_body = Star::from_data(central_body_data);
         CelestialSystem {
+            system_type,
             central_body,
             planets: vec![],
             distant_stars: vec![],
