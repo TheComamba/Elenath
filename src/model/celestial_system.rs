@@ -120,4 +120,11 @@ impl CelestialSystem {
         }
         bodies
     }
+
+    pub(crate) fn is_generated(&self) -> bool {
+        match self.system_type {
+            SystemType::Generated => true,
+            SystemType::Real => false,
+        }
+    }
 }

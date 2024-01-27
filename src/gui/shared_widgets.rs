@@ -28,23 +28,32 @@ impl Gui {
     pub(super) fn adding_buttons() -> iced::Element<'static, GuiMessage> {
         let add_planet_button = std_button("Add Planet", GuiMessage::AddPlanet);
         let add_star_button = std_button("Add Star", GuiMessage::AddStar);
-        let generate_stars_button = std_button("Generate Stars", GuiMessage::GenerateStars);
-        let fetch_gaia_data_button = std_button("Fetch Gaia Data", GuiMessage::FetchGaiaData);
         Row::new()
             .push(add_planet_button)
             .push(add_star_button)
-            .push(generate_stars_button)
-            .push(fetch_gaia_data_button)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
 
-    pub(super) fn file_buttons() -> iced::Element<'static, GuiMessage> {
+    pub(super) fn real_system_file_buttons() -> iced::Element<'static, GuiMessage> {
+        let new_button = std_button("New system", GuiMessage::NewSystem);
+        let open_file_button = std_button("Open file", GuiMessage::OpenFile);
+        Row::new()
+            .push(new_button)
+            .push(open_file_button)
+            .align_items(Alignment::Center)
+            .spacing(PADDING)
+            .into()
+    }
+
+    pub(super) fn generated_system_file_buttons() -> iced::Element<'static, GuiMessage> {
+        let new_button = std_button("New system", GuiMessage::NewSystem);
         let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
         let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
         let open_file_button = std_button("Open file", GuiMessage::OpenFile);
         Row::new()
+            .push(new_button)
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)

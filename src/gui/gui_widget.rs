@@ -7,9 +7,13 @@ use super::{
 };
 use crate::{
     file_dialog,
-    model::{celestial_system::CelestialSystem, example::solar_system},
+    model::{
+        celestial_system::{CelestialSystem, SystemType},
+        example::solar_system,
+    },
 };
 use astro_utils::{
+    data::stars::SUN_DATA,
     stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::{length::Length, time::Time},
 };
@@ -26,6 +30,7 @@ pub(super) const BIG_COLUMN_WIDTH: f32 = 3.5 * SMALL_COLUMN_WIDTH;
 pub(crate) enum GuiMessage {
     UpdateSurfaceView(SurfaceViewMessage),
     UpdateTopView(TopViewMessage),
+    NewSystem,
     SaveToFile,
     SaveToNewFile,
     OpenFile,
@@ -77,6 +82,10 @@ impl Sandbox for Gui {
             }
             GuiMessage::UpdateTopView(message) => {
                 self.top_view_state.update(message);
+            }
+            GuiMessage::NewSystem => {
+                self.celestial_system =
+                    CelestialSystem::new(SystemType::Generated, SUN_DATA.to_star_data());
             }
             GuiMessage::AddPlanet => {
                 todo!("Implement adding planets.");
@@ -141,12 +150,15 @@ impl Sandbox for Gui {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        let toprow = Row::new()
-            .push(Gui::gui_mode_tabs())
-            .push(Gui::adding_buttons())
-            .push(Gui::file_buttons())
-            .padding(PADDING)
-            .spacing(PADDING);
+        let mut toprow = Row::new().push(Gui::gui_mode_tabs());
+        if self.celestial_system.is_generated() {
+            toprow = toprow
+                .push(Gui::adding_buttons())
+                .push(Gui::generated_system_file_buttons());
+        } else {
+            toprow = toprow.push(Gui::real_system_file_buttons());
+        }
+        toprow = toprow.padding(PADDING).spacing(PADDING);
         let mut col = Column::new().push(toprow);
 
         match self.mode {
