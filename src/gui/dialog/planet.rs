@@ -7,7 +7,7 @@ use astro_utils::{
     units::{angle::Angle, length::Length, mass::Mass, time::Time},
 };
 use iced::{
-    widget::{component, Column, Component, TextInput},
+    widget::{component, Column, Component},
     Element, Renderer,
 };
 
@@ -16,12 +16,14 @@ pub(crate) struct PlanetDialog {
     planet: PlanetData,
     mass_string: String,
     radius_string: String,
+    geometric_albedo_string: String,
     semi_major_axis_string: String,
     eccentricity_string: String,
     inclination_string: String,
     longitude_of_ascending_node_string: String,
     argument_of_periapsis_string: String,
     siderial_rotation_period_string: String,
+    rotation_axis_string: String,
 }
 
 impl PlanetDialog {
@@ -30,6 +32,7 @@ impl PlanetDialog {
             planet: planet.clone(),
             mass_string: planet.get_mass().as_earth_masses().to_string(),
             radius_string: planet.get_radius().as_earth_radii().to_string(),
+            geometric_albedo_string: planet.get_geometric_albedo().to_string(),
             semi_major_axis_string: planet
                 .get_orbital_parameters()
                 .get_semi_major_axis()
@@ -58,6 +61,7 @@ impl PlanetDialog {
                 .get_sideral_rotation_period()
                 .as_days()
                 .to_string(),
+            rotation_axis_string: planet.get_rotation_axis().to_string(),
         }
     }
 
@@ -75,12 +79,14 @@ impl PlanetDialog {
             ),
             mass_string: String::new(),
             radius_string: String::new(),
+            geometric_albedo_string: String::new(),
             semi_major_axis_string: String::new(),
             eccentricity_string: String::new(),
             inclination_string: String::new(),
             longitude_of_ascending_node_string: String::new(),
             argument_of_periapsis_string: String::new(),
             siderial_rotation_period_string: String::new(),
+            rotation_axis_string: String::new(),
         }
     }
 }
@@ -100,12 +106,14 @@ pub(crate) enum PlanetDialogEvent {
     NameChanged(String),
     MassChanged(String),
     RadiusChanged(String),
+    GeometricAlbedoChanged(String),
     SemiMajorAxisChanged(String),
     EccentricityChanged(String),
     InclinationChanged(String),
     LongitudeOfAscendingNodeChanged(String),
     ArgumentOfPeriapsisChanged(String),
     SiderialRotationPeriodChanged(String),
+    RotationAxisChanged(String),
     Submit,
 }
 
@@ -128,6 +136,13 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
         let radius = edit("Radius", &self.radius_string, "", "Earth Radii", |t| {
             PlanetDialogEvent::RadiusChanged(t)
         });
+        let geometric_albedo = edit(
+            "Geometric Albedo",
+            &self.geometric_albedo_string,
+            "",
+            "",
+            |t| PlanetDialogEvent::GeometricAlbedoChanged(t),
+        );
         let semi_major_axis = edit(
             "Semi Major Axis",
             &self.semi_major_axis_string,
@@ -162,17 +177,22 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             "Earth Days",
             |t| PlanetDialogEvent::SiderialRotationPeriodChanged(t),
         );
+        let rotation_axis = edit("Rotation Axis", &self.rotation_axis_string, "", "", |t| {
+            PlanetDialogEvent::RotationAxisChanged(t)
+        });
 
         Column::new()
             .push(name)
             .push(mass)
             .push(radius)
+            .push(geometric_albedo)
             .push(semi_major_axis)
             .push(eccentricity)
             .push(inclination)
             .push(longitude_of_ascending_node)
             .push(argument_of_periapsis)
             .push(siderial_rotation_period)
+            .push(rotation_axis)
             .spacing(PADDING)
             .into()
     }
