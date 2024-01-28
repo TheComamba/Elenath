@@ -1,5 +1,5 @@
 use super::table_col_data::TableColData;
-use crate::gui::gui_widget::GuiMessage;
+use crate::gui::message::GuiMessage;
 use astro_utils::{planets::planet_data::PlanetData, stars::star_data::StarData};
 use iced::{
     widget::{

@@ -1,5 +1,6 @@
 use crate::gui::{
-    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING},
+    gui_widget::{BIG_COLUMN_WIDTH, PADDING},
+    message::GuiMessage,
     shared_widgets::control_field,
 };
 use astro_utils::{

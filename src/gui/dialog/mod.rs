@@ -1,10 +1,11 @@
-use super::gui_widget::GuiMessage;
+use super::message::GuiMessage;
 use iced::{
     widget::{Container, Scrollable, Text},
     Element, Renderer,
 };
 use iced_aw::{style::CardStyles, Card};
 
+pub(crate) mod error;
 pub(crate) mod new_system;
 
 pub(crate) trait Dialog {

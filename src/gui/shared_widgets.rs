@@ -1,5 +1,6 @@
 use super::{
-    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
+    gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
+    message::GuiMessage,
     Gui, GuiMode,
 };
 use astro_utils::{planets::planet_data::PlanetData, units::time::Time};

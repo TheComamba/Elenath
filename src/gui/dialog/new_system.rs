@@ -1,6 +1,6 @@
 use super::Dialog;
 use crate::{
-    gui::gui_widget::{GuiMessage, PADDING},
+    gui::{gui_widget::PADDING, message::GuiMessage},
     model::{
         celestial_system::{CelestialSystem, SystemType},
         new_celestial_system::{generated_system, solar_system},

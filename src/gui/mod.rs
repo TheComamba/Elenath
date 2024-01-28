@@ -11,6 +11,7 @@ use std::path::PathBuf;
 
 mod dialog;
 mod gui_widget;
+mod message;
 mod shared_canvas_functionality;
 mod shared_widgets;
 mod surface_view;
