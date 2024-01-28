@@ -9,7 +9,7 @@ use crate::{
 };
 use astro_utils::{units::length::Length, Float};
 use iced::{
-    widget::{component, Button, Column, Component, Radio, Row, Text, TextInput, Toggler},
+    widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
     Element, Renderer,
 };
 

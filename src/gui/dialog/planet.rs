@@ -1,5 +1,5 @@
 use super::Dialog;
-use crate::gui::{gui_widget::PADDING, message::GuiMessage};
+use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 use astro_utils::{
     color::sRGBColor,
     coordinates::direction::Direction,
@@ -14,11 +14,51 @@ use iced::{
 #[derive(Debug, Clone)]
 pub(crate) struct PlanetDialog {
     planet: PlanetData,
+    mass_string: String,
+    radius_string: String,
+    semi_major_axis_string: String,
+    eccentricity_string: String,
+    inclination_string: String,
+    longitude_of_ascending_node_string: String,
+    argument_of_periapsis_string: String,
+    siderial_rotation_period_string: String,
 }
 
 impl PlanetDialog {
     pub(crate) fn edit(planet: PlanetData) -> Self {
-        PlanetDialog { planet }
+        PlanetDialog {
+            planet: planet.clone(),
+            mass_string: planet.get_mass().as_earth_masses().to_string(),
+            radius_string: planet.get_radius().as_earth_radii().to_string(),
+            semi_major_axis_string: planet
+                .get_orbital_parameters()
+                .get_semi_major_axis()
+                .as_astronomical_units()
+                .to_string(),
+            eccentricity_string: planet
+                .get_orbital_parameters()
+                .get_eccentricity()
+                .to_string(),
+            inclination_string: planet
+                .get_orbital_parameters()
+                .get_inclination()
+                .as_degrees()
+                .to_string(),
+            longitude_of_ascending_node_string: planet
+                .get_orbital_parameters()
+                .get_longitude_of_ascending_node()
+                .as_degrees()
+                .to_string(),
+            argument_of_periapsis_string: planet
+                .get_orbital_parameters()
+                .get_argument_of_periapsis()
+                .as_degrees()
+                .to_string(),
+            siderial_rotation_period_string: planet
+                .get_sideral_rotation_period()
+                .as_days()
+                .to_string(),
+        }
     }
 
     pub(crate) fn new() -> Self {
@@ -33,6 +73,14 @@ impl PlanetDialog {
                 Time::ZERO,
                 Direction::Z,
             ),
+            mass_string: String::new(),
+            radius_string: String::new(),
+            semi_major_axis_string: String::new(),
+            eccentricity_string: String::new(),
+            inclination_string: String::new(),
+            longitude_of_ascending_node_string: String::new(),
+            argument_of_periapsis_string: String::new(),
+            siderial_rotation_period_string: String::new(),
         }
     }
 }
@@ -71,71 +119,49 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
     }
 
     fn view(&self, _state: &Self::State) -> iced::Element<'_, Self::Event> {
-        let name = TextInput::new("Name", &self.planet.get_name())
-            .on_input(PlanetDialogEvent::NameChanged)
-            .padding(PADDING);
-        let mass = TextInput::new("Mass", &self.planet.get_mass().to_string())
-            .on_input(PlanetDialogEvent::MassChanged)
-            .padding(PADDING);
-        let radius = TextInput::new("Radius", &self.planet.get_radius().to_string())
-            .on_input(PlanetDialogEvent::RadiusChanged)
-            .padding(PADDING);
-        let semi_major_axis = TextInput::new(
+        let name = edit("Name", self.planet.get_name(), "", "", |t| {
+            PlanetDialogEvent::NameChanged(t)
+        });
+        let mass = edit("Mass", &self.mass_string, "", "Earth Masses", |t| {
+            PlanetDialogEvent::MassChanged(t)
+        });
+        let radius = edit("Radius", &self.radius_string, "", "Earth Radii", |t| {
+            PlanetDialogEvent::RadiusChanged(t)
+        });
+        let semi_major_axis = edit(
             "Semi Major Axis",
-            &self
-                .planet
-                .get_orbital_parameters()
-                .get_semi_major_axis()
-                .to_string(),
-        )
-        .on_input(PlanetDialogEvent::SemiMajorAxisChanged)
-        .padding(PADDING);
-        let eccentricity = TextInput::new(
-            "Eccentricity",
-            &self
-                .planet
-                .get_orbital_parameters()
-                .get_eccentricity()
-                .to_string(),
-        )
-        .on_input(PlanetDialogEvent::EccentricityChanged)
-        .padding(PADDING);
-        let inclination = TextInput::new(
-            "Inclination",
-            &self
-                .planet
-                .get_orbital_parameters()
-                .get_inclination()
-                .to_string(),
-        )
-        .on_input(PlanetDialogEvent::InclinationChanged)
-        .padding(PADDING);
-        let longitude_of_ascending_node = TextInput::new(
+            &self.semi_major_axis_string,
+            "",
+            "AU",
+            |t| PlanetDialogEvent::SemiMajorAxisChanged(t),
+        );
+        let eccentricity = edit("Eccentricity", &self.eccentricity_string, "", "", |t| {
+            PlanetDialogEvent::EccentricityChanged(t)
+        });
+        let inclination = edit("Inclination", &self.inclination_string, "", "°", |t| {
+            PlanetDialogEvent::InclinationChanged(t)
+        });
+        let longitude_of_ascending_node = edit(
             "Longitude of Ascending Node",
-            &self
-                .planet
-                .get_orbital_parameters()
-                .get_longitude_of_ascending_node()
-                .to_string(),
-        )
-        .on_input(PlanetDialogEvent::LongitudeOfAscendingNodeChanged)
-        .padding(PADDING);
-        let argument_of_periapsis = TextInput::new(
+            &self.longitude_of_ascending_node_string,
+            "",
+            "°",
+            |t| PlanetDialogEvent::LongitudeOfAscendingNodeChanged(t),
+        );
+        let argument_of_periapsis = edit(
             "Argument of Periapsis",
-            &self
-                .planet
-                .get_orbital_parameters()
-                .get_argument_of_periapsis()
-                .to_string(),
-        )
-        .on_input(PlanetDialogEvent::ArgumentOfPeriapsisChanged)
-        .padding(PADDING);
-        let siderial_rotation_period = TextInput::new(
+            &self.argument_of_periapsis_string,
+            "",
+            "°",
+            |t| PlanetDialogEvent::ArgumentOfPeriapsisChanged(t),
+        );
+        let siderial_rotation_period = edit(
             "Siderial Rotation Period",
-            &self.planet.get_sideral_rotation_period().to_string(),
-        )
-        .on_input(PlanetDialogEvent::SiderialRotationPeriodChanged)
-        .padding(PADDING);
+            &self.siderial_rotation_period_string,
+            "",
+            "Earth Days",
+            |t| PlanetDialogEvent::SiderialRotationPeriodChanged(t),
+        );
 
         Column::new()
             .push(name)

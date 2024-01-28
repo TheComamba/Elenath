@@ -3,7 +3,7 @@ use super::{
     message::GuiMessage,
     Gui, GuiMode,
 };
-use astro_utils::{ planets::planet_data::PlanetData, units::time::Time};
+use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
@@ -185,9 +185,18 @@ where
     F: 'a + Fn(String) -> M,
     M: 'a + Clone,
 {
-    let description = Text::new(description);
-    let data = TextInput::new(placeholder, &data).on_input(message);
-    let units = Text::new(units);
+    let description = if description.ends_with(":") {
+        description.to_string()
+    } else {
+        format!("{}:", description)
+    };
+    let description = Text::new(description)
+        .width(BIG_COLUMN_WIDTH)
+        .horizontal_alignment(Horizontal::Right);
+    let data = TextInput::new(placeholder, &data)
+        .on_input(message)
+        .width(BIG_COLUMN_WIDTH);
+    let units = Text::new(units).width(BIG_COLUMN_WIDTH);
     Row::new()
         .push(description)
         .push(data)
