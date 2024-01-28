@@ -9,7 +9,7 @@ impl TableColData<PlanetData> {
     pub(super) fn default_planet_col_data() -> Vec<TableColData<PlanetData>> {
         vec![
             TableColData {
-                header: "Name",
+                header: "Planet Name",
                 content_closure: Box::new(|body| body.get_name().to_string()),
             },
             TableColData {
@@ -77,7 +77,7 @@ impl TableColData<StarData> {
     pub(super) fn default_star_col_data() -> Vec<TableColData<StarData>> {
         vec![
             TableColData {
-                header: "Name",
+                header: "Star Name",
                 content_closure: Box::new(|body| body.get_name().to_string()),
             },
             TableColData {
