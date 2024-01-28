@@ -30,11 +30,14 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> CelestialSystem {
     system
 }
 
-pub(crate) fn generated_system() -> CelestialSystem {
-    let central_body_data = SUN_DATA.to_star_data();
+pub(crate) fn generated_system(max_distance: Length) -> CelestialSystem {
+    let mut sun = SUN_DATA;
+    sun.common_name = "Central Star";
+    sun.astronomical_name = "";
+    let central_body_data = sun.to_star_data();
     let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
 
-    let distant_stars = generate_random_stars(Length::from_light_years(100.0)).unwrap();
+    let distant_stars = generate_random_stars(max_distance).unwrap();
 
     for star in distant_stars {
         system.add_star_from_data(star);

@@ -6,8 +6,9 @@ use crate::{
         new_celestial_system::{generated_system, solar_system},
     },
 };
+use astro_utils::{units::length::Length, Float};
 use iced::{
-    widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
+    widget::{component, Button, Column, Component, Radio, Row, Text, TextInput, Toggler},
     Element, Renderer,
 };
 
@@ -15,6 +16,8 @@ use iced::{
 pub(crate) struct NewSystemDialog {
     system_type: SystemType,
     load_gaia_data: bool,
+    max_generation_distance_text: String,
+    max_generation_distance: Length,
 }
 
 impl NewSystemDialog {
@@ -22,13 +25,15 @@ impl NewSystemDialog {
         NewSystemDialog {
             system_type: SystemType::Real,
             load_gaia_data: false,
+            max_generation_distance_text: String::new(),
+            max_generation_distance: Length::ZERO,
         }
     }
 
     fn celestial_system(&self) -> CelestialSystem {
         match self.system_type {
             SystemType::Real => solar_system(self.load_gaia_data),
-            SystemType::Generated => generated_system(),
+            SystemType::Generated => generated_system(self.max_generation_distance),
         }
     }
 }
@@ -47,6 +52,7 @@ impl Dialog for NewSystemDialog {
 pub(crate) enum NewSystemDialogEvent {
     SystemTypeSelected(SystemType),
     LoadGaiaDataSelected(bool),
+    MaxGenerationDistanceChanged(String),
     Submit,
 }
 
@@ -62,6 +68,13 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             }
             NewSystemDialogEvent::LoadGaiaDataSelected(load_gaia_data) => {
                 self.load_gaia_data = load_gaia_data;
+            }
+            NewSystemDialogEvent::MaxGenerationDistanceChanged(max_generation_distance_text) => {
+                if let Ok(max_generation_distance) = max_generation_distance_text.parse::<Float>() {
+                    self.max_generation_distance_text = max_generation_distance_text;
+                    self.max_generation_distance =
+                        Length::from_light_years(max_generation_distance);
+                }
             }
             NewSystemDialogEvent::Submit => {
                 return Some(GuiMessage::NewSystemDialogSubmit(self.celestial_system()));
@@ -101,7 +114,15 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                 col = col.push(load_gaia_data_toggler);
             }
             SystemType::Generated => {
-                // Do nothing.
+                let text = Text::new(
+                    "Maximum distance at which new stars are generated, in units of light years",
+                );
+                let max_generation_distance_input = TextInput::new(
+                    "Pick 100 for a quick test population, and 2000 for a time-consuming but realistic generation.",
+                    &self.max_generation_distance_text,
+                )
+                .on_input(NewSystemDialogEvent::MaxGenerationDistanceChanged);
+                col = col.push(text).push(max_generation_distance_input);
             }
         }
 
