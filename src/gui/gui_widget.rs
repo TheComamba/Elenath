@@ -88,9 +88,7 @@ impl Sandbox for Gui {
                 self.top_view_state.update(message);
             }
             GuiMessage::NewSystem => {
-                self.dialog = Some(Box::new(NewSystemDialog::default()));
-                self.celestial_system =
-                    CelestialSystem::new(SystemType::Generated, SUN_DATA.to_star_data());
+                self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
             GuiMessage::AddPlanet => {
                 todo!("Implement adding planets.");

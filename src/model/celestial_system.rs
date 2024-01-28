@@ -17,7 +17,7 @@ pub(crate) struct CelestialSystem {
     distant_stars: Vec<Star>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SystemType {
     Real,
     Generated,
