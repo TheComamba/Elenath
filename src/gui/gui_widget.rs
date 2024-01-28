@@ -20,8 +20,9 @@ use astro_utils::{
 };
 use iced::{
     widget::{canvas, Column, Row},
-    Sandbox,
+    Element, Sandbox,
 };
+use iced_aw::Modal;
 
 pub(super) const PADDING: f32 = 10.0;
 pub(super) const SMALL_COLUMN_WIDTH: f32 = 150.0;
@@ -157,6 +158,57 @@ impl Sandbox for Gui {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
+        Modal::new(
+            self.main_view(),
+            self.dialog.as_ref().map(|d| d.to_element()),
+        )
+        .on_esc(GuiMessage::DialogClosed)
+        .into()
+    }
+
+    fn theme(&self) -> iced::Theme {
+        iced::Theme::Dark
+    }
+}
+
+impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        renderer: &iced::Renderer,
+        _theme: &iced::theme::Theme,
+        bounds: iced::Rectangle,
+        _cursor: iced::mouse::Cursor,
+    ) -> Vec<canvas::Geometry> {
+        match self.mode {
+            GuiMode::SurfaceView => self.surface_view_state.canvas(
+                renderer,
+                bounds,
+                &self.get_selected_planet(),
+                &self.celestial_system,
+                self.time_since_epoch,
+                self.display_names,
+            ),
+            GuiMode::TopView => self.top_view_state.canvas(
+                renderer,
+                bounds,
+                &self.get_selected_planet(),
+                &self.celestial_system,
+                self.time_since_epoch,
+                self.display_names,
+            ),
+            _ => {
+                println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
+                vec![]
+            }
+        }
+    }
+}
+
+impl Gui {
+    fn main_view(&self) -> Element<'_, GuiMessage> {
         let mut toprow = Row::new().push(Gui::gui_mode_tabs());
         if self.celestial_system.is_generated() {
             toprow = toprow
@@ -213,45 +265,5 @@ impl Sandbox for Gui {
             .height(iced::Length::Fill)
             .spacing(PADDING)
             .into()
-    }
-
-    fn theme(&self) -> iced::Theme {
-        iced::Theme::Dark
-    }
-}
-
-impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
-    type State = ();
-
-    fn draw(
-        &self,
-        _state: &Self::State,
-        renderer: &iced::Renderer,
-        _theme: &iced::theme::Theme,
-        bounds: iced::Rectangle,
-        _cursor: iced::mouse::Cursor,
-    ) -> Vec<canvas::Geometry> {
-        match self.mode {
-            GuiMode::SurfaceView => self.surface_view_state.canvas(
-                renderer,
-                bounds,
-                &self.get_selected_planet(),
-                &self.celestial_system,
-                self.time_since_epoch,
-                self.display_names,
-            ),
-            GuiMode::TopView => self.top_view_state.canvas(
-                renderer,
-                bounds,
-                &self.get_selected_planet(),
-                &self.celestial_system,
-                self.time_since_epoch,
-                self.display_names,
-            ),
-            _ => {
-                println!("Invalid Gui state: Canvas Program is called from a Gui mode that does not have a canvas.");
-                vec![]
-            }
-        }
     }
 }
