@@ -8,16 +8,9 @@ use super::{
 };
 use crate::{
     file_dialog,
-    model::{
-        celestial_system::{CelestialSystem, SystemType},
-        new_celestial_system::solar_system,
-    },
+    model::{celestial_system::CelestialSystem, new_celestial_system::solar_system},
 };
-use astro_utils::{
-    data::stars::SUN_DATA,
-    stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
-    units::{length::Length, time::Time},
-};
+use astro_utils::units::time::Time;
 use iced::{
     widget::{canvas, Column, Row},
     Element, Sandbox,
@@ -40,7 +33,6 @@ pub(crate) enum GuiMessage {
     ModeSelected(GuiMode),
     AddPlanet,
     AddStar,
-    GenerateStars,
     UpdateTime(Time),
     UpdateTimeStep(Time),
     PlanetSelected(String),
@@ -99,13 +91,6 @@ impl Sandbox for Gui {
             GuiMessage::NewSystemDialogSubmit(celestial_system) => {
                 self.celestial_system = celestial_system;
                 self.dialog = None;
-            }
-            GuiMessage::GenerateStars => {
-                let max_distance = Length::from_light_years(100.0);
-                let stars = generate_random_stars(max_distance).unwrap();
-                for star_data in stars {
-                    self.celestial_system.add_star_from_data(star_data);
-                }
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {
