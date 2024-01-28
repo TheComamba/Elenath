@@ -1,3 +1,4 @@
+use self::dialog::Dialog;
 use self::gui_widget::GuiMode;
 use self::surface_view::surface_view_widget::SurfaceViewState;
 use self::table_view::table_view_widget::TableViewState;
@@ -8,6 +9,7 @@ use astro_utils::planets::planet_data::PlanetData;
 use astro_utils::units::time::Time;
 use std::path::PathBuf;
 
+mod dialog;
 mod gui_widget;
 mod shared_canvas_functionality;
 mod shared_widgets;
@@ -26,6 +28,7 @@ pub(crate) struct Gui {
     celestial_system: CelestialSystem,
     selected_planet_name: String,
     display_names: bool,
+    pub(crate) dialog: Option<Box<dyn Dialog>>,
 }
 
 impl Gui {

@@ -1,4 +1,5 @@
 use super::{
+    dialog::new_system::NewSystemDialog,
     shared_widgets::surface_and_top_view_shared_control,
     surface_view::surface_view_widget::{SurfaceViewMessage, SurfaceViewState},
     table_view::table_view_widget::TableViewState,
@@ -43,6 +44,7 @@ pub(crate) enum GuiMessage {
     UpdateTimeStep(Time),
     PlanetSelected(String),
     SetShowNames(bool),
+    DialogClosed,
 }
 
 #[derive(Debug, Clone)]
@@ -68,6 +70,7 @@ impl Sandbox for Gui {
             celestial_system,
             selected_planet_name: String::new(),
             display_names: true,
+            dialog: None,
         }
     }
 
@@ -84,6 +87,7 @@ impl Sandbox for Gui {
                 self.top_view_state.update(message);
             }
             GuiMessage::NewSystem => {
+                self.dialog = Some(Box::new(NewSystemDialog::default()));
                 self.celestial_system =
                     CelestialSystem::new(SystemType::Generated, SUN_DATA.to_star_data());
             }
@@ -144,6 +148,9 @@ impl Sandbox for Gui {
             }
             GuiMessage::SetShowNames(display_names) => {
                 self.display_names = display_names;
+            }
+            GuiMessage::DialogClosed => {
+                self.dialog = None;
             }
         }
         self.redraw();
