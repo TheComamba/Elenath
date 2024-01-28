@@ -3,10 +3,10 @@ use super::{
     message::GuiMessage,
     Gui, GuiMode,
 };
-use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
+use astro_utils::{ planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
-    widget::{Button, Column, Container, PickList, Row, Text, Toggler},
+    widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
     Alignment, Renderer,
 };
 use iced_aw::Element;
@@ -174,6 +174,24 @@ where
         .align_items(Alignment::Center)
 }
 
-pub(crate) fn edit<'a>() -> Element<'a, GuiMessage, Renderer> {
-    Row::new().into()
+pub(crate) fn edit<'a, F, M>(
+    description: &'static str,
+    data: &String,
+    placeholder: &'static str,
+    units: &'static str,
+    message: F,
+) -> Element<'a, M, Renderer>
+where
+    F: 'a + Fn(String) -> M,
+    M: 'a + Clone,
+{
+    let description = Text::new(description);
+    let data = TextInput::new(placeholder, &data).on_input(message);
+    let units = Text::new(units);
+    Row::new()
+        .push(description)
+        .push(data)
+        .push(units)
+        .spacing(PADDING)
+        .into()
 }

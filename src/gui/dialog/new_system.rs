@@ -1,7 +1,7 @@
 use super::Dialog;
 use crate::{
     error::ElenathError,
-    gui::{gui_widget::PADDING, message::GuiMessage},
+    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
     model::{
         celestial_system::{CelestialSystem, SystemType},
         new_celestial_system::{generated_system, solar_system},
@@ -115,15 +115,14 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                 col = col.push(load_gaia_data_toggler);
             }
             SystemType::Generated => {
-                let text = Text::new(
-                    "Maximum distance at which new stars are generated, in units of light years",
-                );
-                let max_generation_distance_input = TextInput::new(
-                    "Pick 100 for a quick test population, and 2000 for a time-consuming but realistic generation.",
+                let max_generation_distance_input = edit(
+                    "Maximum distance at which new stars are generated:",
                     &self.max_generation_distance_text,
-                )
-                .on_input(NewSystemDialogEvent::MaxGenerationDistanceChanged);
-                col = col.push(text).push(max_generation_distance_input);
+                    "Pick 100 for a quick test population, and 2000 for a time-consuming but realistic generation.",
+                    "ly",
+                    |t|NewSystemDialogEvent::MaxGenerationDistanceChanged(t),
+                );
+                col = col.push(max_generation_distance_input);
             }
         }
 
