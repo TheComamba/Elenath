@@ -7,8 +7,9 @@ use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, Toggler},
-    Alignment,
+    Alignment, Renderer,
 };
+use iced_aw::Element;
 
 impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
@@ -142,7 +143,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .into()
 }
 
-pub(super) fn control_field<'a, M>(
+pub(crate) fn control_field<'a, M>(
     label: &'a str,
     value: String,
     decrease: M,
@@ -171,4 +172,8 @@ where
         .push(increase_button)
         .spacing(PADDING)
         .align_items(Alignment::Center)
+}
+
+pub(crate) fn edit<'a>() -> Element<'a, GuiMessage, Renderer> {
+    Row::new().into()
 }

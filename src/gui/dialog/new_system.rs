@@ -62,8 +62,8 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
 
     type Event = NewSystemDialogEvent;
 
-    fn update(&mut self, _state: &mut Self::State, message: Self::Event) -> Option<GuiMessage> {
-        match message {
+    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
+        match event {
             NewSystemDialogEvent::SystemTypeSelected(system_type) => {
                 self.system_type = system_type;
             }

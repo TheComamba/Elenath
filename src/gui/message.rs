@@ -1,3 +1,4 @@
+use super::dialog::planet::PlanetDialog;
 use super::gui_widget::GuiMode;
 use super::Gui;
 use super::{
@@ -40,7 +41,7 @@ impl Gui {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
             GuiMessage::AddPlanet => {
-                todo!("Implement adding planets.");
+                self.dialog = Some(Box::new(PlanetDialog::new()));
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
