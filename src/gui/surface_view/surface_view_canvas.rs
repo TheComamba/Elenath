@@ -46,9 +46,9 @@ impl SurfaceViewState {
                 draw_background(bounds, frame);
             });
 
-        let bodies = if let Some(selected_planet) = selected_planet {
-            self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-                if let Some(celestial_system) = celestial_system {
+        let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
+            if let Some(celestial_system) = celestial_system {
+                if let Some(selected_planet) = selected_planet {
                     self.draw_bodies(
                         frame,
                         bounds,
@@ -58,14 +58,12 @@ impl SurfaceViewState {
                         display_names,
                     );
                 } else {
-                    display_info_text(frame, "Please load or generate a celestial system.");
+                    display_info_text(frame, "Please select a planet.");
                 }
-            })
-        } else {
-            self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-                display_info_text(frame, "Please select a planet.");
-            })
-        };
+            } else {
+                display_info_text(frame, "Please load or generate a celestial system.");
+            }
+        });
 
         vec![background, bodies]
     }
