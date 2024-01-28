@@ -10,7 +10,7 @@ use crate::{
     file_dialog,
     model::{
         celestial_system::{CelestialSystem, SystemType},
-        example::solar_system,
+        new_celestial_system::solar_system,
     },
 };
 use astro_utils::{
@@ -41,7 +41,6 @@ pub(crate) enum GuiMessage {
     AddPlanet,
     AddStar,
     GenerateStars,
-    FetchGaiaData,
     UpdateTime(Time),
     UpdateTimeStep(Time),
     PlanetSelected(String),
@@ -60,7 +59,7 @@ impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let celestial_system = solar_system();
+        let celestial_system = solar_system(false);
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,
@@ -107,11 +106,6 @@ impl Sandbox for Gui {
                 for star_data in stars {
                     self.celestial_system.add_star_from_data(star_data);
                 }
-            }
-            GuiMessage::FetchGaiaData => {
-                let stars = fetch_brightest_stars().unwrap();
-                self.celestial_system
-                    .add_star_appearances_without_duplicates(stars);
             }
             GuiMessage::SaveToFile => {
                 if self.opened_file.is_none() {

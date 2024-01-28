@@ -1,11 +1,11 @@
 use super::celestial_system::{CelestialSystem, SystemType};
 use astro_utils::{
     data::{planets::*, stars::*},
-    stars::random_stars::generate_random_stars,
+    stars::{gaia_data::fetch_brightest_stars, random_stars::generate_random_stars},
     units::length::Length,
 };
 
-pub(crate) fn solar_system() -> CelestialSystem {
+pub(crate) fn solar_system(load_gaia_data: bool) -> CelestialSystem {
     let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
     system.add_planet_data(MERCURY.to_planet_data());
     system.add_planet_data(VENUS.to_planet_data());
@@ -22,6 +22,11 @@ pub(crate) fn solar_system() -> CelestialSystem {
         system.add_star_from_data(data.to_star_data());
     }
 
+    if load_gaia_data {
+        let stars = fetch_brightest_stars().unwrap();
+        system.add_star_appearances_without_duplicates(stars);
+    }
+
     system
 }
 
@@ -30,8 +35,10 @@ pub(crate) fn generated_system() -> CelestialSystem {
     let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
 
     let distant_stars = generate_random_stars(Length::from_light_years(100.0)).unwrap();
+
     for star in distant_stars {
         system.add_star_from_data(star);
     }
+
     system
 }
