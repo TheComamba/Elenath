@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{
     gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     message::GuiMessage,
@@ -174,16 +176,18 @@ where
         .align_items(Alignment::Center)
 }
 
-pub(crate) fn edit<'a, F, M>(
+pub(crate) fn edit<'a, Fun, Mes, Val>(
     description: &'static str,
     data: &String,
-    placeholder: &'static str,
+    placeholder: &'a str,
     units: &'static str,
-    message: F,
-) -> Element<'a, M, Renderer>
+    message: Fun,
+    actual_value: Val,
+) -> Element<'a, Mes, Renderer>
 where
-    F: 'a + Fn(String) -> M,
-    M: 'a + Clone,
+    Fun: 'a + Fn(String) -> Mes,
+    Mes: 'a + Clone,
+    Val: 'a + Display,
 {
     let description = if description.ends_with(":") {
         description.to_string()
@@ -195,12 +199,14 @@ where
         .horizontal_alignment(Horizontal::Right);
     let data = TextInput::new(placeholder, &data)
         .on_input(message)
-        .width(BIG_COLUMN_WIDTH);
-    let units = Text::new(units).width(BIG_COLUMN_WIDTH);
+        .width(SMALL_COLUMN_WIDTH);
+    let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
+    let value = Text::new(actual_value.to_string()).width(SMALL_COLUMN_WIDTH);
     Row::new()
         .push(description)
         .push(data)
         .push(units)
+        .push(value)
         .spacing(PADDING)
         .into()
 }

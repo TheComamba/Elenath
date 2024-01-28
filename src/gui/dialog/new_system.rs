@@ -121,6 +121,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     "Pick 100 for a quick test population, and 2000 for a time-consuming but realistic generation.",
                     "ly",
                     |t|NewSystemDialogEvent::MaxGenerationDistanceChanged(t),
+                    self.max_generation_distance
                 );
                 col = col.push(max_generation_distance_input);
             }
