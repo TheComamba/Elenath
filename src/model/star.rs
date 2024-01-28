@@ -1,7 +1,7 @@
 use astro_utils::stars::{star_appearance::StarAppearance, star_data::StarData};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Star {
     data: Option<StarData>,
     appearance: StarAppearance,

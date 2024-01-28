@@ -1,5 +1,9 @@
 use super::celestial_system::{CelestialSystem, SystemType};
-use astro_utils::data::{planets::*, stars::*};
+use astro_utils::{
+    data::{planets::*, stars::*},
+    stars::random_stars::generate_random_stars,
+    units::length::Length,
+};
 
 pub(crate) fn solar_system() -> CelestialSystem {
     let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
@@ -18,5 +22,16 @@ pub(crate) fn solar_system() -> CelestialSystem {
         system.add_star_from_data(data.to_star_data());
     }
 
+    system
+}
+
+pub(crate) fn generated_system() -> CelestialSystem {
+    let central_body_data = SUN_DATA.to_star_data();
+    let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
+
+    let distant_stars = generate_random_stars(Length::from_light_years(100.0)).unwrap();
+    for star in distant_stars {
+        system.add_star_from_data(star);
+    }
     system
 }

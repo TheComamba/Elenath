@@ -9,7 +9,7 @@ use astro_utils::{
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct CelestialSystem {
     system_type: SystemType,
     central_body: Star,

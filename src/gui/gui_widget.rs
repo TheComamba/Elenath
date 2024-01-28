@@ -32,7 +32,8 @@ pub(super) const BIG_COLUMN_WIDTH: f32 = 3.5 * SMALL_COLUMN_WIDTH;
 pub(crate) enum GuiMessage {
     UpdateSurfaceView(SurfaceViewMessage),
     UpdateTopView(TopViewMessage),
-    NewSystem,
+    NewSystemDialog,
+    NewSystemDialogSubmit(CelestialSystem),
     SaveToFile,
     SaveToNewFile,
     OpenFile,
@@ -87,7 +88,7 @@ impl Sandbox for Gui {
             GuiMessage::UpdateTopView(message) => {
                 self.top_view_state.update(message);
             }
-            GuiMessage::NewSystem => {
+            GuiMessage::NewSystemDialog => {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
             GuiMessage::AddPlanet => {
@@ -95,6 +96,10 @@ impl Sandbox for Gui {
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
+            }
+            GuiMessage::NewSystemDialogSubmit(celestial_system) => {
+                self.celestial_system = celestial_system;
+                self.dialog = None;
             }
             GuiMessage::GenerateStars => {
                 let max_distance = Length::from_light_years(100.0);

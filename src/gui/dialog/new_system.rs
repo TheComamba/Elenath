@@ -1,7 +1,13 @@
 use super::Dialog;
-use crate::{gui::gui_widget::GuiMessage, model::celestial_system::SystemType};
+use crate::{
+    gui::gui_widget::{GuiMessage, PADDING},
+    model::{
+        celestial_system::{CelestialSystem, SystemType},
+        example::{generated_system, solar_system},
+    },
+};
 use iced::{
-    widget::{component, Column, Component, Radio},
+    widget::{component, Button, Column, Component, Radio, Text},
     Element, Renderer,
 };
 
@@ -14,6 +20,13 @@ impl NewSystemDialog {
     pub(crate) fn new() -> Self {
         NewSystemDialog {
             system_type: SystemType::Real,
+        }
+    }
+
+    fn celestial_system(&self) -> CelestialSystem {
+        match self.system_type {
+            SystemType::Real => solar_system(),
+            SystemType::Generated => generated_system(),
         }
     }
 }
@@ -31,6 +44,7 @@ impl Dialog for NewSystemDialog {
 #[derive(Debug, Clone)]
 pub(crate) enum NewSystemDialogEvent {
     SystemTypeSelected(SystemType),
+    Submit,
 }
 
 impl Component<GuiMessage, Renderer> for NewSystemDialog {
@@ -42,6 +56,9 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
         match message {
             NewSystemDialogEvent::SystemTypeSelected(system_type) => {
                 self.system_type = system_type;
+            }
+            NewSystemDialogEvent::Submit => {
+                return Some(GuiMessage::NewSystemDialogSubmit(self.celestial_system()));
             }
         }
         None
@@ -60,9 +77,13 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             Some(self.system_type),
             NewSystemDialogEvent::SystemTypeSelected,
         );
+        let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
         Column::new()
             .push(real_system_type_radio)
             .push(generated_system_type_radio)
+            .push(submit_button)
+            .padding(PADDING)
+            .spacing(PADDING)
             .into()
     }
 }
