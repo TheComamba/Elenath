@@ -48,19 +48,20 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn generated_system_file_buttons() -> iced::Element<'static, GuiMessage> {
+    pub(super) fn generated_system_file_buttons(
+        has_system: bool,
+    ) -> iced::Element<'static, GuiMessage> {
         let new_button = std_button("New system", GuiMessage::NewSystemDialog);
-        let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
-        let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
+        let mut row = Row::new().push(new_button);
+        if has_system {
+            let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
+            let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
+            row = row.push(save_to_file_button).push(save_to_new_file_button);
+        }
         let open_file_button = std_button("Open file", GuiMessage::OpenFile);
-        Row::new()
-            .push(new_button)
-            .push(save_to_file_button)
-            .push(save_to_new_file_button)
-            .push(open_file_button)
-            .align_items(Alignment::Center)
-            .spacing(PADDING)
-            .into()
+
+        row = row.push(open_file_button);
+        row.align_items(Alignment::Center).spacing(PADDING).into()
     }
 }
 

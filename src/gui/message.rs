@@ -46,7 +46,7 @@ impl Gui {
                 todo!("Implement adding stars.");
             }
             GuiMessage::NewSystemDialogSubmit(celestial_system) => {
-                self.celestial_system = celestial_system?;
+                self.celestial_system = Some(celestial_system?);
                 self.dialog = None;
             }
             GuiMessage::SaveToFile => {
@@ -55,23 +55,24 @@ impl Gui {
                 }
                 if let Some(path) = &self.opened_file {
                     self.celestial_system
-                        .write_to_file(path.clone())
-                        .expect("Failed to write to file");
+                        .as_ref()
+                        .ok_or(ElenathError::NoCelestialSystem)?
+                        .write_to_file(path.clone())?;
                 }
             }
             GuiMessage::SaveToNewFile => {
                 self.opened_file = file_dialog::new();
                 if let Some(path) = &self.opened_file {
                     self.celestial_system
-                        .write_to_file(path.clone())
-                        .expect("Failed to write to file");
+                        .as_ref()
+                        .ok_or(ElenathError::NoCelestialSystem)?
+                        .write_to_file(path.clone())?;
                 }
             }
             GuiMessage::OpenFile => {
                 self.opened_file = file_dialog::open();
                 if let Some(path) = &self.opened_file {
-                    self.celestial_system = CelestialSystem::read_from_file(path.clone())
-                        .expect("Failed to read from file");
+                    self.celestial_system = Some(CelestialSystem::read_from_file(path.clone())?);
                 }
             }
             GuiMessage::ModeSelected(mode) => {

@@ -4,7 +4,6 @@ use super::{
     surface_view::surface_view_widget::SurfaceViewState,
     table_view::table_view_widget::TableViewState, top_view::top_view_widget::TopViewState, Gui,
 };
-use crate::model::new_celestial_system::solar_system;
 use astro_utils::units::time::Time;
 use iced::{
     widget::{canvas, Column, Row},
@@ -27,7 +26,6 @@ impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let celestial_system = solar_system(false).unwrap();
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,
@@ -36,7 +34,7 @@ impl Sandbox for Gui {
             table_view_state: TableViewState::new(),
             time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
-            celestial_system,
+            celestial_system: None,
             selected_planet_name: String::new(),
             display_names: true,
             dialog: None,
@@ -106,10 +104,16 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 impl Gui {
     fn main_view(&self) -> Element<'_, GuiMessage> {
         let mut toprow = Row::new().push(Gui::gui_mode_tabs());
-        if self.celestial_system.is_generated() {
+        let is_generated = match &self.celestial_system {
+            Some(system) => system.is_generated(),
+            None => false,
+        };
+        if is_generated {
             toprow = toprow
                 .push(Gui::adding_buttons())
-                .push(Gui::generated_system_file_buttons());
+                .push(Gui::generated_system_file_buttons(
+                    self.celestial_system.is_some(),
+                ));
         } else {
             toprow = toprow.push(Gui::real_system_file_buttons());
         }
@@ -122,7 +126,7 @@ impl Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        self.celestial_system.get_planet_data(),
+                        self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
                     ))
@@ -138,7 +142,7 @@ impl Gui {
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
                         &self.time_step,
-                        self.celestial_system.get_planet_data(),
+                        self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
                     ))
@@ -150,10 +154,10 @@ impl Gui {
                 )
             }
             GuiMode::TableView => {
-                col = col.push(self.table_view_state.table_view(
-                    self.celestial_system.get_planet_data(),
-                    self.celestial_system.get_star_data(),
-                ))
+                col = col.push(
+                    self.table_view_state
+                        .table_view(self.get_planet_data(), self.get_star_data()),
+                )
             }
         }
 

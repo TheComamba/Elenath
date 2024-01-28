@@ -4,7 +4,9 @@ use super::{
     viewport::{observer_normal, Viewport},
 };
 use crate::{
-    gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
+    gui::shared_canvas_functionality::{
+        contains_workaround, display_info_text, draw_background, draw_name,
+    },
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
@@ -34,7 +36,7 @@ impl SurfaceViewState {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
-        celestial_system: &CelestialSystem,
+        celestial_system: &Option<CelestialSystem>,
         time_since_epoch: Time,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
@@ -46,18 +48,22 @@ impl SurfaceViewState {
 
         let bodies = if let Some(selected_planet) = selected_planet {
             self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-                self.draw_bodies(
-                    frame,
-                    bounds,
-                    selected_planet,
-                    celestial_system,
-                    time_since_epoch,
-                    display_names,
-                );
+                if let Some(celestial_system) = celestial_system {
+                    self.draw_bodies(
+                        frame,
+                        bounds,
+                        selected_planet,
+                        celestial_system,
+                        time_since_epoch,
+                        display_names,
+                    );
+                } else {
+                    display_info_text(frame, "Please load or generate a celestial system.");
+                }
             })
         } else {
             self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-                display_planet_selection_text(frame);
+                display_info_text(frame, "Please select a planet.");
             })
         };
 
@@ -284,15 +290,6 @@ impl SurfaceViewState {
         let solid_circle = Path::circle(pos, apparent_radius);
         frame.fill(&solid_circle, color);
     }
-}
-
-fn display_planet_selection_text(frame: &mut canvas::Frame) {
-    let mut name_widget = canvas::Text::default();
-    name_widget.size = 30.0;
-    name_widget.color = Color::WHITE;
-    name_widget.content = "Please select a planet.".to_string();
-    name_widget.position = frame.center();
-    frame.fill_text(name_widget)
 }
 
 fn canvas_apparent_radius(

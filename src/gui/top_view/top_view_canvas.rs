@@ -1,6 +1,8 @@
 use super::top_view_widget::TopViewState;
 use crate::{
-    gui::shared_canvas_functionality::{contains_workaround, draw_background, draw_name},
+    gui::shared_canvas_functionality::{
+        contains_workaround, display_info_text, draw_background, draw_name,
+    },
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
@@ -35,7 +37,7 @@ impl TopViewState {
         renderer: &iced::Renderer,
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
-        celestial_system: &CelestialSystem,
+        celestial_system: &Option<CelestialSystem>,
         time_since_epoch: Time,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
@@ -46,14 +48,18 @@ impl TopViewState {
             });
 
         let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            self.draw_bodies(
-                selected_planet,
-                celestial_system,
-                time_since_epoch,
-                &bounds,
-                frame,
-                display_names,
-            );
+            if let Some(celestial_system) = celestial_system {
+                self.draw_bodies(
+                    selected_planet,
+                    celestial_system,
+                    time_since_epoch,
+                    &bounds,
+                    frame,
+                    display_names,
+                );
+            } else {
+                display_info_text(frame, "Please load or generate a celestial system.");
+            }
         });
 
         let scale = self.scale_cache.draw(renderer, bounds.size(), |frame| {
