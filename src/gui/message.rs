@@ -7,6 +7,7 @@ use super::{
 };
 use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
+use astro_utils::planets::planet_data::PlanetData;
 use astro_utils::units::time::Time;
 
 #[derive(Debug, Clone)]
@@ -19,7 +20,8 @@ pub(crate) enum GuiMessage {
     SaveToNewFile,
     OpenFile,
     ModeSelected(GuiMode),
-    AddPlanet,
+    AddPlanetDialog,
+    NewPlanet(PlanetData),
     AddStar,
     UpdateTime(Time),
     UpdateTimeStep(Time),
@@ -40,8 +42,14 @@ impl Gui {
             GuiMessage::NewSystemDialog => {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
-            GuiMessage::AddPlanet => {
+            GuiMessage::AddPlanetDialog => {
                 self.dialog = Some(Box::new(PlanetDialog::new()));
+            }
+            GuiMessage::NewPlanet(planet) => {
+                self.celestial_system
+                    .as_mut()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .add_planet_data(planet);
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
