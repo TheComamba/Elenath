@@ -27,7 +27,7 @@ impl Sandbox for Gui {
     type Message = GuiMessage;
 
     fn new() -> Self {
-        let celestial_system = solar_system(false);
+        let celestial_system = solar_system(false).unwrap();
         Gui {
             opened_file: None,
             mode: GuiMode::SurfaceView,

@@ -1,40 +1,20 @@
 use super::Dialog;
+use crate::error::ElenathError;
 use crate::gui::message::GuiMessage;
-use astro_utils::error::AstroUtilError;
 use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text},
     Element, Renderer,
 };
 use iced_aw::style::CardStyles;
-use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ErrorDialog {
     error_text: String,
 }
 
-#[derive(Debug)]
-pub(crate) enum Error {
-    AstroError(AstroUtilError),
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::AstroError(err) => write!(f, "{}", err),
-        }
-    }
-}
-
-impl From<AstroUtilError> for Error {
-    fn from(v: AstroUtilError) -> Self {
-        Self::AstroError(v)
-    }
-}
-
 impl ErrorDialog {
-    pub(crate) fn new(error: Error) -> Self {
+    pub(crate) fn new(error: ElenathError) -> Self {
         ErrorDialog {
             error_text: error.to_string(),
         }

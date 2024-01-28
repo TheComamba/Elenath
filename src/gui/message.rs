@@ -1,9 +1,10 @@
 use super::gui_widget::GuiMode;
-use super::{dialog::error::Error, Gui};
+use super::Gui;
 use super::{
     dialog::new_system::NewSystemDialog, surface_view::surface_view_widget::SurfaceViewMessage,
     top_view::top_view_widget::TopViewMessage,
 };
+use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::units::time::Time;
 
@@ -12,7 +13,7 @@ pub(crate) enum GuiMessage {
     UpdateSurfaceView(SurfaceViewMessage),
     UpdateTopView(TopViewMessage),
     NewSystemDialog,
-    NewSystemDialogSubmit(CelestialSystem),
+    NewSystemDialogSubmit(Result<CelestialSystem, ElenathError>),
     SaveToFile,
     SaveToNewFile,
     OpenFile,
@@ -27,7 +28,7 @@ pub(crate) enum GuiMessage {
 }
 
 impl Gui {
-    pub(crate) fn handle_message(&mut self, message: GuiMessage) -> Result<(), Error> {
+    pub(crate) fn handle_message(&mut self, message: GuiMessage) -> Result<(), ElenathError> {
         match message {
             GuiMessage::UpdateSurfaceView(message) => {
                 self.surface_view_state.update(message);
@@ -45,7 +46,7 @@ impl Gui {
                 todo!("Implement adding stars.");
             }
             GuiMessage::NewSystemDialogSubmit(celestial_system) => {
-                self.celestial_system = celestial_system;
+                self.celestial_system = celestial_system?;
                 self.dialog = None;
             }
             GuiMessage::SaveToFile => {

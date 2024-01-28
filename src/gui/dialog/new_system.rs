@@ -1,5 +1,6 @@
 use super::Dialog;
 use crate::{
+    error::ElenathError,
     gui::{gui_widget::PADDING, message::GuiMessage},
     model::{
         celestial_system::{CelestialSystem, SystemType},
@@ -30,7 +31,7 @@ impl NewSystemDialog {
         }
     }
 
-    fn celestial_system(&self) -> CelestialSystem {
+    fn celestial_system(&self) -> Result<CelestialSystem, ElenathError> {
         match self.system_type {
             SystemType::Real => solar_system(self.load_gaia_data),
             SystemType::Generated => generated_system(self.max_generation_distance),

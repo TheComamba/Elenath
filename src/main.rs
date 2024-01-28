@@ -1,6 +1,7 @@
 use gui::Gui;
 use iced::Sandbox;
 
+mod error;
 mod file_dialog;
 mod gui;
 mod model;
