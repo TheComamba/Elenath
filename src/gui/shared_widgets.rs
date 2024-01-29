@@ -195,13 +195,13 @@ where
         format!("{}:", description)
     };
     let description = Text::new(description)
-        .width(BIG_COLUMN_WIDTH)
+        .width(SMALL_COLUMN_WIDTH)
         .horizontal_alignment(Horizontal::Right);
     let data = TextInput::new(placeholder, &data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
     let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
-    let value = Text::new(actual_value.to_string()).width(SMALL_COLUMN_WIDTH);
+    let value = Text::new(format! {"Parsed value:\n{}",actual_value}).width(SMALL_COLUMN_WIDTH);
     Row::new()
         .push(description)
         .push(data)

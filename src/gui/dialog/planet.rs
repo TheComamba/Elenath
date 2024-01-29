@@ -9,7 +9,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{component, Button, Column, Component, Text},
-    Element, Renderer,
+    Alignment, Element, Renderer,
 };
 use serde_json;
 
@@ -321,6 +321,8 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             .push(rotation_axis)
             .push(submit_button)
             .spacing(PADDING)
+            .width(iced::Length::Fill)
+            .align_items(Alignment::Center)
             .into()
     }
 }

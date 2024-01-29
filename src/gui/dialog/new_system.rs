@@ -10,7 +10,7 @@ use crate::{
 use astro_utils::{units::length::Length, Float};
 use iced::{
     widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
-    Element, Renderer,
+    Alignment, Element, Renderer,
 };
 
 #[derive(Debug, Clone)]
@@ -116,7 +116,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             }
             SystemType::Generated => {
                 let max_generation_distance_input = edit(
-                    "Maximum distance at which new stars are generated:",
+                    "Maximum distance",
                     &self.max_generation_distance_text,
                     "Pick 100 for a quick test population, and 2000 for a time-consuming but realistic generation.",
                     "ly",
@@ -131,6 +131,8 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
         col.push(submit_button)
             .padding(PADDING)
             .spacing(PADDING)
+            .width(iced::Length::Fill)
+            .align_items(Alignment::Center)
             .into()
     }
 }

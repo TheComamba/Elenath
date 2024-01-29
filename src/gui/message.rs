@@ -50,6 +50,7 @@ impl Gui {
                     .as_mut()
                     .ok_or(ElenathError::NoCelestialSystem)?
                     .add_planet_data(planet);
+                self.dialog = None;
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
