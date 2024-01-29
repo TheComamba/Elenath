@@ -179,7 +179,6 @@ where
 pub(crate) fn edit<'a, Fun, Mes, Val>(
     description: &'static str,
     data: &String,
-    placeholder: &'a str,
     units: &'static str,
     message: Fun,
     actual_value: Val,
@@ -197,7 +196,7 @@ where
     let description = Text::new(description)
         .width(SMALL_COLUMN_WIDTH)
         .horizontal_alignment(Horizontal::Right);
-    let data = TextInput::new(placeholder, &data)
+    let data = TextInput::new("", &data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
     let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
