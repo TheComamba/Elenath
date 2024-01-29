@@ -1,7 +1,11 @@
 use super::Dialog;
 use crate::{
     error::ElenathError,
-    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
+    gui::{
+        gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
+        message::GuiMessage,
+        shared_widgets::edit,
+    },
     model::{
         celestial_system::{CelestialSystem, SystemType},
         new_celestial_system::{generated_system, solar_system},
@@ -90,13 +94,15 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             SystemType::Real,
             Some(self.system_type),
             NewSystemDialogEvent::SystemTypeSelected,
-        );
+        )
+        .width(SMALL_COLUMN_WIDTH);
         let generated_system_type_radio = Radio::new(
             "Generated",
             SystemType::Generated,
             Some(self.system_type),
             NewSystemDialogEvent::SystemTypeSelected,
-        );
+        )
+        .width(SMALL_COLUMN_WIDTH);
         let type_row = Row::new()
             .push(real_system_type_radio)
             .push(generated_system_type_radio)
@@ -111,7 +117,8 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     Some("Load Gaia Data".to_string()),
                     self.load_gaia_data,
                     NewSystemDialogEvent::LoadGaiaDataSelected,
-                );
+                )
+                .width(4. * SMALL_COLUMN_WIDTH);
                 col = col.push(load_gaia_data_toggler);
             }
             SystemType::Generated => {
