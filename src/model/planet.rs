@@ -6,15 +6,16 @@ use astro_utils::{
 pub(crate) struct Planet {
     data: PlanetData,
     pos: CartesianCoordinates,
+    index: usize,
 }
 
 impl Planet {
-    pub(crate) fn new(data: PlanetData, central_body: &StarData, time: Time) -> Self {
+    pub(crate) fn new(data: PlanetData, central_body: &StarData, time: Time, index: usize) -> Self {
         let mass = data.get_mass();
         let pos = data
             .get_orbital_parameters()
             .calculate_position(mass, central_body, time);
-        Self { data, pos }
+        Self { data, pos, index }
     }
 
     pub(crate) fn get_data(&self) -> &PlanetData {

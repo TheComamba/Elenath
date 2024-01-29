@@ -118,7 +118,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     self.load_gaia_data,
                     NewSystemDialogEvent::LoadGaiaDataSelected,
                 )
-                .width(4. * SMALL_COLUMN_WIDTH);
+                .width(2. * SMALL_COLUMN_WIDTH);
                 col = col.push(load_gaia_data_toggler);
             }
             SystemType::Generated => {
