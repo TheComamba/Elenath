@@ -25,7 +25,7 @@ pub(crate) enum SystemType {
 
 impl CelestialSystem {
     pub(crate) fn new(system_type: SystemType, central_body_data: StarData) -> Self {
-        let central_body = Star::from_data(central_body_data);
+        let central_body = Star::from_data(central_body_data, None);
         CelestialSystem {
             system_type,
             central_body,
@@ -53,7 +53,9 @@ impl CelestialSystem {
     }
 
     pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
-        self.distant_stars.push(Star::from_data(star_data));
+        let index = self.distant_stars.len();
+        self.distant_stars
+            .push(Star::from_data(star_data, Some(index)));
     }
 
     pub(crate) fn add_star_appearances_without_duplicates(
@@ -69,8 +71,9 @@ impl CelestialSystem {
                     .map(|s| s.get_appearance())
                     .collect::<Vec<_>>(),
             ) {
+                let index = self.distant_stars.len();
                 self.distant_stars
-                    .push(Star::from_appearance(star_appearance));
+                    .push(Star::from_appearance(star_appearance, Some(index)));
             }
         }
     }
@@ -94,8 +97,8 @@ impl CelestialSystem {
     pub(crate) fn get_planets_at_time(&self, time: Time) -> Vec<Planet> {
         let mut bodies = Vec::new();
         if let Some(central_body) = self.central_body.get_data() {
-            for planet_data in &self.planets {
-                let planet = Planet::new(planet_data.clone(), central_body, time);
+            for (i, planet_data) in self.planets.iter().enumerate() {
+                let planet = Planet::new(planet_data.clone(), central_body, time, Some(i));
                 bodies.push(planet);
             }
         }

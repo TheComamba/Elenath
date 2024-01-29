@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 pub(crate) struct Star {
     data: Option<StarData>,
     appearance: StarAppearance,
-    index: usize,
+    index: Option<usize>,
 }
 
 impl Star {
-    pub(crate) fn from_data(data: StarData, index: usize) -> Self {
+    pub(crate) fn from_data(data: StarData, index: Option<usize>) -> Self {
         let appearance = data.to_star_appearance();
         Star {
             data: Some(data),
@@ -18,7 +18,7 @@ impl Star {
         }
     }
 
-    pub(crate) fn from_appearance(appearance: StarAppearance, index: usize) -> Self {
+    pub(crate) fn from_appearance(appearance: StarAppearance, index: Option<usize>) -> Self {
         Star {
             data: None,
             appearance,
@@ -32,5 +32,9 @@ impl Star {
 
     pub(crate) fn get_appearance(&self) -> &StarAppearance {
         &self.appearance
+    }
+
+    pub(crate) fn get_index(&self) -> Option<usize> {
+        self.index
     }
 }

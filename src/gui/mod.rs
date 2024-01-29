@@ -53,6 +53,7 @@ impl Gui {
                 (*data).clone(),
                 system.get_central_body_data(),
                 self.time_since_epoch,
+                None,
             )
         })
     }
