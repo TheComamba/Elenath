@@ -1,4 +1,4 @@
-use super::part_of_celestial_system::PartOfCelestialSystem;
+use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates, planets::planet_data::PlanetData,
     stars::star_data::StarData, units::time::Time,
@@ -36,5 +36,9 @@ impl Planet {
 impl PartOfCelestialSystem for Planet {
     fn get_index(&self) -> Option<usize> {
         self.index
+    }
+
+    fn get_body_type(&self) -> BodyType {
+        BodyType::Planet
     }
 }

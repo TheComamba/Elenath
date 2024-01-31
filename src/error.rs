@@ -6,6 +6,7 @@ pub(crate) enum ElenathError {
     AstroError(String),
     IoError(String),
     NoCelestialSystem,
+    BodyNotFound,
 }
 
 impl Display for ElenathError {
@@ -14,6 +15,7 @@ impl Display for ElenathError {
             ElenathError::AstroError(err) => write!(f, "{}", err),
             ElenathError::IoError(err) => write!(f, "{}", err),
             ElenathError::NoCelestialSystem => write!(f, "No celestial system loaded."),
+            ElenathError::BodyNotFound => write!(f, "Body not found."),
         }
     }
 }

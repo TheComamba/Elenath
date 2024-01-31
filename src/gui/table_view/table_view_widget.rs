@@ -1,7 +1,12 @@
 use super::table_col_data::TableColData;
 use crate::{
     gui::message::GuiMessage,
-    model::{celestial_system::CelestialSystem, planet::Planet, star::Star},
+    model::{
+        celestial_system::CelestialSystem,
+        part_of_celestial_system::{BodyType, PartOfCelestialSystem},
+        planet::Planet,
+        star::Star,
+    },
 };
 use astro_utils::{
     planets::planet_data::PlanetData, stars::star_data::StarData, units::time::Time,
@@ -60,10 +65,10 @@ fn twoway_scrollable<'a>(child: impl Into<Element<'a, GuiMessage>>) -> Element<'
         .into()
 }
 
-fn table<'a, T>(
-    bodies: Vec<T>,
-    table_col_data: &'a Vec<TableColData<T>>,
-) -> Element<'a, GuiMessage> {
+fn table<'a, T>(bodies: Vec<T>, table_col_data: &'a Vec<TableColData<T>>) -> Element<'a, GuiMessage>
+where
+    T: PartOfCelestialSystem,
+{
     let mut col = Column::new();
     for body in bodies {
         col = col.push(table_row(body, table_col_data));
@@ -80,9 +85,20 @@ fn table_header<T>(table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMes
     row.align_items(Alignment::Center)
 }
 
-fn table_row<'a, T>(data: T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage> {
-    let edit_button = Container::new(Button::new(Text::new("Edit")))
-        .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
+fn table_row<'a, T>(data: T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage>
+where
+    T: PartOfCelestialSystem,
+{
+    let mut edit_button = Button::new(Text::new("Edit"));
+    if let Some(index) = data.get_index() {
+        match data.get_body_type() {
+            BodyType::Planet => {
+                edit_button = edit_button.on_press(GuiMessage::EditPlanetDialog(index));
+            }
+            _ => (),
+        }
+    }
+    let edit_button = Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
     let mut row = Row::new().push(edit_button);
     for col in table_col_data.iter() {
         row = row.push(table_cell(Text::new((col.content_closure)(&data)).into()));

@@ -21,6 +21,7 @@ pub(crate) enum GuiMessage {
     OpenFile,
     ModeSelected(GuiMode),
     AddPlanetDialog,
+    EditPlanetDialog(usize),
     NewPlanet(PlanetData),
     PlanetEdited(usize, PlanetData),
     AddStar,
@@ -46,6 +47,15 @@ impl Gui {
             GuiMessage::AddPlanetDialog => {
                 self.dialog = Some(Box::new(PlanetDialog::new()));
             }
+            GuiMessage::EditPlanetDialog(index) => {
+                let planet = self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .get_planet_data(index)
+                    .ok_or(ElenathError::BodyNotFound)?;
+                self.dialog = Some(Box::new(PlanetDialog::edit(planet.clone(), index)));
+            }
             GuiMessage::NewPlanet(planet) => {
                 self.celestial_system
                     .as_mut()
@@ -58,6 +68,7 @@ impl Gui {
                     .as_mut()
                     .ok_or(ElenathError::NoCelestialSystem)?
                     .overwrite_planet_data(index, planet_data);
+                self.dialog = None;
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");

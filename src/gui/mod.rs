@@ -62,7 +62,7 @@ impl Gui {
         let planet_data = self
             .celestial_system
             .as_ref()?
-            .get_planet_data()
+            .get_planets_data()
             .iter()
             .find(|p| p.get_name().eq(&self.selected_planet_name))
             .map(|p| *p);
@@ -72,7 +72,7 @@ impl Gui {
     pub(super) fn get_planet_data(&self) -> Vec<&PlanetData> {
         self.celestial_system
             .as_ref()
-            .map(|s| s.get_planet_data())
+            .map(|s| s.get_planets_data())
             .unwrap_or_default()
     }
 
