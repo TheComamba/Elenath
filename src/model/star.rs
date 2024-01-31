@@ -1,6 +1,8 @@
 use astro_utils::stars::{star_appearance::StarAppearance, star_data::StarData};
 use serde::{Deserialize, Serialize};
 
+use super::part_of_celestial_system::PartOfCelestialSystem;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Star {
     data: Option<StarData>,
@@ -33,8 +35,10 @@ impl Star {
     pub(crate) fn get_appearance(&self) -> &StarAppearance {
         &self.appearance
     }
+}
 
-    pub(crate) fn get_index(&self) -> Option<usize> {
+impl PartOfCelestialSystem for Star {
+    fn get_index(&self) -> Option<usize> {
         self.index
     }
 }

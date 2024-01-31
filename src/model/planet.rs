@@ -1,3 +1,4 @@
+use super::part_of_celestial_system::PartOfCelestialSystem;
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates, planets::planet_data::PlanetData,
     stars::star_data::StarData, units::time::Time,
@@ -30,8 +31,10 @@ impl Planet {
     pub(crate) fn get_position(&self) -> &CartesianCoordinates {
         &self.pos
     }
+}
 
-    pub(crate) fn get_index(&self) -> Option<usize> {
+impl PartOfCelestialSystem for Planet {
+    fn get_index(&self) -> Option<usize> {
         self.index
     }
 }
