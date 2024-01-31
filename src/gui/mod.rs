@@ -6,7 +6,6 @@ use self::top_view::top_view_widget::TopViewState;
 use crate::model::celestial_system::CelestialSystem;
 use crate::model::planet::Planet;
 use astro_utils::planets::planet_data::PlanetData;
-use astro_utils::stars::star_data::StarData;
 use astro_utils::units::time::Time;
 use std::path::PathBuf;
 
@@ -73,13 +72,6 @@ impl Gui {
         self.celestial_system
             .as_ref()
             .map(|s| s.get_planets_data())
-            .unwrap_or_default()
-    }
-
-    pub(super) fn get_star_data(&self) -> Vec<&StarData> {
-        self.celestial_system
-            .as_ref()
-            .map(|s| s.get_star_data())
             .unwrap_or_default()
     }
 }

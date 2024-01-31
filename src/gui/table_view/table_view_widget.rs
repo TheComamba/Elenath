@@ -2,14 +2,10 @@ use super::table_col_data::TableColData;
 use crate::{
     gui::message::GuiMessage,
     model::{
-        celestial_system::CelestialSystem,
         part_of_celestial_system::{BodyType, PartOfCelestialSystem},
         planet::Planet,
         star::Star,
     },
-};
-use astro_utils::{
-    planets::planet_data::PlanetData, stars::star_data::StarData, units::time::Time,
 };
 use iced::{
     widget::{
