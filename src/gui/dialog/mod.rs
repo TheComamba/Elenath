@@ -8,6 +8,7 @@ use iced_aw::{style::CardStyles, Card};
 pub(crate) mod error;
 pub(crate) mod new_system;
 pub(crate) mod planet;
+pub(crate) mod star;
 
 pub(crate) trait Dialog {
     fn card_style(&self) -> CardStyles {

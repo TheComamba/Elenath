@@ -91,7 +91,9 @@ where
             BodyType::Planet => {
                 edit_button = edit_button.on_press(GuiMessage::EditPlanetDialog(index));
             }
-            _ => (),
+            BodyType::Star => {
+                edit_button = edit_button.on_press(GuiMessage::EditStarDialog(index));
+            }
         }
     }
     let edit_button = Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH));

@@ -30,8 +30,8 @@ impl Gui {
     }
 
     pub(super) fn adding_buttons() -> iced::Element<'static, GuiMessage> {
-        let add_planet_button = std_button("Add Planet", GuiMessage::AddPlanetDialog);
-        let add_star_button = std_button("Add Star", GuiMessage::AddStar);
+        let add_planet_button = std_button("Add Planet", GuiMessage::NewPlanetDialog);
+        let add_star_button = std_button("Add Star", GuiMessage::NewStarDialog);
         Row::new()
             .push(add_planet_button)
             .push(add_star_button)

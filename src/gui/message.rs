@@ -1,4 +1,5 @@
 use super::dialog::planet::PlanetDialog;
+use super::dialog::star::StarDialog;
 use super::gui_widget::GuiMode;
 use super::Gui;
 use super::{
@@ -8,6 +9,7 @@ use super::{
 use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::planets::planet_data::PlanetData;
+use astro_utils::stars::star_data::StarData;
 use astro_utils::units::time::Time;
 
 #[derive(Debug, Clone)]
@@ -20,11 +22,14 @@ pub(crate) enum GuiMessage {
     SaveToNewFile,
     OpenFile,
     ModeSelected(GuiMode),
-    AddPlanetDialog,
+    NewPlanetDialog,
     EditPlanetDialog(usize),
     NewPlanet(PlanetData),
     PlanetEdited(usize, PlanetData),
-    AddStar,
+    NewStarDialog,
+    EditStarDialog(usize),
+    NewStar(StarData),
+    StarEdited(usize, StarData),
     UpdateTime(Time),
     UpdateTimeStep(Time),
     PlanetSelected(String),
@@ -44,7 +49,7 @@ impl Gui {
             GuiMessage::NewSystemDialog => {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
-            GuiMessage::AddPlanetDialog => {
+            GuiMessage::NewPlanetDialog => {
                 self.dialog = Some(Box::new(PlanetDialog::new()));
             }
             GuiMessage::EditPlanetDialog(index) => {
@@ -70,8 +75,31 @@ impl Gui {
                     .overwrite_planet_data(index, planet_data);
                 self.dialog = None;
             }
-            GuiMessage::AddStar => {
-                todo!("Implement adding stars.");
+            GuiMessage::NewStarDialog => {
+                self.dialog = Some(Box::new(StarDialog::new()));
+            }
+            GuiMessage::EditStarDialog(index) => {
+                let star = self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .get_star_data(index)
+                    .ok_or(ElenathError::BodyNotFound)?;
+                self.dialog = Some(Box::new(StarDialog::edit(star.clone(), index)));
+            }
+            GuiMessage::NewStar(star) => {
+                self.celestial_system
+                    .as_mut()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .add_star_from_data(star);
+                self.dialog = None;
+            }
+            GuiMessage::StarEdited(index, star_data) => {
+                self.celestial_system
+                    .as_mut()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .overwrite_star_data(index, star_data);
+                self.dialog = None;
             }
             GuiMessage::NewSystemDialogSubmit(celestial_system) => {
                 self.celestial_system = Some(celestial_system?);
