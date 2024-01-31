@@ -154,10 +154,15 @@ impl Gui {
                 )
             }
             GuiMode::TableView => {
-                col = col.push(
-                    self.table_view_state
-                        .table_view(self.get_planet_data(), self.get_star_data()),
-                )
+                let (planets, stars) = match &self.celestial_system {
+                    Some(system) => {
+                        let planets = system.get_planets_at_time(self.time_since_epoch);
+                        let stars = system.get_stars().into_iter().map(|s| s.clone()).collect();
+                        (planets, stars)
+                    }
+                    None => (Vec::new(), Vec::new()),
+                };
+                col = col.push(self.table_view_state.table_view(planets, stars))
             }
         }
 

@@ -1,6 +1,11 @@
 use super::table_col_data::TableColData;
-use crate::gui::message::GuiMessage;
-use astro_utils::{planets::planet_data::PlanetData, stars::star_data::StarData};
+use crate::{
+    gui::message::GuiMessage,
+    model::{celestial_system::CelestialSystem, planet::Planet, star::Star},
+};
+use astro_utils::{
+    planets::planet_data::PlanetData, stars::star_data::StarData, units::time::Time,
+};
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -13,8 +18,8 @@ const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
 
 pub(crate) struct TableViewState {
-    planet_col_data: Vec<TableColData<PlanetData>>,
-    star_col_data: Vec<TableColData<StarData>>,
+    planet_col_data: Vec<TableColData<Planet>>,
+    star_col_data: Vec<TableColData<Star>>,
 }
 
 impl TableViewState {
@@ -27,8 +32,8 @@ impl TableViewState {
 
     pub(crate) fn table_view<'a>(
         &'a self,
-        planets: Vec<&'a PlanetData>,
-        stars: Vec<&'a StarData>,
+        planets: Vec<Planet>,
+        stars: Vec<Star>,
     ) -> Element<'_, GuiMessage> {
         Column::new()
             .push(table_header(&self.planet_col_data))
@@ -56,7 +61,7 @@ fn twoway_scrollable<'a>(child: impl Into<Element<'a, GuiMessage>>) -> Element<'
 }
 
 fn table<'a, T>(
-    bodies: Vec<&'a T>,
+    bodies: Vec<T>,
     table_col_data: &'a Vec<TableColData<T>>,
 ) -> Element<'a, GuiMessage> {
     let mut col = Column::new();
@@ -75,12 +80,12 @@ fn table_header<T>(table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMes
     row.align_items(Alignment::Center)
 }
 
-fn table_row<'a, T>(data: &'a T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage> {
+fn table_row<'a, T>(data: T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage> {
     let edit_button = Container::new(Button::new(Text::new("Edit")))
         .width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
     let mut row = Row::new().push(edit_button);
     for col in table_col_data.iter() {
-        row = row.push(table_cell(Text::new((col.content_closure)(data)).into()));
+        row = row.push(table_cell(Text::new((col.content_closure)(&data)).into()));
     }
     row.align_items(Alignment::Center)
 }
