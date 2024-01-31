@@ -16,6 +16,7 @@ use serde_json;
 #[derive(Debug, Clone)]
 pub(crate) struct PlanetDialog {
     planet: PlanetData,
+    planet_index: Option<usize>,
     mass_string: String,
     radius_string: String,
     geometric_albedo_string: String,
@@ -29,9 +30,10 @@ pub(crate) struct PlanetDialog {
 }
 
 impl PlanetDialog {
-    pub(crate) fn edit(planet: PlanetData) -> Self {
+    pub(crate) fn edit(planet: PlanetData, planet_index: usize) -> Self {
         PlanetDialog {
             planet: planet.clone(),
+            planet_index: Some(planet_index),
             mass_string: planet.get_mass().as_earth_masses().to_string(),
             radius_string: planet.get_radius().as_earth_radii().to_string(),
             geometric_albedo_string: planet.get_geometric_albedo().to_string(),
@@ -79,6 +81,7 @@ impl PlanetDialog {
                 Time::ZERO,
                 Direction::Z,
             ),
+            planet_index: None,
             mass_string: String::new(),
             radius_string: String::new(),
             geometric_albedo_string: String::new(),
@@ -95,7 +98,10 @@ impl PlanetDialog {
 
 impl Dialog for PlanetDialog {
     fn header(&self) -> String {
-        "Create/Edit Planet".to_string()
+        match self.planet_index {
+            Some(index) => format!("Edit Planet {}", index),
+            None => "Create Planet".to_string(),
+        }
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
@@ -204,9 +210,14 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 }
                 self.rotation_axis_string = rotation_axis_string;
             }
-            PlanetDialogEvent::Submit => {
-                return Some(GuiMessage::NewPlanet(self.planet.clone()));
-            }
+            PlanetDialogEvent::Submit => match self.planet_index {
+                Some(index) => {
+                    return Some(GuiMessage::PlanetEdited(index, self.planet.clone()));
+                }
+                None => {
+                    return Some(GuiMessage::NewPlanet(self.planet.clone()));
+                }
+            },
         }
         None
     }

@@ -52,6 +52,10 @@ impl CelestialSystem {
         self.planets.push(planet);
     }
 
+    pub(crate) fn overwrite_planet_data(&mut self, index: usize, planet: PlanetData) {
+        self.planets[index] = planet;
+    }
+
     pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
         let index = self.distant_stars.len();
         self.distant_stars

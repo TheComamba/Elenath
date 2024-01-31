@@ -22,6 +22,7 @@ pub(crate) enum GuiMessage {
     ModeSelected(GuiMode),
     AddPlanetDialog,
     NewPlanet(PlanetData),
+    PlanetEdited(usize, PlanetData),
     AddStar,
     UpdateTime(Time),
     UpdateTimeStep(Time),
@@ -51,6 +52,12 @@ impl Gui {
                     .ok_or(ElenathError::NoCelestialSystem)?
                     .add_planet_data(planet);
                 self.dialog = None;
+            }
+            GuiMessage::PlanetEdited(index, planet_data) => {
+                self.celestial_system
+                    .as_mut()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .overwrite_planet_data(index, planet_data);
             }
             GuiMessage::AddStar => {
                 todo!("Implement adding stars.");
