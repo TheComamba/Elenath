@@ -29,17 +29,6 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn adding_buttons() -> iced::Element<'static, GuiMessage> {
-        let add_planet_button = std_button("Add Planet", GuiMessage::NewPlanetDialog);
-        let add_star_button = std_button("Add Star", GuiMessage::NewStarDialog);
-        Row::new()
-            .push(add_planet_button)
-            .push(add_star_button)
-            .align_items(Alignment::Center)
-            .spacing(PADDING)
-            .into()
-    }
-
     pub(super) fn real_system_file_buttons() -> iced::Element<'static, GuiMessage> {
         let new_button = std_button("New system", GuiMessage::NewSystemDialog);
         let open_file_button = std_button("Open file", GuiMessage::OpenFile);

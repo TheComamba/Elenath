@@ -109,11 +109,9 @@ impl Gui {
             None => false,
         };
         if is_generated {
-            toprow = toprow
-                .push(Gui::adding_buttons())
-                .push(Gui::generated_system_file_buttons(
-                    self.celestial_system.is_some(),
-                ));
+            toprow = toprow.push(Gui::generated_system_file_buttons(
+                self.celestial_system.is_some(),
+            ));
         } else {
             toprow = toprow.push(Gui::real_system_file_buttons());
         }
@@ -162,7 +160,11 @@ impl Gui {
                     }
                     None => (Vec::new(), Vec::new()),
                 };
-                col = col.push(self.table_view_state.table_view(planets, stars))
+                col = col.push(self.table_view_state.table_view(
+                    planets,
+                    stars,
+                    self.celestial_system.is_some(),
+                ));
             }
         }
 

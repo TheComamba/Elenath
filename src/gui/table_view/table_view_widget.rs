@@ -35,12 +35,21 @@ impl TableViewState {
         &'a self,
         planets: Vec<Planet>,
         stars: Vec<Star>,
+        is_system_loaded: bool,
     ) -> Element<'_, GuiMessage> {
         Column::new()
-            .push(table_header(&self.planet_col_data))
+            .push(table_header(
+                GuiMessage::NewPlanetDialog,
+                &self.planet_col_data,
+                is_system_loaded,
+            ))
             .push(Rule::horizontal(10))
             .push(twoway_scrollable(table(planets, &self.planet_col_data)))
-            .push(table_header(&self.star_col_data))
+            .push(table_header(
+                GuiMessage::NewStarDialog,
+                &self.star_col_data,
+                is_system_loaded,
+            ))
             .push(Rule::horizontal(10))
             .push(twoway_scrollable(table(stars, &self.star_col_data)))
             .width(iced::Length::Fill)
@@ -72,9 +81,17 @@ where
     col.into()
 }
 
-fn table_header<T>(table_col_data: &Vec<TableColData<T>>) -> Row<'static, GuiMessage> {
-    let mut row = Row::new()
-        .push(Container::new(Text::new("")).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
+fn table_header<T>(
+    new_dialog_message: GuiMessage,
+    table_col_data: &Vec<TableColData<T>>,
+    is_system_loaded: bool,
+) -> Row<'static, GuiMessage> {
+    let mut new_button = Button::new("New");
+    if is_system_loaded {
+        new_button = new_button.on_press(new_dialog_message);
+    }
+    let mut row =
+        Row::new().push(Container::new(new_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
     for col in table_col_data {
         row = row.push(table_cell(Text::new(col.header).into()));
     }
