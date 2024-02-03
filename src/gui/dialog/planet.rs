@@ -126,6 +126,9 @@ impl PlanetDialog {
     }
 
     fn edit_column(&self) -> Element<'_, PlanetDialogEvent> {
+        let randomize_button =
+            Button::new(Text::new("Randomize")).on_press(PlanetDialogEvent::Randomize);
+
         let name = edit(
             "Name",
             self.planet.get_name(),
@@ -222,6 +225,7 @@ impl PlanetDialog {
         let submit_button = Button::new(Text::new("Submit")).on_press(PlanetDialogEvent::Submit);
 
         Column::new()
+            .push(randomize_button)
             .push(name)
             .push(mass)
             .push(radius)
@@ -242,11 +246,7 @@ impl PlanetDialog {
     }
 
     fn additional_info_column(&self) -> Element<'_, PlanetDialogEvent> {
-        let randomize_button =
-            Button::new(Text::new("Randomize")).on_press(PlanetDialogEvent::Randomize);
-
         Column::new()
-            .push(randomize_button)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)

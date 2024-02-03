@@ -106,6 +106,9 @@ impl StarDialog {
     }
 
     fn edit_column(&self) -> Element<'_, StarDialogEvent> {
+        let randomize_button =
+            Button::new(Text::new("Randomize")).on_press(StarDialogEvent::Randomize);
+
         let name = edit(
             "Name",
             self.star.get_name(),
@@ -166,6 +169,7 @@ impl StarDialog {
         let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
 
         Column::new()
+            .push(randomize_button)
             .push(name)
             .push(mass)
             .push(radius)
@@ -182,11 +186,15 @@ impl StarDialog {
     }
 
     fn additional_info_column(&self) -> Element<'_, StarDialogEvent> {
-        let randomize_button =
-            Button::new(Text::new("Randomize")).on_press(StarDialogEvent::Randomize);
+        let appearance = self.star.to_star_appearance();
+
+        let illuminance = Text::new(format!("Illuminance: {}", appearance.get_illuminance()));
+
+        let color = Text::new(format!("Color: {}", appearance.get_color()));
 
         Column::new()
-            .push(randomize_button)
+            .push(illuminance)
+            .push(color)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
@@ -300,9 +308,6 @@ impl Component<GuiMessage, Renderer> for StarDialog {
         Row::new()
             .push(self.edit_column())
             .push(self.additional_info_column())
-            .spacing(PADDING)
-            .width(iced::Length::Fill)
-            .align_items(Alignment::Center)
             .into()
     }
 }
