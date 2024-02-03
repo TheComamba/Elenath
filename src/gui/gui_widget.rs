@@ -6,8 +6,8 @@ use super::{
 };
 use astro_utils::units::time::Time;
 use iced::{
-    widget::{canvas, Column, Row},
-    Element, Sandbox,
+    widget::{canvas, Column, Container, Row, Text},
+    Element, Length, Sandbox,
 };
 use iced_aw::Modal;
 
@@ -105,9 +105,8 @@ impl Gui {
     fn main_view(&self) -> Element<'_, GuiMessage> {
         let toprow = Row::new()
             .push(Gui::gui_mode_tabs())
-            .push(Gui::generated_system_file_buttons(
-                self.celestial_system.is_some(),
-            ))
+            .push(Container::new(Text::new("")).width(Length::Fill))
+            .push(Gui::file_buttons(self.celestial_system.is_some()))
             .padding(PADDING)
             .spacing(PADDING);
         let mut col = Column::new().push(toprow);

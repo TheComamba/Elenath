@@ -36,9 +36,7 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn generated_system_file_buttons(
-        has_system: bool,
-    ) -> iced::Element<'static, GuiMessage> {
+    pub(super) fn file_buttons(has_system: bool) -> iced::Element<'static, GuiMessage> {
         let new_button = std_button("New system", GuiMessage::NewSystemDialog, true);
         let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile, has_system);
         let save_to_new_file_button =
