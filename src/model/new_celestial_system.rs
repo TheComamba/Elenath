@@ -46,7 +46,7 @@ pub(crate) fn generated_system(
 ) -> Result<CelestialSystem, ElenathError> {
     let central_body_data = match central_body {
         GeneratedCentralBody::Sun => SUN_DATA.to_star_data(),
-        GeneratedCentralBody::RandomStar => generate_random_star()?,
+        GeneratedCentralBody::RandomStar => generate_random_star(None)?,
     };
 
     let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);

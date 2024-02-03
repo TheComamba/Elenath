@@ -279,7 +279,8 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                 self.direction_string = direction_string;
             }
             StarDialogEvent::Randomize => {
-                self.star = match generate_random_star() {
+                let max_distance = Length::from_light_years(2000.);
+                self.star = match generate_random_star(Some(max_distance)) {
                     Ok(star) => star,
                     Err(e) => {
                         return Some(GuiMessage::ErrorEncountered(e.into()));
