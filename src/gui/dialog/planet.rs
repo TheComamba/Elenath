@@ -65,7 +65,7 @@ impl PlanetDialog {
                 .get_sideral_rotation_period()
                 .as_days()
                 .to_string(),
-            rotation_axis_string: planet.get_rotation_axis().to_string(),
+            rotation_axis_string: serde_json::to_string(planet.get_rotation_axis()).unwrap(),
         }
     }
 

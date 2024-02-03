@@ -1,6 +1,13 @@
-use astro_utils::{coordinates::direction::Direction, stars::star_data::StarData};
+use astro_utils::{
+    coordinates::direction::Direction,
+    stars::star_data::StarData,
+    units::{
+        length::Length, luminosity::Luminosity, mass::Mass, temperature::Temperature, time::Time,
+    },
+    Float,
+};
 use iced::{
-    widget::{component, Column, Component},
+    widget::{component, Button, Column, Component, Text},
     Alignment, Element, Renderer,
 };
 
@@ -41,7 +48,7 @@ impl StarDialog {
             temperature_string: String::new(),
             age_string: String::new(),
             distance_string: String::new(),
-            direction_string: String::new(),
+            direction_string: serde_json::to_string(&Direction::Z).unwrap(),
         }
     }
 
@@ -70,7 +77,7 @@ impl StarDialog {
             .get_distance()
             .map(|distance| distance.as_light_years().to_string())
             .unwrap_or(String::new());
-        let direction_string = star.get_direction_in_ecliptic().to_string();
+        let direction_string = serde_json::to_string(star.get_direction_in_ecliptic()).unwrap();
         StarDialog {
             star,
             star_index: Some(star_index),
@@ -117,6 +124,62 @@ impl Component<GuiMessage, Renderer> for StarDialog {
     type Event = StarDialogEvent;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
+        match event {
+            StarDialogEvent::NameChanged(name) => {
+                self.star.set_name(name);
+            }
+            StarDialogEvent::MassChanged(mass_string) => {
+                if let Ok(mass) = mass_string.parse::<Float>() {
+                    self.star.set_mass(Some(Mass::from_solar_masses(mass)));
+                }
+                self.mass_string = mass_string;
+            }
+            StarDialogEvent::RadiusChanged(radius_string) => {
+                if let Ok(radius) = radius_string.parse::<Float>() {
+                    self.star.set_radius(Some(Length::from_sun_radii(radius)));
+                }
+                self.radius_string = radius_string;
+            }
+            StarDialogEvent::LuminosityChanged(luminosity_string) => {
+                if let Ok(luminosity) = luminosity_string.parse::<Float>() {
+                    self.star
+                        .set_luminosity(Some(Luminosity::from_absolute_magnitude(luminosity)));
+                }
+                self.luminosity_string = luminosity_string;
+            }
+            StarDialogEvent::TemperatureChanged(temperature_string) => {
+                if let Ok(temperature) = temperature_string.parse::<Float>() {
+                    self.star
+                        .set_temperature(Some(Temperature::from_kelvin(temperature)));
+                }
+                self.temperature_string = temperature_string;
+            }
+            StarDialogEvent::AgeChanged(age_string) => {
+                if let Ok(age) = age_string.parse::<Float>() {
+                    self.star.set_age(Some(Time::from_billion_years(age)));
+                }
+                self.age_string = age_string;
+            }
+            StarDialogEvent::DistanceChanged(distance_string) => {
+                if let Ok(distance) = distance_string.parse::<Float>() {
+                    self.star
+                        .set_distance(Some(Length::from_light_years(distance)));
+                }
+                self.distance_string = distance_string;
+            }
+            StarDialogEvent::DirectionChanged(direction_string) => {
+                if let Ok(dir) = serde_json::from_str::<Direction>(&direction_string) {
+                    if let Ok(dir) = Direction::new(dir.x(), dir.y(), dir.z()) {
+                        self.star.set_direction_in_ecliptic(dir);
+                    }
+                }
+                self.direction_string = direction_string;
+            }
+            StarDialogEvent::Submit => match self.star_index {
+                Some(index) => return Some(GuiMessage::StarEdited(index, self.star.clone())),
+                None => return Some(GuiMessage::NewStar(self.star.clone())),
+            },
+        }
         None
     }
 
@@ -178,6 +241,8 @@ impl Component<GuiMessage, Renderer> for StarDialog {
             &Some(self.star.get_direction_in_ecliptic()),
         );
 
+        let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
+
         Column::new()
             .push(name)
             .push(mass)
@@ -187,6 +252,7 @@ impl Component<GuiMessage, Renderer> for StarDialog {
             .push(age)
             .push(distance)
             .push(direction)
+            .push(submit_button)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
