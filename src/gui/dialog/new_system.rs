@@ -8,7 +8,7 @@ use crate::{
     },
     model::{
         celestial_system::{CelestialSystem, SystemType},
-        new_celestial_system::{generated_system, solar_system},
+        new_celestial_system::{generated_system, solar_system, GeneratedCentralBody},
     },
 };
 use astro_utils::{units::length::Length, Float};
@@ -21,6 +21,7 @@ use iced::{
 pub(crate) struct NewSystemDialog {
     system_type: SystemType,
     load_gaia_data: bool,
+    generated_central_body: GeneratedCentralBody,
     max_generation_distance_text: String,
     max_generation_distance: Length,
 }
@@ -30,6 +31,7 @@ impl NewSystemDialog {
         NewSystemDialog {
             system_type: SystemType::Real,
             load_gaia_data: false,
+            generated_central_body: GeneratedCentralBody::Sun,
             max_generation_distance_text: String::new(),
             max_generation_distance: Length::ZERO,
         }
@@ -38,7 +40,9 @@ impl NewSystemDialog {
     fn celestial_system(&self) -> Result<CelestialSystem, ElenathError> {
         match self.system_type {
             SystemType::Real => solar_system(self.load_gaia_data),
-            SystemType::Generated => generated_system(self.max_generation_distance),
+            SystemType::Generated => {
+                generated_system(&self.generated_central_body, self.max_generation_distance)
+            }
         }
     }
 }
@@ -57,6 +61,7 @@ impl Dialog for NewSystemDialog {
 pub(crate) enum NewSystemDialogEvent {
     SystemTypeSelected(SystemType),
     LoadGaiaDataSelected(bool),
+    GeneratedCentralBodySelected(GeneratedCentralBody),
     MaxGenerationDistanceChanged(String),
     Submit,
 }
@@ -73,6 +78,9 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             }
             NewSystemDialogEvent::LoadGaiaDataSelected(load_gaia_data) => {
                 self.load_gaia_data = load_gaia_data;
+            }
+            NewSystemDialogEvent::GeneratedCentralBodySelected(generated_central_body) => {
+                self.generated_central_body = generated_central_body;
             }
             NewSystemDialogEvent::MaxGenerationDistanceChanged(max_generation_distance_text) => {
                 if let Ok(max_generation_distance) = max_generation_distance_text.parse::<Float>() {
@@ -122,6 +130,26 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                 col = col.push(load_gaia_data_toggler);
             }
             SystemType::Generated => {
+                let sun_radio = Radio::new(
+                    "Use the Sun as Central Body",
+                    GeneratedCentralBody::Sun,
+                    Some(self.generated_central_body),
+                    NewSystemDialogEvent::GeneratedCentralBodySelected,
+                )
+                .width(SMALL_COLUMN_WIDTH);
+                let random_star_radio = Radio::new(
+                    "Generate Random Central Body",
+                    GeneratedCentralBody::RandomStar,
+                    Some(self.generated_central_body),
+                    NewSystemDialogEvent::GeneratedCentralBodySelected,
+                )
+                .width(SMALL_COLUMN_WIDTH);
+                let central_body_row = Row::new()
+                    .push(sun_radio)
+                    .push(random_star_radio)
+                    .padding(PADDING)
+                    .spacing(PADDING);
+
                 let max_generation_distance_input = edit(
                     "Maximum distance",
                     &self.max_generation_distance_text,
@@ -129,7 +157,9 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     |t| NewSystemDialogEvent::MaxGenerationDistanceChanged(t),
                     self.max_generation_distance,
                 );
-                col = col.push(max_generation_distance_input);
+                col = col
+                    .push(central_body_row)
+                    .push(max_generation_distance_input);
             }
         }
 
