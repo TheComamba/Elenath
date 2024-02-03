@@ -172,6 +172,12 @@ impl SurfaceViewState {
             &planet.get_position(),
             observer_position,
         );
+        let planet_appearance = match planet_appearance {
+            Ok(appearance) => appearance,
+            Err(_) => {
+                return;
+            }
+        };
 
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&planet_appearance, viewport);
@@ -199,6 +205,12 @@ impl SurfaceViewState {
         let central_body = celestial_system.get_central_body();
         let central_body_pos = -observer_position;
         let central_body_dir = central_body_pos.to_direction();
+        let central_body_dir = match central_body_dir {
+            Ok(dir) => dir,
+            Err(_) => {
+                return;
+            }
+        };
         let mut central_body_appearance = central_body.get_appearance().clone();
         central_body_appearance.set_direction_in_ecliptic(central_body_dir);
         let canvas_appearance =
