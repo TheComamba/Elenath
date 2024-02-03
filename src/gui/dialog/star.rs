@@ -1,7 +1,10 @@
-use astro_utils::stars::star_data::StarData;
-use iced::Element;
+use astro_utils::{coordinates::direction::Direction, stars::star_data::StarData};
+use iced::{
+    widget::{component, Column, Component},
+    Alignment, Element, Renderer,
+};
 
-use crate::gui::message::GuiMessage;
+use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 
 use super::Dialog;
 
@@ -9,20 +12,60 @@ use super::Dialog;
 pub(crate) struct StarDialog {
     star: StarData,
     star_index: Option<usize>,
+    mass_string: String,
+    radius_string: String,
+    luminosity_string: String,
+    temperature_string: String,
+    age_string: String,
+    distance_string: String,
+    direction_string: String,
 }
 
 impl StarDialog {
     pub(crate) fn new() -> Self {
         StarDialog {
-            star: todo!(),
+            star: StarData::new(
+                "".to_string(),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                Direction::Z,
+            ),
             star_index: None,
+            mass_string: String::new(),
+            radius_string: String::new(),
+            luminosity_string: String::new(),
+            temperature_string: String::new(),
+            age_string: String::new(),
+            distance_string: String::new(),
+            direction_string: String::new(),
         }
     }
 
     pub(crate) fn edit(star: StarData, star_index: usize) -> Self {
+        let mass_string = serde_json::to_string(&star.get_mass()).unwrap_or(String::new());
+        let radius_string = serde_json::to_string(&star.get_radius()).unwrap_or(String::new());
+        let luminosity_string =
+            serde_json::to_string(&star.get_luminosity()).unwrap_or(String::new());
+        let temperature_string =
+            serde_json::to_string(&star.get_temperature()).unwrap_or(String::new());
+        let age_string = serde_json::to_string(&star.get_age()).unwrap_or(String::new());
+        let distance_string = serde_json::to_string(&star.get_distance()).unwrap_or(String::new());
+        let direction_string =
+            serde_json::to_string(&star.get_direction_in_ecliptic()).unwrap_or(String::new());
         StarDialog {
             star,
             star_index: Some(star_index),
+            mass_string,
+            radius_string,
+            luminosity_string,
+            temperature_string,
+            age_string,
+            distance_string,
+            direction_string,
         }
     }
 }
@@ -36,6 +79,102 @@ impl Dialog for StarDialog {
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        todo!()
+        component(self.clone())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum StarDialogEvent {
+    NameChanged(String),
+    MassChanged(String),
+    RadiusChanged(String),
+    LuminosityChanged(String),
+    TemperatureChanged(String),
+    AgeChanged(String),
+    DistanceChanged(String),
+    DirectionChanged(String),
+    Submit,
+}
+
+impl Component<GuiMessage, Renderer> for StarDialog {
+    type State = ();
+
+    type Event = StarDialogEvent;
+
+    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
+        None
+    }
+
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        let name = edit(
+            "Name",
+            self.star.get_name(),
+            "",
+            |t| StarDialogEvent::NameChanged(t),
+            self.star.get_name(),
+        );
+        let mass = edit(
+            "Mass",
+            &self.mass_string,
+            "kg",
+            |t| StarDialogEvent::MassChanged(t),
+            self.mass_string.clone(),
+        );
+        let radius = edit(
+            "Radius",
+            &self.radius_string,
+            "m",
+            |t| StarDialogEvent::RadiusChanged(t),
+            self.radius_string.clone(),
+        );
+        let luminosity = edit(
+            "Luminosity",
+            &self.luminosity_string,
+            "W",
+            |t| StarDialogEvent::LuminosityChanged(t),
+            self.luminosity_string.clone(),
+        );
+        let temperature = edit(
+            "Temperature",
+            &self.temperature_string,
+            "K",
+            |t| StarDialogEvent::TemperatureChanged(t),
+            self.temperature_string.clone(),
+        );
+        let age = edit(
+            "Age",
+            &self.age_string,
+            "years",
+            |t| StarDialogEvent::AgeChanged(t),
+            self.age_string.clone(),
+        );
+        let distance = edit(
+            "Distance",
+            &self.distance_string,
+            "m",
+            |t| StarDialogEvent::DistanceChanged(t),
+            self.distance_string.clone(),
+        );
+        let direction = edit(
+            "Direction",
+            &self.direction_string,
+            "",
+            |t| StarDialogEvent::DirectionChanged(t),
+            self.direction_string.clone(),
+        );
+
+        Column::new()
+            .push(name)
+            .push(mass)
+            .push(radius)
+            .push(luminosity)
+            .push(temperature)
+            .push(age)
+            .push(distance)
+            .push(direction)
+            .spacing(PADDING)
+            .width(iced::Length::Fill)
+            .align_items(Alignment::Center)
+            .into()
     }
 }
