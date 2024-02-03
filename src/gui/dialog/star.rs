@@ -17,6 +17,7 @@ use super::Dialog;
 
 #[derive(Debug, Clone)]
 pub(crate) struct StarDialog {
+    star_dialog_type: StarDialogType,
     star: StarData,
     star_index: Option<usize>,
     mass_string: String,
@@ -28,9 +29,16 @@ pub(crate) struct StarDialog {
     direction_string: String,
 }
 
+#[derive(Debug, Clone)]
+enum StarDialogType {
+    New,
+    Edit,
+}
+
 impl StarDialog {
     pub(crate) fn new() -> Self {
         let mut dialog = StarDialog {
+            star_dialog_type: StarDialogType::New,
             star: StarData::new(
                 "".to_string(),
                 None,
@@ -54,10 +62,11 @@ impl StarDialog {
         dialog
     }
 
-    pub(crate) fn edit(star: StarData, star_index: usize) -> Self {
+    pub(crate) fn edit(star: StarData, star_index: Option<usize>) -> Self {
         let mut dialog = StarDialog {
+            star_dialog_type: StarDialogType::Edit,
             star,
-            star_index: Some(star_index),
+            star_index,
             mass_string: String::new(),
             radius_string: String::new(),
             luminosity_string: String::new(),
@@ -296,9 +305,11 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                 };
                 self.fill_string_members();
             }
-            StarDialogEvent::Submit => match self.star_index {
-                Some(index) => return Some(GuiMessage::StarEdited(index, self.star.clone())),
-                None => return Some(GuiMessage::NewStar(self.star.clone())),
+            StarDialogEvent::Submit => match self.star_dialog_type {
+                StarDialogType::Edit => {
+                    return Some(GuiMessage::StarEdited(self.star_index, self.star.clone()))
+                }
+                StarDialogType::New => return Some(GuiMessage::NewStar(self.star.clone())),
             },
         }
         None
