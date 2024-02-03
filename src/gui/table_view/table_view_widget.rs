@@ -117,14 +117,15 @@ where
     T: PartOfCelestialSystem,
 {
     let mut edit_button = Button::new(Text::new("Edit"));
-    if let Some(index) = data.get_index() {
-        match data.get_body_type() {
-            BodyType::Planet => {
+    let index = data.get_index();
+    match data.get_body_type() {
+        BodyType::Planet => {
+            if let Some(index) = index {
                 edit_button = edit_button.on_press(GuiMessage::EditPlanetDialog(index));
             }
-            BodyType::Star => {
-                edit_button = edit_button.on_press(GuiMessage::EditStarDialog(index));
-            }
+        }
+        BodyType::Star => {
+            edit_button = edit_button.on_press(GuiMessage::EditStarDialog(data.get_index()));
         }
     }
     let edit_button = Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH));

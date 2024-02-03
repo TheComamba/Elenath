@@ -82,8 +82,11 @@ impl CelestialSystem {
         }
     }
 
-    pub(crate) fn overwrite_star_data(&mut self, index: usize, star_data: StarData) {
-        self.distant_stars[index] = Star::from_data(star_data, Some(index));
+    pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
+        match index {
+            Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
+            None => self.central_body = Star::from_data(star_data, None),
+        }
     }
 
     pub(crate) fn get_central_body(&self) -> &Star {
@@ -134,14 +137,10 @@ impl CelestialSystem {
         bodies
     }
 
-    pub(crate) fn get_star_data(&self, index: usize) -> Option<&StarData> {
-        self.distant_stars.get(index).and_then(|s| s.get_data())
-    }
-
-    pub(crate) fn is_generated(&self) -> bool {
-        match self.system_type {
-            SystemType::Generated => true,
-            SystemType::Real => false,
+    pub(crate) fn get_star_data(&self, index: Option<usize>) -> Option<&StarData> {
+        match index {
+            Some(index) => self.distant_stars.get(index).and_then(|s| s.get_data()),
+            None => self.central_body.get_data(),
         }
     }
 }

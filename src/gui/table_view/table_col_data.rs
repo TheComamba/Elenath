@@ -161,7 +161,7 @@ impl TableColData<Star> {
                 }),
             },
             TableColData {
-                header: "Apparent Brightness",
+                header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
                     if let (Some(abs_mag), Some(distance)) = (
                         body.get_data().unwrap().get_luminosity(),
