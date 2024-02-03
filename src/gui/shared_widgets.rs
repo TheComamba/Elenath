@@ -15,11 +15,18 @@ use iced_aw::Element;
 
 impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
-        let local_view_button =
-            std_button("Local View", GuiMessage::ModeSelected(GuiMode::SurfaceView));
-        let top_view_button = std_button("Top View", GuiMessage::ModeSelected(GuiMode::TopView));
-        let table_view_button =
-            std_button("Table View", GuiMessage::ModeSelected(GuiMode::TableView));
+        let local_view_button = std_button(
+            "Local View",
+            GuiMessage::ModeSelected(GuiMode::SurfaceView),
+            true,
+        );
+        let top_view_button =
+            std_button("Top View", GuiMessage::ModeSelected(GuiMode::TopView), true);
+        let table_view_button = std_button(
+            "Table View",
+            GuiMessage::ModeSelected(GuiMode::TableView),
+            true,
+        );
         Row::new()
             .push(local_view_button)
             .push(top_view_button)
@@ -29,42 +36,36 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn real_system_file_buttons() -> iced::Element<'static, GuiMessage> {
-        let new_button = std_button("New system", GuiMessage::NewSystemDialog);
-        let open_file_button = std_button("Open file", GuiMessage::OpenFile);
+    pub(super) fn generated_system_file_buttons(
+        has_system: bool,
+    ) -> iced::Element<'static, GuiMessage> {
+        let new_button = std_button("New system", GuiMessage::NewSystemDialog, true);
+        let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile, has_system);
+        let save_to_new_file_button =
+            std_button("Save to new file", GuiMessage::SaveToNewFile, has_system);
+        let open_file_button = std_button("Open file", GuiMessage::OpenFile, true);
+
         Row::new()
             .push(new_button)
+            .push(save_to_file_button)
+            .push(save_to_new_file_button)
             .push(open_file_button)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
-
-    pub(super) fn generated_system_file_buttons(
-        has_system: bool,
-    ) -> iced::Element<'static, GuiMessage> {
-        let new_button = std_button("New system", GuiMessage::NewSystemDialog);
-        let mut row = Row::new().push(new_button);
-        if has_system {
-            let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
-            let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
-            row = row.push(save_to_file_button).push(save_to_new_file_button);
-        }
-        let open_file_button = std_button("Open file", GuiMessage::OpenFile);
-
-        row = row.push(open_file_button);
-        row.align_items(Alignment::Center).spacing(PADDING).into()
-    }
 }
 
-fn std_button(text: &str, message: GuiMessage) -> Button<'_, GuiMessage> {
-    Button::new(
+fn std_button(text: &str, message: GuiMessage, is_enabled: bool) -> Button<'_, GuiMessage> {
+    let mut button = Button::new(
         Text::new(text)
             .horizontal_alignment(Horizontal::Center)
             .vertical_alignment(Vertical::Center),
-    )
-    .on_press(message)
-    .width(SMALL_COLUMN_WIDTH)
+    );
+    if is_enabled {
+        button = button.on_press(message);
+    }
+    button.width(SMALL_COLUMN_WIDTH)
 }
 
 pub(super) fn planet_picker<'a>(

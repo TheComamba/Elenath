@@ -103,19 +103,13 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
 
 impl Gui {
     fn main_view(&self) -> Element<'_, GuiMessage> {
-        let mut toprow = Row::new().push(Gui::gui_mode_tabs());
-        let is_generated = match &self.celestial_system {
-            Some(system) => system.is_generated(),
-            None => false,
-        };
-        if is_generated {
-            toprow = toprow.push(Gui::generated_system_file_buttons(
+        let toprow = Row::new()
+            .push(Gui::gui_mode_tabs())
+            .push(Gui::generated_system_file_buttons(
                 self.celestial_system.is_some(),
-            ));
-        } else {
-            toprow = toprow.push(Gui::real_system_file_buttons());
-        }
-        toprow = toprow.padding(PADDING).spacing(PADDING);
+            ))
+            .padding(PADDING)
+            .spacing(PADDING);
         let mut col = Column::new().push(toprow);
 
         match self.mode {

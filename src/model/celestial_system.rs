@@ -143,11 +143,4 @@ impl CelestialSystem {
             None => self.central_body.get_data(),
         }
     }
-
-    pub(crate) fn is_generated(&self) -> bool {
-        match self.system_type {
-            SystemType::Generated => true,
-            SystemType::Real => false,
-        }
-    }
 }
