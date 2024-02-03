@@ -1,13 +1,17 @@
+use std::fmt::Display;
+
 use super::{
-    gui_widget::{GuiMessage, BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
+    gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
+    message::GuiMessage,
     Gui, GuiMode,
 };
 use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
 use iced::{
     alignment::{Horizontal, Vertical},
-    widget::{Button, Column, Container, PickList, Row, Text, Toggler},
-    Alignment,
+    widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
+    Alignment, Renderer,
 };
+use iced_aw::Element;
 
 impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
@@ -25,32 +29,31 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn adding_buttons() -> iced::Element<'static, GuiMessage> {
-        let add_planet_button = std_button("Add Planet", GuiMessage::AddPlanet);
-        let add_star_button = std_button("Add Star", GuiMessage::AddStar);
-        let generate_stars_button = std_button("Generate Stars", GuiMessage::GenerateStars);
-        let fetch_gaia_data_button = std_button("Fetch Gaia Data", GuiMessage::FetchGaiaData);
+    pub(super) fn real_system_file_buttons() -> iced::Element<'static, GuiMessage> {
+        let new_button = std_button("New system", GuiMessage::NewSystemDialog);
+        let open_file_button = std_button("Open file", GuiMessage::OpenFile);
         Row::new()
-            .push(add_planet_button)
-            .push(add_star_button)
-            .push(generate_stars_button)
-            .push(fetch_gaia_data_button)
+            .push(new_button)
+            .push(open_file_button)
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
 
-    pub(super) fn file_buttons() -> iced::Element<'static, GuiMessage> {
-        let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
-        let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
+    pub(super) fn generated_system_file_buttons(
+        has_system: bool,
+    ) -> iced::Element<'static, GuiMessage> {
+        let new_button = std_button("New system", GuiMessage::NewSystemDialog);
+        let mut row = Row::new().push(new_button);
+        if has_system {
+            let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile);
+            let save_to_new_file_button = std_button("Save to new file", GuiMessage::SaveToNewFile);
+            row = row.push(save_to_file_button).push(save_to_new_file_button);
+        }
         let open_file_button = std_button("Open file", GuiMessage::OpenFile);
-        Row::new()
-            .push(save_to_file_button)
-            .push(save_to_new_file_button)
-            .push(open_file_button)
-            .align_items(Alignment::Center)
-            .spacing(PADDING)
-            .into()
+
+        row = row.push(open_file_button);
+        row.align_items(Alignment::Center).spacing(PADDING).into()
     }
 }
 
@@ -131,7 +134,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .into()
 }
 
-pub(super) fn control_field<'a, M>(
+pub(crate) fn control_field<'a, M>(
     label: &'a str,
     value: String,
     decrease: M,
@@ -160,4 +163,42 @@ where
         .push(increase_button)
         .spacing(PADDING)
         .align_items(Alignment::Center)
+}
+
+pub(crate) fn edit<'a, Fun, Mes, Val>(
+    description: &'static str,
+    data: &String,
+    units: &'static str,
+    message: Fun,
+    actual_value: &Option<Val>,
+) -> Element<'a, Mes, Renderer>
+where
+    Fun: 'a + Fn(String) -> Mes,
+    Mes: 'a + Clone,
+    Val: 'a + Display,
+{
+    let description = if description.ends_with(":") {
+        description.to_string()
+    } else {
+        format!("{}:", description)
+    };
+    let description = Text::new(description)
+        .width(SMALL_COLUMN_WIDTH)
+        .horizontal_alignment(Horizontal::Right);
+    let data = TextInput::new("", &data)
+        .on_input(message)
+        .width(SMALL_COLUMN_WIDTH);
+    let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
+    let parsed_text = match actual_value {
+        Some(value) => format! {"Parsed value:\n{}",value},
+        None => "Parsed value:\nNone".to_string(),
+    };
+    let value = Text::new(parsed_text).width(SMALL_COLUMN_WIDTH);
+    Row::new()
+        .push(description)
+        .push(data)
+        .push(units)
+        .push(value)
+        .spacing(PADDING)
+        .into()
 }

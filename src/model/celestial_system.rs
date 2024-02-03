@@ -9,17 +9,25 @@ use astro_utils::{
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct CelestialSystem {
+    system_type: SystemType,
     central_body: Star,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SystemType {
+    Real,
+    Generated,
+}
+
 impl CelestialSystem {
-    pub(crate) fn new(central_body_data: StarData) -> Self {
-        let central_body = Star::from_data(central_body_data);
+    pub(crate) fn new(system_type: SystemType, central_body_data: StarData) -> Self {
+        let central_body = Star::from_data(central_body_data, None);
         CelestialSystem {
+            system_type,
             central_body,
             planets: vec![],
             distant_stars: vec![],
@@ -44,8 +52,14 @@ impl CelestialSystem {
         self.planets.push(planet);
     }
 
+    pub(crate) fn overwrite_planet_data(&mut self, index: usize, planet: PlanetData) {
+        self.planets[index] = planet;
+    }
+
     pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
-        self.distant_stars.push(Star::from_data(star_data));
+        let index = self.distant_stars.len();
+        self.distant_stars
+            .push(Star::from_data(star_data, Some(index)));
     }
 
     pub(crate) fn add_star_appearances_without_duplicates(
@@ -61,10 +75,15 @@ impl CelestialSystem {
                     .map(|s| s.get_appearance())
                     .collect::<Vec<_>>(),
             ) {
+                let index = self.distant_stars.len();
                 self.distant_stars
-                    .push(Star::from_appearance(star_appearance));
+                    .push(Star::from_appearance(star_appearance, Some(index)));
             }
         }
+    }
+
+    pub(crate) fn overwrite_star_data(&mut self, index: usize, star_data: StarData) {
+        self.distant_stars[index] = Star::from_data(star_data, Some(index));
     }
 
     pub(crate) fn get_central_body(&self) -> &Star {
@@ -75,7 +94,7 @@ impl CelestialSystem {
         &self.central_body.get_data().unwrap()
     }
 
-    pub(crate) fn get_planet_data(&self) -> Vec<&PlanetData> {
+    pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
         let mut bodies = Vec::new();
         for planet in &self.planets {
             bodies.push(planet);
@@ -83,24 +102,26 @@ impl CelestialSystem {
         bodies
     }
 
+    pub(crate) fn get_planet_data(&self, index: usize) -> Option<&PlanetData> {
+        self.planets.get(index)
+    }
+
     pub(crate) fn get_planets_at_time(&self, time: Time) -> Vec<Planet> {
         let mut bodies = Vec::new();
         if let Some(central_body) = self.central_body.get_data() {
-            for planet_data in &self.planets {
-                let planet = Planet::new(planet_data.clone(), central_body, time);
+            for (i, planet_data) in self.planets.iter().enumerate() {
+                let planet = Planet::new(planet_data.clone(), central_body, time, Some(i));
                 bodies.push(planet);
             }
         }
         bodies
     }
 
-    pub(crate) fn get_star_data(&self) -> Vec<&StarData> {
+    pub(crate) fn get_stars(&self) -> Vec<&Star> {
         let mut bodies = Vec::new();
-        bodies.push(self.central_body.get_data().unwrap());
+        bodies.push(&self.central_body);
         for star in &self.distant_stars {
-            if let Some(data) = star.get_data() {
-                bodies.push(data);
-            }
+            bodies.push(star);
         }
         bodies
     }
@@ -111,5 +132,16 @@ impl CelestialSystem {
             bodies.push(star.get_appearance());
         }
         bodies
+    }
+
+    pub(crate) fn get_star_data(&self, index: usize) -> Option<&StarData> {
+        self.distant_stars.get(index).and_then(|s| s.get_data())
+    }
+
+    pub(crate) fn is_generated(&self) -> bool {
+        match self.system_type {
+            SystemType::Generated => true,
+            SystemType::Real => false,
+        }
     }
 }

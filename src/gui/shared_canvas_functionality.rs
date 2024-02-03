@@ -1,4 +1,5 @@
 use iced::{
+    alignment::{Horizontal, Vertical},
     widget::canvas::{self, Path},
     Color, Point, Rectangle,
 };
@@ -26,4 +27,15 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
  */
 pub(super) fn contains_workaround(bounds: &Rectangle, point: Point) -> bool {
     return point.x >= 0. && point.x <= bounds.width && point.y >= 0. && point.y <= bounds.height;
+}
+
+pub(crate) fn display_info_text(frame: &mut canvas::Frame, text: &str) {
+    let mut name_widget = canvas::Text::default();
+    name_widget.size = 30.0;
+    name_widget.color = Color::WHITE;
+    name_widget.content = text.to_string();
+    name_widget.position = frame.center();
+    name_widget.vertical_alignment = Vertical::Center;
+    name_widget.horizontal_alignment = Horizontal::Center;
+    frame.fill_text(name_widget)
 }
