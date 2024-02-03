@@ -1,7 +1,7 @@
 use super::celestial_system::{CelestialSystem, SystemType};
 use crate::error::ElenathError;
 use astro_utils::{
-    data::{planets::*, stars::*},
+    real_data::{planets::*, stars::*},
     stars::{
         gaia_data::fetch_brightest_stars,
         random_stars::{generate_random_star, generate_random_stars},
