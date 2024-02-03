@@ -12,7 +12,7 @@ use iced::{
         scrollable::{Direction, Properties},
         Button, Column, Container, Row, Rule, Scrollable, Text,
     },
-    Alignment, Element,
+    Alignment, Element, Length,
 };
 
 const CELL_WIDTH: f32 = 150.;
@@ -37,37 +37,43 @@ impl TableViewState {
         stars: Vec<Star>,
         is_system_loaded: bool,
     ) -> Element<'_, GuiMessage> {
+        let planet_table_width = Length::Fixed(self.planet_col_data.len() as f32 * CELL_WIDTH);
+        let planet_table = Scrollable::new(
+            Column::new()
+                .push(table_header(
+                    GuiMessage::NewPlanetDialog,
+                    &self.planet_col_data,
+                    is_system_loaded,
+                ))
+                .push(Container::new(Rule::horizontal(10)).width(planet_table_width))
+                .push(table(planets, &self.planet_col_data)),
+        )
+        .direction(Direction::Horizontal(Properties::default()))
+        .width(Length::Fill)
+        .height(Length::Fill);
+
+        let star_table_width = Length::Fixed(self.star_col_data.len() as f32 * CELL_WIDTH);
+        let star_table = Scrollable::new(
+            Column::new()
+                .push(table_header(
+                    GuiMessage::NewStarDialog,
+                    &self.star_col_data,
+                    is_system_loaded,
+                ))
+                .push(Container::new(Rule::horizontal(10)).width(star_table_width))
+                .push(table(stars, &self.star_col_data)),
+        )
+        .direction(Direction::Horizontal(Properties::default()))
+        .width(Length::Fill)
+        .height(Length::Fill);
+
         Column::new()
-            .push(table_header(
-                GuiMessage::NewPlanetDialog,
-                &self.planet_col_data,
-                is_system_loaded,
-            ))
-            .push(Rule::horizontal(10))
-            .push(twoway_scrollable(table(planets, &self.planet_col_data)))
-            .push(table_header(
-                GuiMessage::NewStarDialog,
-                &self.star_col_data,
-                is_system_loaded,
-            ))
-            .push(Rule::horizontal(10))
-            .push(twoway_scrollable(table(stars, &self.star_col_data)))
+            .push(planet_table)
+            .push(star_table)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
-}
-
-fn twoway_scrollable<'a>(child: impl Into<Element<'a, GuiMessage>>) -> Element<'a, GuiMessage> {
-    let direction = Direction::Both {
-        vertical: Properties::default(),
-        horizontal: Properties::default(),
-    };
-    Scrollable::new(child)
-        .direction(direction)
-        .width(iced::Length::Fill)
-        .height(iced::Length::Fill)
-        .into()
 }
 
 fn table<'a, T>(bodies: Vec<T>, table_col_data: &'a Vec<TableColData<T>>) -> Element<'a, GuiMessage>
@@ -78,7 +84,10 @@ where
     for body in bodies {
         col = col.push(table_row(body, table_col_data));
     }
-    col.into()
+    Scrollable::new(col)
+        .direction(Direction::Vertical(Properties::default()))
+        .height(iced::Length::Fill)
+        .into()
 }
 
 fn table_header<T>(
