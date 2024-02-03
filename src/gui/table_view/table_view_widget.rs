@@ -17,6 +17,7 @@ use iced::{
 
 const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
+const MAX_ROWS: usize = 100;
 
 pub(crate) struct TableViewState {
     planet_col_data: Vec<TableColData<Planet>>,
@@ -81,8 +82,12 @@ where
     T: PartOfCelestialSystem,
 {
     let mut col = Column::new();
-    for body in bodies {
+    let length = bodies.len();
+    for body in bodies.into_iter().take(MAX_ROWS) {
         col = col.push(table_row(body, table_col_data));
+    }
+    if length > MAX_ROWS {
+        col = col.push(Text::new(format!("... and {} more", length - MAX_ROWS)));
     }
     Scrollable::new(col)
         .direction(Direction::Vertical(Properties::default()))
