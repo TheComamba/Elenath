@@ -111,56 +111,56 @@ impl Component<GuiMessage, Renderer> for StarDialog {
             self.star.get_name(),
             "",
             |t| StarDialogEvent::NameChanged(t),
-            self.star.get_name(),
+            &Some(self.star.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
-            "kg",
+            "Sun Masses",
             |t| StarDialogEvent::MassChanged(t),
-            self.mass_string.clone(),
+            self.star.get_mass(),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
-            "m",
+            "Sun Radii",
             |t| StarDialogEvent::RadiusChanged(t),
-            self.radius_string.clone(),
+            self.star.get_radius(),
         );
         let luminosity = edit(
             "Luminosity",
             &self.luminosity_string,
             "W",
             |t| StarDialogEvent::LuminosityChanged(t),
-            self.luminosity_string.clone(),
+            self.star.get_luminosity(),
         );
         let temperature = edit(
             "Temperature",
             &self.temperature_string,
             "K",
             |t| StarDialogEvent::TemperatureChanged(t),
-            self.temperature_string.clone(),
+            self.star.get_temperature(),
         );
         let age = edit(
             "Age",
             &self.age_string,
             "years",
             |t| StarDialogEvent::AgeChanged(t),
-            self.age_string.clone(),
+            self.star.get_age(),
         );
         let distance = edit(
             "Distance",
             &self.distance_string,
             "m",
             |t| StarDialogEvent::DistanceChanged(t),
-            self.distance_string.clone(),
+            self.star.get_distance(),
         );
         let direction = edit(
             "Direction",
             &self.direction_string,
             "",
             |t| StarDialogEvent::DirectionChanged(t),
-            self.direction_string.clone(),
+            &Some(self.star.get_direction_in_ecliptic()),
         );
 
         Column::new()

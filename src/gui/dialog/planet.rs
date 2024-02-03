@@ -228,81 +228,85 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             self.planet.get_name(),
             "",
             |t| PlanetDialogEvent::NameChanged(t),
-            self.planet.get_name(),
+            &Some(self.planet.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
             "Earth Masses",
             |t| PlanetDialogEvent::MassChanged(t),
-            self.planet.get_mass(),
+            &Some(self.planet.get_mass()),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
             "Earth Radii",
             |t| PlanetDialogEvent::RadiusChanged(t),
-            self.planet.get_radius(),
+            &Some(self.planet.get_radius()),
         );
         let geometric_albedo = edit(
             "Geometric Albedo",
             &self.geometric_albedo_string,
             "",
             |t| PlanetDialogEvent::GeometricAlbedoChanged(t),
-            self.planet.get_geometric_albedo(),
+            &Some(self.planet.get_geometric_albedo()),
         );
         let semi_major_axis = edit(
             "Semi Major Axis",
             &self.semi_major_axis_string,
             "AU",
             |t| PlanetDialogEvent::SemiMajorAxisChanged(t),
-            self.planet.get_orbital_parameters().get_semi_major_axis(),
+            &Some(self.planet.get_orbital_parameters().get_semi_major_axis()),
         );
         let eccentricity = edit(
             "Eccentricity",
             &self.eccentricity_string,
             "",
             |t| PlanetDialogEvent::EccentricityChanged(t),
-            self.planet.get_orbital_parameters().get_eccentricity(),
+            &Some(self.planet.get_orbital_parameters().get_eccentricity()),
         );
         let inclination = edit(
             "Inclination",
             &self.inclination_string,
             "°",
             |t| PlanetDialogEvent::InclinationChanged(t),
-            self.planet.get_orbital_parameters().get_inclination(),
+            &Some(self.planet.get_orbital_parameters().get_inclination()),
         );
         let longitude_of_ascending_node = edit(
             "Longitude of Ascending Node",
             &self.longitude_of_ascending_node_string,
             "°",
             |t| PlanetDialogEvent::LongitudeOfAscendingNodeChanged(t),
-            self.planet
-                .get_orbital_parameters()
-                .get_longitude_of_ascending_node(),
+            &Some(
+                self.planet
+                    .get_orbital_parameters()
+                    .get_longitude_of_ascending_node(),
+            ),
         );
         let argument_of_periapsis = edit(
             "Argument of Periapsis",
             &self.argument_of_periapsis_string,
             "°",
             |t| PlanetDialogEvent::ArgumentOfPeriapsisChanged(t),
-            self.planet
-                .get_orbital_parameters()
-                .get_argument_of_periapsis(),
+            &Some(
+                self.planet
+                    .get_orbital_parameters()
+                    .get_argument_of_periapsis(),
+            ),
         );
         let siderial_rotation_period = edit(
             "Siderial Rotation Period",
             &self.siderial_rotation_period_string,
             "Earth Days",
             |t| PlanetDialogEvent::SiderialRotationPeriodChanged(t),
-            self.planet.get_sideral_rotation_period(),
+            &Some(self.planet.get_sideral_rotation_period()),
         );
         let rotation_axis = edit(
             "Rotation Axis",
             &self.rotation_axis_string,
             "",
             |t| PlanetDialogEvent::RotationAxisChanged(t),
-            self.planet.get_rotation_axis(),
+            &Some(self.planet.get_rotation_axis()),
         );
 
         let submit_button = Button::new(Text::new("Submit")).on_press(PlanetDialogEvent::Submit);

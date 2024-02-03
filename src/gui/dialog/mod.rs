@@ -26,6 +26,6 @@ pub(crate) trait Dialog {
             Card::new::<Element<'a, GuiMessage>, Element<'a, GuiMessage>>(header.into(), body)
                 .style(self.card_style())
                 .on_close(GuiMessage::DialogClosed);
-        Container::new(Scrollable::new(card)).padding(10).into()
+        Container::new(Scrollable::new(card)).padding(100).into()
     }
 }

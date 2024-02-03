@@ -181,7 +181,7 @@ pub(crate) fn edit<'a, Fun, Mes, Val>(
     data: &String,
     units: &'static str,
     message: Fun,
-    actual_value: Val,
+    actual_value: &Option<Val>,
 ) -> Element<'a, Mes, Renderer>
 where
     Fun: 'a + Fn(String) -> Mes,
@@ -200,7 +200,11 @@ where
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
     let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
-    let value = Text::new(format! {"Parsed value:\n{}",actual_value}).width(SMALL_COLUMN_WIDTH);
+    let parsed_text = match actual_value {
+        Some(value) => format! {"Parsed value:\n{}",value},
+        None => "Parsed value:\nNone".to_string(),
+    };
+    let value = Text::new(parsed_text).width(SMALL_COLUMN_WIDTH);
     Row::new()
         .push(description)
         .push(data)
