@@ -19,6 +19,7 @@ pub(crate) struct PlanetDialog {
     planet_index: Option<usize>,
     mass_string: String,
     radius_string: String,
+    color_string: String,
     geometric_albedo_string: String,
     semi_major_axis_string: String,
     eccentricity_string: String,
@@ -36,6 +37,7 @@ impl PlanetDialog {
             planet_index: Some(planet_index),
             mass_string: planet.get_mass().as_earth_masses().to_string(),
             radius_string: planet.get_radius().as_earth_radii().to_string(),
+            color_string: serde_json::to_string(planet.get_color()).unwrap(),
             geometric_albedo_string: planet.get_geometric_albedo().to_string(),
             semi_major_axis_string: planet
                 .get_orbital_parameters()
@@ -84,6 +86,7 @@ impl PlanetDialog {
             planet_index: None,
             mass_string: String::new(),
             radius_string: String::new(),
+            color_string: serde_json::to_string(&sRGBColor::from_sRGB(0., 0., 0.)).unwrap(),
             geometric_albedo_string: String::new(),
             semi_major_axis_string: String::new(),
             eccentricity_string: String::new(),
@@ -114,6 +117,7 @@ pub(crate) enum PlanetDialogEvent {
     NameChanged(String),
     MassChanged(String),
     RadiusChanged(String),
+    ColorChanged(String),
     GeometricAlbedoChanged(String),
     SemiMajorAxisChanged(String),
     EccentricityChanged(String),
@@ -146,6 +150,12 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                     self.planet.set_radius(Length::from_earth_radii(radius));
                     self.radius_string = radius_string;
                 }
+            }
+            PlanetDialogEvent::ColorChanged(color_string) => {
+                if let Ok(color) = serde_json::from_str::<sRGBColor>(&color_string) {
+                    self.planet.set_color(color);
+                }
+                self.color_string = color_string;
             }
             PlanetDialogEvent::GeometricAlbedoChanged(geometric_albedo_string) => {
                 if let Ok(geometric_albedo) = geometric_albedo_string.parse::<Float>() {
@@ -244,6 +254,13 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             |t| PlanetDialogEvent::RadiusChanged(t),
             &Some(self.planet.get_radius()),
         );
+        let color = edit(
+            "Color",
+            &self.color_string,
+            "",
+            |t| PlanetDialogEvent::ColorChanged(t),
+            &Some(self.planet.get_color()),
+        );
         let geometric_albedo = edit(
             "Geometric Albedo",
             &self.geometric_albedo_string,
@@ -252,7 +269,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             &Some(self.planet.get_geometric_albedo()),
         );
         let semi_major_axis = edit(
-            "Semi Major Axis",
+            "Semi-major Axis",
             &self.semi_major_axis_string,
             "AU",
             |t| PlanetDialogEvent::SemiMajorAxisChanged(t),
@@ -273,7 +290,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             &Some(self.planet.get_orbital_parameters().get_inclination()),
         );
         let longitude_of_ascending_node = edit(
-            "Longitude of Ascending Node",
+            "Ascending Node",
             &self.longitude_of_ascending_node_string,
             "°",
             |t| PlanetDialogEvent::LongitudeOfAscendingNodeChanged(t),
@@ -284,7 +301,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             ),
         );
         let argument_of_periapsis = edit(
-            "Argument of Periapsis",
+            "Arg. of Periapsis",
             &self.argument_of_periapsis_string,
             "°",
             |t| PlanetDialogEvent::ArgumentOfPeriapsisChanged(t),
@@ -295,7 +312,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             ),
         );
         let siderial_rotation_period = edit(
-            "Siderial Rotation Period",
+            "Siderial Day",
             &self.siderial_rotation_period_string,
             "Earth Days",
             |t| PlanetDialogEvent::SiderialRotationPeriodChanged(t),
@@ -315,6 +332,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
             .push(name)
             .push(mass)
             .push(radius)
+            .push(color)
             .push(geometric_albedo)
             .push(semi_major_axis)
             .push(eccentricity)

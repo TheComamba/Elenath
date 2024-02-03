@@ -21,13 +21,17 @@ impl TableColData<Planet> {
                 content_closure: Box::new(|body| format!("{}", body.get_data().get_radius())),
             },
             TableColData {
+                header: "Color",
+                content_closure: Box::new(|body| format!("{}", body.get_data().get_color())),
+            },
+            TableColData {
                 header: "Geometric Albedo",
                 content_closure: Box::new(|body| {
                     format!("{}", body.get_data().get_geometric_albedo())
                 }),
             },
             TableColData {
-                header: "Semi-major axis",
+                header: "Semi-major Axis",
                 content_closure: Box::new(|body| {
                     format!(
                         "{}",
@@ -56,7 +60,7 @@ impl TableColData<Planet> {
                 }),
             },
             TableColData {
-                header: "Longitude of ascending node",
+                header: "Ascending Node",
                 content_closure: Box::new(|body| {
                     format!(
                         "{}",
@@ -67,7 +71,7 @@ impl TableColData<Planet> {
                 }),
             },
             TableColData {
-                header: "Argument of periapsis",
+                header: "Arg. of Periapsis",
                 content_closure: Box::new(|body| {
                     format!(
                         "{}",
@@ -78,13 +82,13 @@ impl TableColData<Planet> {
                 }),
             },
             TableColData {
-                header: "Sideral rotation period",
+                header: "Sideral Day",
                 content_closure: Box::new(|body| {
                     format!("{}", body.get_data().get_sideral_rotation_period())
                 }),
             },
             TableColData {
-                header: "Rotation axis",
+                header: "Rotation Axis",
                 content_closure: Box::new(|body| {
                     format!("{}", body.get_data().get_rotation_axis())
                 }),
