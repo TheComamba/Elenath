@@ -38,10 +38,9 @@ impl PlanetDialog {
         let mut dialog = PlanetDialog {
             planet: planet.clone(),
             planet_index: Some(planet_index),
-
             mass_string: String::new(),
             radius_string: String::new(),
-            color_string: serde_json::to_string(&sRGBColor::from_sRGB(0., 0., 0.)).unwrap(),
+            color_string: String::new(),
             geometric_albedo_string: String::new(),
             semi_major_axis_string: String::new(),
             eccentricity_string: String::new(),
@@ -49,7 +48,7 @@ impl PlanetDialog {
             longitude_of_ascending_node_string: String::new(),
             argument_of_periapsis_string: String::new(),
             siderial_rotation_period_string: String::new(),
-            rotation_axis_string: serde_json::to_string(&Direction::Z).unwrap(),
+            rotation_axis_string: String::new(),
         };
         dialog.fill_string_members();
         dialog
@@ -70,7 +69,7 @@ impl PlanetDialog {
             planet_index: None,
             mass_string: String::new(),
             radius_string: String::new(),
-            color_string: serde_json::to_string(&sRGBColor::from_sRGB(0., 0., 0.)).unwrap(),
+            color_string: String::new(),
             geometric_albedo_string: String::new(),
             semi_major_axis_string: String::new(),
             eccentricity_string: String::new(),
@@ -78,7 +77,7 @@ impl PlanetDialog {
             longitude_of_ascending_node_string: String::new(),
             argument_of_periapsis_string: String::new(),
             siderial_rotation_period_string: String::new(),
-            rotation_axis_string: serde_json::to_string(&Direction::Z).unwrap(),
+            rotation_axis_string: String::new(),
         };
         dialog.fill_string_members();
         dialog
@@ -126,7 +125,7 @@ impl PlanetDialog {
         self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis()).unwrap();
     }
 
-    fn planet_edit_column(&self) -> Element<'_, PlanetDialogEvent> {
+    fn edit_column(&self) -> Element<'_, PlanetDialogEvent> {
         let name = edit(
             "Name",
             self.planet.get_name(),
@@ -395,7 +394,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
 
     fn view(&self, _state: &Self::State) -> iced::Element<'_, Self::Event> {
         Row::new()
-            .push(self.planet_edit_column())
+            .push(self.edit_column())
             .push(self.additional_info_column())
             .into()
     }

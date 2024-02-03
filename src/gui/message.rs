@@ -35,6 +35,7 @@ pub(crate) enum GuiMessage {
     PlanetSelected(String),
     SetShowNames(bool),
     DialogClosed,
+    ErrorEncountered(ElenathError),
 }
 
 impl Gui {
@@ -148,6 +149,9 @@ impl Gui {
             }
             GuiMessage::DialogClosed => {
                 self.dialog = None;
+            }
+            GuiMessage::ErrorEncountered(error) => {
+                return Err(error);
             }
         }
         self.redraw();
