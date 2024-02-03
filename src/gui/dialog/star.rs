@@ -46,16 +46,31 @@ impl StarDialog {
     }
 
     pub(crate) fn edit(star: StarData, star_index: usize) -> Self {
-        let mass_string = serde_json::to_string(&star.get_mass()).unwrap_or(String::new());
-        let radius_string = serde_json::to_string(&star.get_radius()).unwrap_or(String::new());
-        let luminosity_string =
-            serde_json::to_string(&star.get_luminosity()).unwrap_or(String::new());
-        let temperature_string =
-            serde_json::to_string(&star.get_temperature()).unwrap_or(String::new());
-        let age_string = serde_json::to_string(&star.get_age()).unwrap_or(String::new());
-        let distance_string = serde_json::to_string(&star.get_distance()).unwrap_or(String::new());
-        let direction_string =
-            serde_json::to_string(&star.get_direction_in_ecliptic()).unwrap_or(String::new());
+        let mass_string = star
+            .get_mass()
+            .map(|mass| mass.as_solar_masses().to_string())
+            .unwrap_or(String::new());
+        let radius_string = star
+            .get_radius()
+            .map(|radius| radius.as_sun_radii().to_string())
+            .unwrap_or(String::new());
+        let luminosity_string = star
+            .get_luminosity()
+            .map(|luminosity| luminosity.as_absolute_magnitude().to_string())
+            .unwrap_or(String::new());
+        let temperature_string = star
+            .get_temperature()
+            .map(|temperature| temperature.as_kelvin().to_string())
+            .unwrap_or(String::new());
+        let age_string = star
+            .get_age()
+            .map(|age| age.as_billion_years().to_string())
+            .unwrap_or(String::new());
+        let distance_string = star
+            .get_distance()
+            .map(|distance| distance.as_light_years().to_string())
+            .unwrap_or(String::new());
+        let direction_string = star.get_direction_in_ecliptic().to_string();
         StarDialog {
             star,
             star_index: Some(star_index),
@@ -116,21 +131,21 @@ impl Component<GuiMessage, Renderer> for StarDialog {
         let mass = edit(
             "Mass",
             &self.mass_string,
-            "Sun Masses",
+            "Solar Masses",
             |t| StarDialogEvent::MassChanged(t),
             self.star.get_mass(),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
-            "Sun Radii",
+            "Solar Radii",
             |t| StarDialogEvent::RadiusChanged(t),
             self.star.get_radius(),
         );
         let luminosity = edit(
             "Luminosity",
             &self.luminosity_string,
-            "W",
+            "mag",
             |t| StarDialogEvent::LuminosityChanged(t),
             self.star.get_luminosity(),
         );
@@ -144,14 +159,14 @@ impl Component<GuiMessage, Renderer> for StarDialog {
         let age = edit(
             "Age",
             &self.age_string,
-            "years",
+            "Gyr",
             |t| StarDialogEvent::AgeChanged(t),
             self.star.get_age(),
         );
         let distance = edit(
             "Distance",
             &self.distance_string,
-            "m",
+            "ly",
             |t| StarDialogEvent::DistanceChanged(t),
             self.star.get_distance(),
         );
