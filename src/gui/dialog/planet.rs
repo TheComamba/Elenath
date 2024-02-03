@@ -74,11 +74,11 @@ impl PlanetDialog {
             planet: PlanetData::new(
                 String::new(),
                 Mass::ZERO,
-                OrbitParameters::new(Length::ZERO, 0.0, Angle::ZERO, Angle::ZERO, Angle::ZERO),
                 Length::ZERO,
                 0.0,
                 sRGBColor::from_sRGB(0., 0., 0.),
                 Time::ZERO,
+                OrbitParameters::new(Length::ZERO, 0.0, Angle::ZERO, Angle::ZERO, Angle::ZERO),
                 Direction::Z,
             ),
             planet_index: None,
