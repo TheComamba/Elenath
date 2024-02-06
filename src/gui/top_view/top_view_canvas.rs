@@ -10,20 +10,23 @@ use astro_utils::{
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, rotations::get_rotation_parameters,
     },
-    units::{angle::Angle, length::Length, time::Time},
-    Float,
+    units::distance::DISTANCE_ZERO,
 };
 use iced::{
     alignment::Horizontal,
     widget::canvas::{self, Path, Style},
     Color, Point,
 };
+use simple_si_units::{
+    base::{Distance, Time},
+    geometry::Angle,
+};
 
 impl TopViewState {
     fn canvas_position(
         &self,
         pos: &CartesianCoordinates,
-        view_angle: Angle,
+        view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
     ) -> iced::Vector {
         let rotated_position = pos.rotated(-view_angle, view_rotation_axis); //passive transformation
@@ -38,7 +41,7 @@ impl TopViewState {
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time,
+        time_since_epoch: Time<f64>,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -73,7 +76,7 @@ impl TopViewState {
         &self,
         selected_planet: &Option<Planet>,
         celestial_system: &CelestialSystem,
-        time_since_epoch: Time,
+        time_since_epoch: Time<f64>,
         bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
@@ -125,7 +128,7 @@ impl TopViewState {
         celestial_system: &CelestialSystem,
         frame: &mut canvas::Frame,
         bounds: &iced::Rectangle,
-        view_angle: Angle,
+        view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
         offset: iced::Vector,
         display_names: bool,
@@ -137,7 +140,7 @@ impl TopViewState {
             Some(temperature) => sRGBColor::from_temperature(*temperature),
             None => sRGBColor::from_sRGB(1., 1., 1.),
         };
-        let radius = data.get_radius().unwrap_or(Length::ZERO);
+        let radius = data.get_radius().unwrap_or(DISTANCE_ZERO);
         self.draw_body(
             frame,
             bounds,
@@ -160,9 +163,9 @@ impl TopViewState {
         name: &str,
         pos3d: &CartesianCoordinates,
         color: &sRGBColor,
-        albedo: Option<Float>,
-        radius: Length,
-        view_angle: Angle,
+        albedo: Option<f64>,
+        radius: Distance<f64>,
+        view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
         offset: iced::Vector,
         display_names: bool,
@@ -210,13 +213,18 @@ impl TopViewState {
     }
 }
 
-fn canvas_radius(radius: &Length) -> f32 {
+fn canvas_radius(radius: &Distance<f64>) -> f32 {
     const SIZE_NUMBER: f32 = 0.3;
-    radius.as_kilometers().powf(SIZE_NUMBER) * SIZE_NUMBER
+    (radius.to_km() as f32).powf(SIZE_NUMBER) * SIZE_NUMBER
 }
 
-fn canvas_color(color: &sRGBColor, albedo: Option<Float>) -> Color {
+fn canvas_color(color: &sRGBColor, albedo: Option<f64>) -> Color {
     let (r, g, b) = color.maximized_sRGB_tuple();
     let a = albedo.unwrap_or(1.) as f32;
-    Color { r, g, b, a }
+    Color {
+        r: r as f32,
+        g: g as f32,
+        b: b as f32,
+        a,
+    }
 }

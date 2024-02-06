@@ -3,29 +3,27 @@ use crate::gui::{
     message::GuiMessage,
     shared_widgets::control_field,
 };
-use astro_utils::{
-    coordinates::ecliptic::EclipticCoordinates,
-    units::{angle::Angle, length::Length},
-};
+use astro_utils::{coordinates::ecliptic::EclipticCoordinates, units::angle::normalized_angle};
 use iced::{
     widget::{canvas::Cache, Column},
     Alignment,
 };
-use std::f32::consts::PI;
+use simple_si_units::{base::Distance, geometry::Angle};
+use std::f64::consts::PI;
 
 pub(crate) struct TopViewState {
     pub(super) background_cache: Cache,
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
-    pub(super) length_per_pixel: Length,
+    pub(super) length_per_pixel: Distance<f64>,
     pub(super) view_ecliptic: EclipticCoordinates,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) enum TopViewMessage {
-    UpdateLengthScale(Length),
-    UpdateViewLongitude(Angle),
-    UpdateViewLatitude(Angle),
+    UpdateLengthScale(Distance<f64>),
+    UpdateViewLongitude(Angle<f64>),
+    UpdateViewLatitude(Angle<f64>),
 }
 
 impl Into<GuiMessage> for TopViewMessage {
@@ -40,7 +38,7 @@ impl TopViewState {
             background_cache: Cache::default(),
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
-            length_per_pixel: Length::from_astronomical_units(0.01),
+            length_per_pixel: Distance::from_au(0.01),
             view_ecliptic: EclipticCoordinates::Z_DIRECTION,
         }
     }
@@ -51,13 +49,13 @@ impl TopViewState {
                 self.length_per_pixel = length_per_pixel;
             }
             TopViewMessage::UpdateViewLongitude(mut longitude) => {
-                longitude.normalize();
+                longitude = normalized_angle(longitude);
                 self.view_ecliptic.set_longitude(longitude);
             }
             TopViewMessage::UpdateViewLatitude(mut latitude) => {
-                if latitude.as_degrees() < -90. {
+                if latitude.to_degrees() < -90. {
                     latitude = Angle::from_degrees(-90.);
-                } else if latitude.as_degrees() > 90. {
+                } else if latitude.to_degrees() > 90. {
                     latitude = Angle::from_degrees(90.);
                 }
                 self.view_ecliptic.set_latitude(latitude);
@@ -77,7 +75,9 @@ impl TopViewState {
             TopViewMessage::UpdateLengthScale(self.length_per_pixel / 2.),
             TopViewMessage::UpdateLengthScale(self.length_per_pixel * 2.),
         );
-        const VIEW_ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
+        const VIEW_ANGLE_STEP: Angle<f64> = Angle {
+            rad: 10. * 2. * PI / 360.,
+        };
         let view_longitude = self.view_ecliptic.get_longitude();
         let view_longitude_control_field = control_field(
             "View longitude:",

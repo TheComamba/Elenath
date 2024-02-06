@@ -11,11 +11,12 @@ use crate::{
         new_celestial_system::{generated_system, solar_system, GeneratedCentralBody},
     },
 };
-use astro_utils::{units::length::Length, Float};
+use astro_utils::units::distance::DISTANCE_ZERO;
 use iced::{
     widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
     Alignment, Element, Renderer,
 };
+use simple_si_units::base::Distance;
 
 #[derive(Debug, Clone)]
 pub(crate) struct NewSystemDialog {
@@ -23,7 +24,7 @@ pub(crate) struct NewSystemDialog {
     load_gaia_data: bool,
     generated_central_body: GeneratedCentralBody,
     max_generation_distance_text: String,
-    max_generation_distance: Length,
+    max_generation_distance: Distance<f64>,
 }
 
 impl NewSystemDialog {
@@ -33,7 +34,7 @@ impl NewSystemDialog {
             load_gaia_data: false,
             generated_central_body: GeneratedCentralBody::Sun,
             max_generation_distance_text: String::new(),
-            max_generation_distance: Length::ZERO,
+            max_generation_distance: DISTANCE_ZERO,
         }
     }
 
@@ -83,10 +84,9 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                 self.generated_central_body = generated_central_body;
             }
             NewSystemDialogEvent::MaxGenerationDistanceChanged(max_generation_distance_text) => {
-                if let Ok(max_generation_distance) = max_generation_distance_text.parse::<Float>() {
+                if let Ok(max_generation_distance) = max_generation_distance_text.parse::<f64>() {
                     self.max_generation_distance_text = max_generation_distance_text;
-                    self.max_generation_distance =
-                        Length::from_light_years(max_generation_distance);
+                    self.max_generation_distance = Distance::from_lyr(max_generation_distance);
                 }
             }
             NewSystemDialogEvent::Submit => {

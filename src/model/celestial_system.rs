@@ -4,9 +4,9 @@ use astro_utils::{
     stars::{
         gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
     },
-    units::time::Time,
 };
 use serde::{Deserialize, Serialize};
+use simple_si_units::base::Time;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -109,7 +109,7 @@ impl CelestialSystem {
         self.planets.get(index)
     }
 
-    pub(crate) fn get_planets_at_time(&self, time: Time) -> Vec<Planet> {
+    pub(crate) fn get_planets_at_time(&self, time: Time<f64>) -> Vec<Planet> {
         let mut bodies = Vec::new();
         if let Some(central_body) = self.central_body.get_data() {
             for (i, planet_data) in self.planets.iter().enumerate() {

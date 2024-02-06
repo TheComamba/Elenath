@@ -5,13 +5,14 @@ use super::{
     message::GuiMessage,
     Gui, GuiMode,
 };
-use astro_utils::{planets::planet_data::PlanetData, units::time::Time};
+use astro_utils::planets::planet_data::PlanetData;
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
     Alignment, Renderer,
 };
 use iced_aw::Element;
+use simple_si_units::base::Time;
 
 impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
@@ -97,8 +98,8 @@ pub(super) fn planet_picker<'a>(
 }
 
 pub(super) fn surface_and_top_view_shared_control<'a>(
-    time_since_epoch: &'a Time,
-    time_step: &'a Time,
+    time_since_epoch: &'a Time<f64>,
+    time_step: &'a Time<f64>,
     planets: Vec<&PlanetData>,
     selected_planet: Option<&PlanetData>,
     display_names: bool,

@@ -6,8 +6,8 @@ use astro_utils::{
         gaia_data::fetch_brightest_stars,
         random_stars::{generate_random_star, generate_random_stars},
     },
-    units::length::Length,
 };
+use simple_si_units::base::Distance;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GeneratedCentralBody {
@@ -42,7 +42,7 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, Elen
 
 pub(crate) fn generated_system(
     central_body: &GeneratedCentralBody,
-    max_distance: Length,
+    max_distance: Distance<f64>,
 ) -> Result<CelestialSystem, ElenathError> {
     let central_body_data = match central_body {
         GeneratedCentralBody::Sun => SUN_DATA.to_star_data(),

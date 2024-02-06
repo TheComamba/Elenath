@@ -1,8 +1,9 @@
 use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates, planets::planet_data::PlanetData,
-    stars::star_data::StarData, units::time::Time,
+    stars::star_data::StarData,
 };
+use simple_si_units::base::Time;
 
 pub(crate) struct Planet {
     data: PlanetData,
@@ -14,7 +15,7 @@ impl Planet {
     pub(crate) fn new(
         data: PlanetData,
         central_body: &StarData,
-        time: Time,
+        time: Time<f64>,
         index: Option<usize>,
     ) -> Self {
         let mass = data.get_mass();

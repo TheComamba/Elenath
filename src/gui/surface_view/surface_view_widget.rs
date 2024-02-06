@@ -3,7 +3,7 @@ use crate::gui::{
     message::GuiMessage,
     shared_widgets::control_field,
 };
-use astro_utils::units::angle::Angle;
+use astro_utils::units::angle::{normalized_angle, ANGLE_ZERO};
 use iced::{
     widget::{
         canvas::{self},
@@ -11,27 +11,30 @@ use iced::{
     },
     Alignment,
 };
-use std::f32::consts::PI;
+use simple_si_units::geometry::Angle;
+use std::f64::consts::PI;
 
-const HUMAN_EYE_OPENING_ANGLE: Angle = Angle::from_radians(120. / 360. * 2. * PI);
+const HUMAN_EYE_OPENING_ANGLE: Angle<f64> = Angle {
+    rad: 120. / 360. * 2. * PI,
+};
 
 pub(crate) struct SurfaceViewState {
     pub(super) background_cache: canvas::Cache,
     pub(super) bodies_cache: canvas::Cache,
-    pub(super) surface_longitude: Angle,
-    pub(super) surface_latitude: Angle,
-    pub(super) view_longitude: Angle,
-    pub(super) view_latitude: Angle,
-    pub(super) viewport_vertical_opening_angle: Angle,
+    pub(super) surface_longitude: Angle<f64>,
+    pub(super) surface_latitude: Angle<f64>,
+    pub(super) view_longitude: Angle<f64>,
+    pub(super) view_latitude: Angle<f64>,
+    pub(super) viewport_vertical_opening_angle: Angle<f64>,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) enum SurfaceViewMessage {
-    UpdateSurfaceLongitude(Angle),
-    UpdateSurfaceLatitude(Angle),
-    UpdateViewLongitude(Angle),
-    UpdateViewLatitude(Angle),
-    UpdateViewportOpeningAngle(Angle),
+    UpdateSurfaceLongitude(Angle<f64>),
+    UpdateSurfaceLatitude(Angle<f64>),
+    UpdateViewLongitude(Angle<f64>),
+    UpdateViewLatitude(Angle<f64>),
+    UpdateViewportOpeningAngle(Angle<f64>),
 }
 
 impl Into<GuiMessage> for SurfaceViewMessage {
@@ -45,9 +48,9 @@ impl SurfaceViewState {
         SurfaceViewState {
             background_cache: canvas::Cache::default(),
             bodies_cache: canvas::Cache::default(),
-            surface_longitude: Angle::ZERO,
-            surface_latitude: Angle::ZERO,
-            view_longitude: Angle::ZERO,
+            surface_longitude: ANGLE_ZERO,
+            surface_latitude: ANGLE_ZERO,
+            view_longitude: ANGLE_ZERO,
             view_latitude: Angle::from_degrees(90.),
             viewport_vertical_opening_angle: HUMAN_EYE_OPENING_ANGLE,
         }
@@ -56,33 +59,33 @@ impl SurfaceViewState {
     pub(crate) fn update(&mut self, message: SurfaceViewMessage) {
         match message {
             SurfaceViewMessage::UpdateSurfaceLongitude(mut longitude) => {
-                longitude.normalize();
+                longitude = normalized_angle(longitude);
                 self.surface_longitude = longitude;
             }
             SurfaceViewMessage::UpdateSurfaceLatitude(mut latitude) => {
-                if latitude.as_degrees() < -90. {
+                if latitude.to_degrees() < -90. {
                     latitude = Angle::from_degrees(-90.);
-                } else if latitude.as_degrees() > 90. {
+                } else if latitude.to_degrees() > 90. {
                     latitude = Angle::from_degrees(90.);
                 }
                 self.surface_latitude = latitude;
             }
             SurfaceViewMessage::UpdateViewLongitude(mut longitude) => {
-                longitude.normalize();
+                longitude = normalized_angle(longitude);
                 self.view_longitude = longitude;
             }
             SurfaceViewMessage::UpdateViewLatitude(mut latitude) => {
-                if latitude.as_degrees() < 10. {
+                if latitude.to_degrees() < 10. {
                     latitude = Angle::from_degrees(10.);
-                } else if latitude.as_degrees() > 90. {
+                } else if latitude.to_degrees() > 90. {
                     latitude = Angle::from_degrees(90.);
                 }
                 self.view_latitude = latitude;
             }
             SurfaceViewMessage::UpdateViewportOpeningAngle(mut angle) => {
-                if angle.as_degrees() < 10. {
+                if angle.to_degrees() < 10. {
                     angle = Angle::from_degrees(10.);
-                } else if angle.as_degrees() > 170. {
+                } else if angle.to_degrees() > 170. {
                     angle = Angle::from_degrees(170.);
                 }
                 self.viewport_vertical_opening_angle = angle;
@@ -95,7 +98,9 @@ impl SurfaceViewState {
     }
 
     pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
-        const ANGLE_STEP: Angle = Angle::from_radians(10. * 2. * PI / 360.);
+        const ANGLE_STEP: Angle<f64> = Angle {
+            rad: 10. * 2. * PI / 360.,
+        };
         let surface_long = self.surface_longitude;
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",

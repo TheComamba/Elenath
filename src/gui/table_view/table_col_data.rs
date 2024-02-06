@@ -1,3 +1,5 @@
+use astro_utils::units::luminous_intensity::luminous_intensity_to_illuminance;
+
 use crate::model::{planet::Planet, star::Star};
 
 pub(super) struct TableColData<T> {
@@ -125,10 +127,12 @@ impl TableColData<Star> {
                 }),
             },
             TableColData {
-                header: "Luminosity",
+                header: "Luminous Intensity",
                 content_closure: Box::new(|body| {
-                    if let Some(luminosity) = body.get_data().unwrap().get_luminosity() {
-                        format!("{}", luminosity)
+                    if let Some(luminous_intensity) =
+                        body.get_data().unwrap().get_luminous_intensity()
+                    {
+                        format!("{}", luminous_intensity)
                     } else {
                         String::from("N/A")
                     }
@@ -163,12 +167,13 @@ impl TableColData<Star> {
             TableColData {
                 header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
-                    if let (Some(abs_mag), Some(distance)) = (
-                        body.get_data().unwrap().get_luminosity(),
+                    if let (Some(luminous_intensity), Some(distance)) = (
+                        body.get_data().unwrap().get_luminous_intensity(),
                         body.get_data().unwrap().get_distance(),
                     ) {
-                        let apparent_magnitude = abs_mag.to_illuminance(&distance);
-                        format!("{}", apparent_magnitude)
+                        let illuminance =
+                            luminous_intensity_to_illuminance(luminous_intensity, distance);
+                        format!("{}", illuminance)
                     } else {
                         String::from("N/A")
                     }

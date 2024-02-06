@@ -1,10 +1,10 @@
+use super::viewport::Viewport;
 use astro_utils::{
     planets::surface_normal::direction_relative_to_surface_normal,
     stars::star_appearance::StarAppearance,
 };
 use iced::{Color, Vector};
-
-use super::viewport::Viewport;
+use simple_si_units::electromagnetic::Illuminance;
 
 pub(super) struct StarCanvasAppearance<'a> {
     pub(super) name: &'a str,
@@ -16,7 +16,7 @@ pub(super) struct StarCanvasAppearance<'a> {
 impl<'a> StarCanvasAppearance<'a> {
     pub(super) const MIN_RADIUS: f32 = 1.;
     const MAX_RADIUS: f32 = 1e5;
-    const LUX_AT_MIN_RADIUS: f32 = 2.1e-7; //Apparent Magnitude of 2.5
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 2.1e-7 }; //Apparent Magnitude of 2.5
 
     pub(super) fn from_star_appearance(
         appearance: &'a StarAppearance,
@@ -33,15 +33,16 @@ impl<'a> StarCanvasAppearance<'a> {
 
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
         let (r, g, b) = body.get_color().maximized_sRGB_tuple();
-        let lux = body.get_illuminance().as_lux();
-        if lux < Self::LUX_AT_MIN_RADIUS {
+        let illuminance = body.get_illuminance();
+        if illuminance < &Self::ILLUMINANCE_AT_MIN_RADIUS {
             let radius = Self::MIN_RADIUS;
-            let alpha = lux / Self::LUX_AT_MIN_RADIUS;
-            let color = Color::from_rgba(r, g, b, alpha);
+            let alpha = illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS;
+            let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha as f32);
             (color, radius)
         } else {
-            let radius = (lux / Self::LUX_AT_MIN_RADIUS).sqrt() * Self::MIN_RADIUS;
-            let color = Color::from_rgb(r, g, b);
+            let radius =
+                (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS).sqrt() as f32 * Self::MIN_RADIUS;
+            let color = Color::from_rgb(r as f32, g as f32, b as f32);
             if radius > Self::MAX_RADIUS {
                 (color, Self::MAX_RADIUS)
             } else {
@@ -58,8 +59,8 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
         &viewport.top_direction,
     );
     if direction.z() > 0.0 {
-        let x = -direction.y() * viewport.px_per_unit_height; // rotation_reference corresponds to the x axis while iced y corresponds to top.
-        let y = -direction.x() * viewport.px_per_unit_height; // y axis is inverted
+        let x = -direction.y() as f32 * viewport.px_per_unit_height; // rotation_reference corresponds to the x axis while iced y corresponds to top.
+        let y = -direction.x() as f32 * viewport.px_per_unit_height; // y axis is inverted
         Some(iced::Vector::new(x as f32, y as f32))
     } else {
         None
@@ -72,14 +73,14 @@ mod tests {
         star_canvas_appearance::StarCanvasAppearance, viewport::Viewport,
     };
     use astro_utils::{
-        color::sRGBColor,
-        coordinates::direction::Direction,
+        color::sRGBColor, coordinates::direction::Direction,
         stars::star_appearance::StarAppearance,
-        units::{angle::Angle, illuminance::Illuminance},
+        units::illuminance::apparent_magnitude_to_illuminance,
     };
     use iced::Vector;
+    use simple_si_units::{electromagnetic::Illuminance, geometry::Angle};
 
-    const SOME_ILLUMINANCE: Illuminance = Illuminance::from_lux(100.);
+    const SOME_ILLUMINANCE: Illuminance<f64> = Illuminance { lux: 100. };
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);
     const SOME_FLOAT: f32 = 1.;
 
@@ -157,11 +158,11 @@ mod tests {
                                     px_per_unit_height: SOME_FLOAT,
                                 };
                                 let half_opening_angle = center.angle_to(&top);
-                                if half_opening_angle.as_degrees().abs() > 89. {
+                                if half_opening_angle.to_degrees().abs() > 89. {
                                     continue;
                                 }
-                                let expected_offset =
-                                    half_opening_angle.sin() * viewport.px_per_unit_height;
+                                let expected_offset = half_opening_angle.rad.sin() as f32
+                                    * viewport.px_per_unit_height;
 
                                 println!("half opening angle: {}", half_opening_angle);
                                 println!("expected offset: {}", expected_offset);
@@ -252,7 +253,7 @@ mod tests {
     fn apparent_magnitude_6p5_star_is_barely_visible() {
         let star_appearance = StarAppearance::new(
             String::new(),
-            Illuminance::from_apparent_magnitude(6.5),
+            apparent_magnitude_to_illuminance(6.5),
             SOME_COLOR,
             Direction::X,
         );
@@ -273,7 +274,7 @@ mod tests {
     fn apparent_magnitude_0_star_is_bright() {
         let star_appearance = StarAppearance::new(
             String::new(),
-            Illuminance::from_apparent_magnitude(0.),
+            apparent_magnitude_to_illuminance(0.),
             SOME_COLOR,
             Direction::X,
         );
@@ -293,7 +294,7 @@ mod tests {
     fn venus_is_not_too_big() {
         let star_appearance = StarAppearance::new(
             String::new(),
-            Illuminance::from_apparent_magnitude(-4.92),
+            apparent_magnitude_to_illuminance(-4.92),
             SOME_COLOR,
             Direction::X,
         );
@@ -313,7 +314,7 @@ mod tests {
     fn the_sun_is_very_bright() {
         let star_appearance = StarAppearance::new(
             String::new(),
-            Illuminance::from_apparent_magnitude(-26.72),
+            apparent_magnitude_to_illuminance(-26.72),
             SOME_COLOR,
             Direction::X,
         );

@@ -4,12 +4,12 @@ use super::{
     surface_view::surface_view_widget::SurfaceViewState,
     table_view::table_view_widget::TableViewState, top_view::top_view_widget::TopViewState, Gui,
 };
-use astro_utils::units::time::Time;
 use iced::{
     widget::{canvas, Column, Container, Row, Text},
     Element, Length, Sandbox,
 };
 use iced_aw::Modal;
+use simple_si_units::base::Time;
 
 pub(super) const PADDING: f32 = 10.0;
 pub(super) const SMALL_COLUMN_WIDTH: f32 = 150.0;

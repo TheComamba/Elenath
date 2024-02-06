@@ -6,7 +6,7 @@ use self::top_view::top_view_widget::TopViewState;
 use crate::model::celestial_system::CelestialSystem;
 use crate::model::planet::Planet;
 use astro_utils::planets::planet_data::PlanetData;
-use astro_utils::units::time::Time;
+use simple_si_units::base::Time;
 use std::path::PathBuf;
 
 mod dialog;
@@ -24,8 +24,8 @@ pub(crate) struct Gui {
     surface_view_state: SurfaceViewState,
     top_view_state: TopViewState,
     table_view_state: TableViewState,
-    time_since_epoch: Time,
-    time_step: Time,
+    time_since_epoch: Time<f64>,
+    time_step: Time<f64>,
     celestial_system: Option<CelestialSystem>,
     selected_planet_name: String,
     display_names: bool,

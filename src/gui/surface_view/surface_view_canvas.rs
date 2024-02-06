@@ -14,12 +14,12 @@ use astro_utils::{
         cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
     },
     stars::star_appearance::StarAppearance,
-    units::{length::Length, time::Time},
 };
 use iced::{
     widget::canvas::{self, Path},
     Color, Point,
 };
+use simple_si_units::base::{Distance, Time};
 
 impl SurfaceViewState {
     fn observer_position(
@@ -37,7 +37,7 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time,
+        time_since_epoch: Time<f64>,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -74,7 +74,7 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
-        time_since_epoch: Time,
+        time_since_epoch: Time<f64>,
         display_names: bool,
     ) {
         let surface_position =
@@ -231,7 +231,7 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
         canvas_appearance: &Option<StarCanvasAppearance>,
-        radius: &Option<Length>,
+        radius: &Option<Distance<f64>>,
         pixel_per_viewport_width: f32,
         display_names: bool,
         observer_position: &CartesianCoordinates,
@@ -289,7 +289,7 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         pos: Point,
-        radius: &Length,
+        radius: &Distance<f64>,
         relative_position: &CartesianCoordinates,
         color: Color,
         pixel_per_viewport_width: f32,
@@ -303,9 +303,9 @@ impl SurfaceViewState {
 }
 
 fn canvas_apparent_radius(
-    radius: &Length,
+    radius: &Distance<f64>,
     relative_position: &CartesianCoordinates,
     pixel_per_viewport_width: f32,
 ) -> f32 {
-    radius / relative_position.length() * pixel_per_viewport_width
+    (radius / &relative_position.length()) as f32 * pixel_per_viewport_width
 }

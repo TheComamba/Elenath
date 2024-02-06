@@ -10,7 +10,7 @@ use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::planets::planet_data::PlanetData;
 use astro_utils::stars::star_data::StarData;
-use astro_utils::units::time::Time;
+use simple_si_units::base::Time;
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
@@ -30,8 +30,8 @@ pub(crate) enum GuiMessage {
     EditStarDialog(Option<usize>),
     NewStar(StarData),
     StarEdited(Option<usize>, StarData),
-    UpdateTime(Time),
-    UpdateTimeStep(Time),
+    UpdateTime(Time<f64>),
+    UpdateTimeStep(Time<f64>),
     PlanetSelected(String),
     SetShowNames(bool),
     DialogClosed,

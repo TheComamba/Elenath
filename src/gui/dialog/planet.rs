@@ -7,14 +7,22 @@ use astro_utils::{
         orbit_parameters::OrbitParameters, planet_data::PlanetData,
         random_planets::generate_random_planet,
     },
-    units::{angle::Angle, length::Length, mass::Mass, time::Time},
-    Float,
+    units::{
+        angle::ANGLE_ZERO,
+        distance::{distance_to_earth_radii, DISTANCE_ZERO, EARTH_RADIUS},
+        mass::{mass_to_earth_masses, EARTH_MASS, MASS_ZERO},
+        time::TIME_ZERO,
+    },
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
     Alignment, Element, Renderer,
 };
 use serde_json;
+use simple_si_units::{
+    base::{Distance, Time},
+    geometry::Angle,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) struct PlanetDialog {
@@ -58,12 +66,12 @@ impl PlanetDialog {
         let mut dialog = PlanetDialog {
             planet: PlanetData::new(
                 String::new(),
-                Mass::ZERO,
-                Length::ZERO,
+                MASS_ZERO,
+                DISTANCE_ZERO,
                 0.0,
                 sRGBColor::from_sRGB(0., 0., 0.),
-                Time::ZERO,
-                OrbitParameters::new(Length::ZERO, 0.0, Angle::ZERO, Angle::ZERO, Angle::ZERO),
+                TIME_ZERO,
+                OrbitParameters::new(DISTANCE_ZERO, 0.0, ANGLE_ZERO, ANGLE_ZERO, ANGLE_ZERO),
                 Direction::Z,
             ),
             planet_index: None,
@@ -84,15 +92,15 @@ impl PlanetDialog {
     }
 
     fn fill_string_members(&mut self) {
-        self.mass_string = self.planet.get_mass().as_earth_masses().to_string();
-        self.radius_string = self.planet.get_radius().as_earth_radii().to_string();
+        self.mass_string = mass_to_earth_masses(self.planet.get_mass()).to_string();
+        self.radius_string = distance_to_earth_radii(self.planet.get_radius()).to_string();
         self.color_string = serde_json::to_string(self.planet.get_color()).unwrap();
         self.geometric_albedo_string = self.planet.get_geometric_albedo().to_string();
         self.semi_major_axis_string = self
             .planet
             .get_orbital_parameters()
             .get_semi_major_axis()
-            .as_astronomical_units()
+            .to_au()
             .to_string();
         self.eccentricity_string = self
             .planet
@@ -103,24 +111,24 @@ impl PlanetDialog {
             .planet
             .get_orbital_parameters()
             .get_inclination()
-            .as_degrees()
+            .to_degrees()
             .to_string();
         self.longitude_of_ascending_node_string = self
             .planet
             .get_orbital_parameters()
             .get_longitude_of_ascending_node()
-            .as_degrees()
+            .to_degrees()
             .to_string();
         self.argument_of_periapsis_string = self
             .planet
             .get_orbital_parameters()
             .get_argument_of_periapsis()
-            .as_degrees()
+            .to_degrees()
             .to_string();
         self.siderial_rotation_period_string = self
             .planet
             .get_sideral_rotation_period()
-            .as_days()
+            .to_days()
             .to_string();
         self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis()).unwrap();
     }
@@ -296,14 +304,14 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 self.planet.set_name(name);
             }
             PlanetDialogEvent::MassChanged(mass_string) => {
-                if let Ok(mass) = mass_string.parse::<Float>() {
-                    self.planet.set_mass(Mass::from_earth_masses(mass));
+                if let Ok(mass) = mass_string.parse::<f64>() {
+                    self.planet.set_mass(mass * EARTH_MASS);
                     self.mass_string = mass_string;
                 }
             }
             PlanetDialogEvent::RadiusChanged(radius_string) => {
-                if let Ok(radius) = radius_string.parse::<Float>() {
-                    self.planet.set_radius(Length::from_earth_radii(radius));
+                if let Ok(radius) = radius_string.parse::<f64>() {
+                    self.planet.set_radius(radius * EARTH_RADIUS);
                     self.radius_string = radius_string;
                 }
             }
@@ -314,26 +322,26 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 self.color_string = color_string;
             }
             PlanetDialogEvent::GeometricAlbedoChanged(geometric_albedo_string) => {
-                if let Ok(geometric_albedo) = geometric_albedo_string.parse::<Float>() {
+                if let Ok(geometric_albedo) = geometric_albedo_string.parse::<f64>() {
                     self.planet.set_geometric_albedo(geometric_albedo);
                     self.geometric_albedo_string = geometric_albedo_string;
                 }
             }
             PlanetDialogEvent::SemiMajorAxisChanged(semi_major_axis_string) => {
-                if let Ok(semi_major_axis) = semi_major_axis_string.parse::<Float>() {
+                if let Ok(semi_major_axis) = semi_major_axis_string.parse::<f64>() {
                     self.planet
-                        .set_semi_major_axis(Length::from_astronomical_units(semi_major_axis));
+                        .set_semi_major_axis(Distance::from_au(semi_major_axis));
                     self.semi_major_axis_string = semi_major_axis_string;
                 }
             }
             PlanetDialogEvent::EccentricityChanged(eccentricity_string) => {
-                if let Ok(eccentricity) = eccentricity_string.parse::<Float>() {
+                if let Ok(eccentricity) = eccentricity_string.parse::<f64>() {
                     self.planet.set_eccentricity(eccentricity);
                     self.eccentricity_string = eccentricity_string;
                 }
             }
             PlanetDialogEvent::InclinationChanged(inclination_string) => {
-                if let Ok(inclination) = inclination_string.parse::<Float>() {
+                if let Ok(inclination) = inclination_string.parse::<f64>() {
                     self.planet
                         .set_inclination(Angle::from_degrees(inclination));
                     self.inclination_string = inclination_string;
@@ -343,7 +351,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 longitude_of_ascending_node_string,
             ) => {
                 if let Ok(longitude_of_ascending_node) =
-                    longitude_of_ascending_node_string.parse::<Float>()
+                    longitude_of_ascending_node_string.parse::<f64>()
                 {
                     self.planet
                         .set_longitude_of_ascending_node(Angle::from_degrees(
@@ -353,15 +361,14 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 }
             }
             PlanetDialogEvent::ArgumentOfPeriapsisChanged(argument_of_periapsis_string) => {
-                if let Ok(argument_of_periapsis) = argument_of_periapsis_string.parse::<Float>() {
+                if let Ok(argument_of_periapsis) = argument_of_periapsis_string.parse::<f64>() {
                     self.planet
                         .set_argument_of_periapsis(Angle::from_degrees(argument_of_periapsis));
                     self.argument_of_periapsis_string = argument_of_periapsis_string;
                 }
             }
             PlanetDialogEvent::SiderialRotationPeriodChanged(siderial_rotation_period_string) => {
-                if let Ok(siderial_rotation_period) =
-                    siderial_rotation_period_string.parse::<Float>()
+                if let Ok(siderial_rotation_period) = siderial_rotation_period_string.parse::<f64>()
                 {
                     self.planet
                         .set_sideral_rotation_period(Time::from_days(siderial_rotation_period));
