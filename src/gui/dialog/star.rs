@@ -1,15 +1,20 @@
 use astro_utils::{
+    astro_display::AstroDisplay,
     coordinates::direction::Direction,
     stars::{random_stars::generate_random_star, star_data::StarData},
     units::{
-        length::Length, luminosity::Luminosity, mass::Mass, temperature::Temperature, time::Time,
+        distance::{distance_to_sun_radii, SOLAR_RADIUS},
+        luminous_intensity::{
+            absolute_magnitude_to_luminous_intensity, luminous_intensity_to_absolute_magnitude,
+        },
+        mass::{mass_to_solar_masses, SOLAR_MASS},
     },
-    Float,
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
     Alignment, Element, Renderer,
 };
+use simple_si_units::base::{Distance, Temperature, Time};
 
 use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 
@@ -83,32 +88,32 @@ impl StarDialog {
         self.mass_string = self
             .star
             .get_mass()
-            .map(|mass| mass.as_solar_masses().to_string())
+            .map(|mass| mass_to_solar_masses(&mass).to_string())
             .unwrap_or(String::new());
         self.radius_string = self
             .star
             .get_radius()
-            .map(|radius| radius.as_sun_radii().to_string())
+            .map(|radius| distance_to_sun_radii(&radius).to_string())
             .unwrap_or(String::new());
         self.luminosity_string = self
             .star
-            .get_luminosity()
-            .map(|luminosity| luminosity.as_absolute_magnitude().to_string())
+            .get_luminous_intensity()
+            .map(|luminosity| luminous_intensity_to_absolute_magnitude(luminosity).to_string())
             .unwrap_or(String::new());
         self.temperature_string = self
             .star
             .get_temperature()
-            .map(|temperature| temperature.as_kelvin().to_string())
+            .map(|temperature| temperature.to_K().to_string())
             .unwrap_or(String::new());
         self.age_string = self
             .star
             .get_age()
-            .map(|age| age.as_billion_years().to_string())
+            .map(|age| age.to_Gyr().to_string())
             .unwrap_or(String::new());
         self.distance_string = self
             .star
             .get_distance()
-            .map(|distance| distance.as_light_years().to_string())
+            .map(|distance| distance.to_lyr().to_string())
             .unwrap_or(String::new());
         self.direction_string =
             serde_json::to_string(self.star.get_direction_in_ecliptic()).unwrap();
@@ -144,7 +149,7 @@ impl StarDialog {
             &self.luminosity_string,
             "mag",
             |t| StarDialogEvent::LuminosityChanged(t),
-            self.star.get_luminosity(),
+            self.star.get_luminous_intensity(),
         );
         let temperature = edit(
             "Temperature",
@@ -197,9 +202,10 @@ impl StarDialog {
     fn additional_info_column(&self) -> Element<'_, StarDialogEvent> {
         let appearance = self.star.to_star_appearance();
 
-        let illuminance = Text::new(format!("Illuminance: {}", appearance.get_illuminance()));
+        let illuminance =
+            Text::new("Illuminance: ".to_string() + &appearance.get_illuminance().astro_display());
 
-        let color = Text::new(format!("Color: {}", appearance.get_color()));
+        let color = Text::new("Color: ".to_string() + &appearance.get_color().astro_display());
 
         Column::new()
             .push(illuminance)
@@ -249,41 +255,41 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                 self.star.set_name(name);
             }
             StarDialogEvent::MassChanged(mass_string) => {
-                if let Ok(mass) = mass_string.parse::<Float>() {
-                    self.star.set_mass(Some(Mass::from_solar_masses(mass)));
+                if let Ok(mass) = mass_string.parse::<f64>() {
+                    self.star.set_mass(Some(mass * SOLAR_MASS));
                 }
                 self.mass_string = mass_string;
             }
             StarDialogEvent::RadiusChanged(radius_string) => {
-                if let Ok(radius) = radius_string.parse::<Float>() {
-                    self.star.set_radius(Some(Length::from_sun_radii(radius)));
+                if let Ok(radius) = radius_string.parse::<f64>() {
+                    self.star.set_radius(Some(radius * SOLAR_RADIUS));
                 }
                 self.radius_string = radius_string;
             }
             StarDialogEvent::LuminosityChanged(luminosity_string) => {
-                if let Ok(luminosity) = luminosity_string.parse::<Float>() {
-                    self.star
-                        .set_luminosity(Some(Luminosity::from_absolute_magnitude(luminosity)));
+                if let Ok(luminosity) = luminosity_string.parse::<f64>() {
+                    self.star.set_luminous_intensity(Some(
+                        absolute_magnitude_to_luminous_intensity(luminosity),
+                    ));
                 }
                 self.luminosity_string = luminosity_string;
             }
             StarDialogEvent::TemperatureChanged(temperature_string) => {
-                if let Ok(temperature) = temperature_string.parse::<Float>() {
+                if let Ok(temperature) = temperature_string.parse::<f64>() {
                     self.star
-                        .set_temperature(Some(Temperature::from_kelvin(temperature)));
+                        .set_temperature(Some(Temperature::from_K(temperature)));
                 }
                 self.temperature_string = temperature_string;
             }
             StarDialogEvent::AgeChanged(age_string) => {
-                if let Ok(age) = age_string.parse::<Float>() {
-                    self.star.set_age(Some(Time::from_billion_years(age)));
+                if let Ok(age) = age_string.parse::<f64>() {
+                    self.star.set_age(Some(Time::from_Gyr(age)));
                 }
                 self.age_string = age_string;
             }
             StarDialogEvent::DistanceChanged(distance_string) => {
-                if let Ok(distance) = distance_string.parse::<Float>() {
-                    self.star
-                        .set_distance(Some(Length::from_light_years(distance)));
+                if let Ok(distance) = distance_string.parse::<f64>() {
+                    self.star.set_distance(Some(Distance::from_lyr(distance)));
                 }
                 self.distance_string = distance_string;
             }
@@ -296,7 +302,7 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                 self.direction_string = direction_string;
             }
             StarDialogEvent::Randomize => {
-                let max_distance = Length::from_light_years(2000.);
+                let max_distance = Distance::from_lyr(2000.);
                 self.star = match generate_random_star(Some(max_distance)) {
                     Ok(star) => star,
                     Err(e) => {

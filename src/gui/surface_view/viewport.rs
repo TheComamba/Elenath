@@ -3,8 +3,8 @@ use astro_utils::{
         direction::Direction, equatorial::EquatorialCoordinates, spherical::SphericalCoordinates,
     },
     planets::{planet_data::PlanetData, surface_normal::surface_normal_at_time},
-    units::{angle::Angle, time::Time},
 };
+use simple_si_units::{base::Time, geometry::Angle};
 
 pub(super) struct Viewport {
     pub(super) center_direction: Direction,
@@ -16,7 +16,7 @@ impl Viewport {
     pub(super) fn calculate(
         observer_normal: &Direction,
         local_view_direction: &SphericalCoordinates,
-        opening_angle: Angle,
+        opening_angle: Angle<f64>,
         rotation_axis: &Direction,
         canvas_height: f32,
     ) -> Self {
@@ -30,8 +30,8 @@ impl Viewport {
             },
         };
         let top_direction = center_direction.rotated(opening_angle / 2., &ortho);
-        let viewport_height = (opening_angle / 2.).sin() * 2.; //Viewport is at unit distance
-        let px_per_unit_height = canvas_height / viewport_height;
+        let viewport_height = (opening_angle / 2.).rad.sin() * 2.; //Viewport is at unit distance
+        let px_per_unit_height = canvas_height / viewport_height as f32;
         Self {
             center_direction,
             top_direction,
@@ -43,7 +43,7 @@ impl Viewport {
 pub(super) fn observer_normal(
     planet: &PlanetData,
     surface_position: SphericalCoordinates,
-    time_since_epoch: Time,
+    time_since_epoch: Time<f64>,
 ) -> Direction {
     let observer_equatorial_position =
         EquatorialCoordinates::new(surface_position, planet.get_rotation_axis().clone());
@@ -62,8 +62,8 @@ mod tests {
     use super::*;
     use astro_utils::coordinates::{direction::Direction, spherical::SphericalCoordinates};
 
-    const TEST_ACCURACY: f32 = 1e-5;
-    const SOME_ANGLE: Angle = Angle::from_radians(1.0);
+    const TEST_ACCURACY: f64 = 1e-5;
+    const SOME_ANGLE: Angle<f64> = Angle { rad: 1.0 };
     const SOME_HEIGHT: f32 = 100.;
 
     #[test]
