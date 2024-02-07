@@ -6,6 +6,7 @@ use crate::{
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
+    astro_display::AstroDisplay,
     color::sRGBColor,
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction, rotations::get_rotation_parameters,
@@ -206,7 +207,7 @@ impl TopViewState {
 
         let mut text = canvas::Text::default();
         text.color = Color::WHITE;
-        text.content = format!("{}", LENGTH_IN_PX * self.length_per_pixel);
+        text.content = (LENGTH_IN_PX * self.length_per_pixel).astro_display();
         text.position = middle_pos;
         text.horizontal_alignment = Horizontal::Center;
         frame.fill_text(text);

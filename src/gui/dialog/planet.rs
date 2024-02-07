@@ -92,8 +92,8 @@ impl PlanetDialog {
     }
 
     fn fill_string_members(&mut self) {
-        self.mass_string = mass_to_earth_masses(self.planet.get_mass()).to_string();
-        self.radius_string = distance_to_earth_radii(self.planet.get_radius()).to_string();
+        self.mass_string = mass_to_earth_masses(&self.planet.get_mass()).to_string();
+        self.radius_string = distance_to_earth_radii(&self.planet.get_radius()).to_string();
         self.color_string = serde_json::to_string(self.planet.get_color()).unwrap();
         self.geometric_albedo_string = self.planet.get_geometric_albedo().to_string();
         self.semi_major_axis_string = self
