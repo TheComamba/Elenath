@@ -1,4 +1,5 @@
 use astro_utils::{
+    astro_display::AstroDisplay,
     coordinates::direction::Direction,
     stars::{random_stars::generate_random_star, star_data::StarData},
     units::{
@@ -87,12 +88,12 @@ impl StarDialog {
         self.mass_string = self
             .star
             .get_mass()
-            .map(|mass| mass_to_solar_masses(mass).to_string())
+            .map(|mass| mass_to_solar_masses(&mass).to_string())
             .unwrap_or(String::new());
         self.radius_string = self
             .star
             .get_radius()
-            .map(|radius| distance_to_sun_radii(radius).to_string())
+            .map(|radius| distance_to_sun_radii(&radius).to_string())
             .unwrap_or(String::new());
         self.luminosity_string = self
             .star
@@ -201,9 +202,10 @@ impl StarDialog {
     fn additional_info_column(&self) -> Element<'_, StarDialogEvent> {
         let appearance = self.star.to_star_appearance();
 
-        let illuminance = Text::new(format!("Illuminance: {}", appearance.get_illuminance()));
+        let illuminance =
+            Text::new("Illuminance: ".to_string() + &appearance.get_illuminance().astro_display());
 
-        let color = Text::new(format!("Color: {}", appearance.get_color()));
+        let color = Text::new("Color: ".to_string() + &appearance.get_color().astro_display());
 
         Column::new()
             .push(illuminance)

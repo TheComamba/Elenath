@@ -3,7 +3,10 @@ use crate::gui::{
     message::GuiMessage,
     shared_widgets::control_field,
 };
-use astro_utils::units::angle::{normalized_angle, ANGLE_ZERO};
+use astro_utils::{
+    astro_display::AstroDisplay,
+    units::angle::{normalized_angle, ANGLE_ZERO},
+};
 use iced::{
     widget::{
         canvas::{self},
@@ -104,7 +107,7 @@ impl SurfaceViewState {
         let surface_long = self.surface_longitude;
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",
-            format!("{}", surface_long),
+            surface_long.astro_display(),
             SurfaceViewMessage::UpdateSurfaceLongitude(surface_long - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLongitude(surface_long + ANGLE_STEP),
         );
@@ -112,7 +115,7 @@ impl SurfaceViewState {
         let surface_lat = self.surface_latitude;
         let surface_latitude_control_field = control_field(
             "Surface Latitude:",
-            format!("{}", surface_lat),
+            surface_lat.astro_display(),
             SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat - ANGLE_STEP),
             SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat + ANGLE_STEP),
         );
@@ -120,7 +123,7 @@ impl SurfaceViewState {
         let view_long = self.view_longitude;
         let view_longitude_control_field = control_field(
             "Observer Longitude:",
-            format!("{}", view_long),
+            view_long.astro_display(),
             SurfaceViewMessage::UpdateViewLongitude(view_long - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewLongitude(view_long + ANGLE_STEP),
         );
@@ -128,7 +131,7 @@ impl SurfaceViewState {
         let view_lat = self.view_latitude;
         let view_latitude_control_field = control_field(
             "Observer Latitude:",
-            format!("{}", view_lat),
+            view_lat.astro_display(),
             SurfaceViewMessage::UpdateViewLatitude(view_lat - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewLatitude(view_lat + ANGLE_STEP),
         );
@@ -136,7 +139,7 @@ impl SurfaceViewState {
         let viewport_angle = self.viewport_vertical_opening_angle;
         let viewport_angle_control_field = control_field(
             "Vertical Viewport Opening Angle:",
-            format!("{}", viewport_angle),
+            viewport_angle.astro_display(),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
             SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
         );

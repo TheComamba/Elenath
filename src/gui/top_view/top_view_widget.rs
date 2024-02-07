@@ -3,7 +3,10 @@ use crate::gui::{
     message::GuiMessage,
     shared_widgets::control_field,
 };
-use astro_utils::{coordinates::ecliptic::EclipticCoordinates, units::angle::normalized_angle};
+use astro_utils::{
+    astro_display::AstroDisplay, coordinates::ecliptic::EclipticCoordinates,
+    units::angle::normalized_angle,
+};
 use iced::{
     widget::{canvas::Cache, Column},
     Alignment,
@@ -81,14 +84,14 @@ impl TopViewState {
         let view_longitude = self.view_ecliptic.get_longitude();
         let view_longitude_control_field = control_field(
             "View longitude:",
-            format!("{}", view_longitude),
+            view_longitude.astro_display(),
             TopViewMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
         );
         let view_latitude = self.view_ecliptic.get_latitude();
         let view_latitude_control_field = control_field(
             "View latitude:",
-            format!("{}", view_latitude),
+            view_latitude.astro_display(),
             TopViewMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
             TopViewMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
         );

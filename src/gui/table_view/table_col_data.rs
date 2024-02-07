@@ -1,4 +1,6 @@
-use astro_utils::units::luminous_intensity::luminous_intensity_to_illuminance;
+use astro_utils::{
+    astro_display::AstroDisplay, units::luminous_intensity::luminous_intensity_to_illuminance,
+};
 
 use crate::model::{planet::Planet, star::Star};
 
@@ -16,38 +18,36 @@ impl TableColData<Planet> {
             },
             TableColData {
                 header: "Mass",
-                content_closure: Box::new(|body| format!("{}", body.get_data().get_mass())),
+                content_closure: Box::new(|body| body.get_data().get_mass().astro_display()),
             },
             TableColData {
                 header: "Radius",
-                content_closure: Box::new(|body| format!("{}", body.get_data().get_radius())),
+                content_closure: Box::new(|body| body.get_data().get_radius().astro_display()),
             },
             TableColData {
                 header: "Color",
-                content_closure: Box::new(|body| format!("{}", body.get_data().get_color())),
+                content_closure: Box::new(|body| body.get_data().get_color().astro_display()),
             },
             TableColData {
                 header: "Geometric Albedo",
                 content_closure: Box::new(|body| {
-                    format!("{}", body.get_data().get_geometric_albedo())
+                    format!("{:.2}", body.get_data().get_geometric_albedo())
                 }),
             },
             TableColData {
                 header: "Semi-major Axis",
                 content_closure: Box::new(|body| {
-                    format!(
-                        "{}",
-                        body.get_data()
-                            .get_orbital_parameters()
-                            .get_semi_major_axis()
-                    )
+                    body.get_data()
+                        .get_orbital_parameters()
+                        .get_semi_major_axis()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Eccentricity",
                 content_closure: Box::new(|body| {
                     format!(
-                        "{}",
+                        "{:.2}",
                         body.get_data().get_orbital_parameters().get_eccentricity()
                     )
                 }),
@@ -55,44 +55,42 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Inclination",
                 content_closure: Box::new(|body| {
-                    format!(
-                        "{}",
-                        body.get_data().get_orbital_parameters().get_inclination()
-                    )
+                    body.get_data()
+                        .get_orbital_parameters()
+                        .get_inclination()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Ascending Node",
                 content_closure: Box::new(|body| {
-                    format!(
-                        "{}",
-                        body.get_data()
-                            .get_orbital_parameters()
-                            .get_longitude_of_ascending_node()
-                    )
+                    body.get_data()
+                        .get_orbital_parameters()
+                        .get_longitude_of_ascending_node()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Arg. of Periapsis",
                 content_closure: Box::new(|body| {
-                    format!(
-                        "{}",
-                        body.get_data()
-                            .get_orbital_parameters()
-                            .get_argument_of_periapsis()
-                    )
+                    body.get_data()
+                        .get_orbital_parameters()
+                        .get_argument_of_periapsis()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Sideral Day",
                 content_closure: Box::new(|body| {
-                    format!("{}", body.get_data().get_sideral_rotation_period())
+                    body.get_data()
+                        .get_sideral_rotation_period()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Rotation Axis",
                 content_closure: Box::new(|body| {
-                    format!("{}", body.get_data().get_rotation_axis())
+                    body.get_data().get_rotation_axis().astro_display()
                 }),
             },
         ]
@@ -110,7 +108,7 @@ impl TableColData<Star> {
                 header: "Mass",
                 content_closure: Box::new(|body| {
                     if let Some(mass) = body.get_data().unwrap().get_mass() {
-                        format!("{}", mass)
+                        mass.astro_display()
                     } else {
                         String::from("N/A")
                     }
@@ -120,7 +118,7 @@ impl TableColData<Star> {
                 header: "Radius",
                 content_closure: Box::new(|body| {
                     if let Some(radius) = body.get_data().unwrap().get_radius() {
-                        format!("{}", radius)
+                        radius.astro_display()
                     } else {
                         String::from("N/A")
                     }
@@ -132,7 +130,7 @@ impl TableColData<Star> {
                     if let Some(luminous_intensity) =
                         body.get_data().unwrap().get_luminous_intensity()
                     {
-                        format!("{}", luminous_intensity)
+                        luminous_intensity.astro_display()
                     } else {
                         String::from("N/A")
                     }
@@ -142,7 +140,7 @@ impl TableColData<Star> {
                 header: "Temperature",
                 content_closure: Box::new(|body| {
                     if let Some(temperature) = body.get_data().unwrap().get_temperature() {
-                        format!("{}", temperature)
+                        temperature.astro_display()
                     } else {
                         String::from("N/A")
                     }
@@ -151,14 +149,17 @@ impl TableColData<Star> {
             TableColData {
                 header: "Direction in Ecliptic",
                 content_closure: Box::new(|body| {
-                    format!("{}", body.get_data().unwrap().get_direction_in_ecliptic())
+                    body.get_data()
+                        .unwrap()
+                        .get_direction_in_ecliptic()
+                        .astro_display()
                 }),
             },
             TableColData {
                 header: "Distance",
                 content_closure: Box::new(|body| {
                     if let Some(distance) = body.get_data().unwrap().get_distance() {
-                        format!("{}", distance)
+                        distance.astro_display()
                     } else {
                         String::from("N/A")
                     }
@@ -173,7 +174,7 @@ impl TableColData<Star> {
                     ) {
                         let illuminance =
                             luminous_intensity_to_illuminance(luminous_intensity, distance);
-                        format!("{}", illuminance)
+                        illuminance.astro_display()
                     } else {
                         String::from("N/A")
                     }

@@ -1,11 +1,9 @@
-use std::fmt::Display;
-
 use super::{
     gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     message::GuiMessage,
     Gui, GuiMode,
 };
-use astro_utils::planets::planet_data::PlanetData;
+use astro_utils::{astro_display::AstroDisplay, planets::planet_data::PlanetData};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
@@ -106,13 +104,13 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
 ) -> iced::Element<'a, GuiMessage> {
     let time_control_field = control_field(
         "Time since Epoch:",
-        format!("{}", time_since_epoch),
+        time_since_epoch.astro_display(),
         GuiMessage::UpdateTime(*time_since_epoch - *time_step),
         GuiMessage::UpdateTime(*time_since_epoch + *time_step),
     );
     let time_step_control_field = control_field(
         "Time step:",
-        format!("{}", time_step),
+        time_step.astro_display(),
         GuiMessage::UpdateTimeStep(*time_step / 2.),
         GuiMessage::UpdateTimeStep(*time_step * 2.),
     );
@@ -175,12 +173,12 @@ pub(crate) fn edit<'a, Fun, Mes, Val>(
 where
     Fun: 'a + Fn(String) -> Mes,
     Mes: 'a + Clone,
-    Val: 'a + Display,
+    Val: 'a + AstroDisplay,
 {
     let description = if description.ends_with(":") {
         description.to_string()
     } else {
-        format!("{}:", description)
+        description.to_string() + ":"
     };
     let description = Text::new(description)
         .width(SMALL_COLUMN_WIDTH)
@@ -190,7 +188,7 @@ where
         .width(SMALL_COLUMN_WIDTH);
     let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
     let parsed_text = match actual_value {
-        Some(value) => format! {"Parsed value:\n{}",value},
+        Some(value) => "Parsed value:\n".to_string() + &value.astro_display(),
         None => "Parsed value:\nNone".to_string(),
     };
     let value = Text::new(parsed_text).width(SMALL_COLUMN_WIDTH);
