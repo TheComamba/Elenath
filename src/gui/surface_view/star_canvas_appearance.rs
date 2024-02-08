@@ -3,7 +3,7 @@ use crate::model::{celestial_system::CelestialSystem, planet::Planet};
 use super::viewport::Viewport;
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
-    planets::surface_normal::direction_relative_to_surface_normal,
+    coordinates::transformations::relative_direction::direction_relative_to_normal,
     stars::star_appearance::StarAppearance,
 };
 use iced::{Color, Vector};
@@ -97,7 +97,7 @@ impl StarCanvasAppearance {
 }
 
 fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
-    let direction = direction_relative_to_surface_normal(
+    let direction = direction_relative_to_normal(
         appearance.get_direction_in_ecliptic(),
         &viewport.center_direction,
         &viewport.top_direction,
