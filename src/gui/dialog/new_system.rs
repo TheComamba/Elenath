@@ -154,7 +154,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     "Maximum distance",
                     &self.max_generation_distance_text,
                     "ly",
-                    |t| NewSystemDialogEvent::MaxGenerationDistanceChanged(t),
+                    NewSystemDialogEvent::MaxGenerationDistanceChanged,
                     &Some(self.max_generation_distance),
                 );
                 col = col

@@ -18,7 +18,6 @@ use iced::{
     widget::{component, Button, Column, Component, Row, Text},
     Alignment, Element, Renderer,
 };
-use serde_json;
 use simple_si_units::{
     base::{Distance, Time},
     geometry::Angle,

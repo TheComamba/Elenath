@@ -15,7 +15,7 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
         return;
     }
     let name_widget = canvas::Text {
-        color: color,
+        color,
         content: name.to_string(),
         position: body_center + iced::Vector::new(ORDINATE_OFFSET, ORDINATE_OFFSET),
         ..Default::default()
