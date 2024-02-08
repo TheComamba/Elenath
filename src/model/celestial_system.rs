@@ -66,12 +66,8 @@ impl CelestialSystem {
         &mut self,
         star_appearances: Vec<StarAppearance>,
     ) {
-        let known_stars: Vec<&StarAppearance> = self
-            .distant_stars
-            .iter()
-            .map(|s| s.get_appearance())
-            .collect();
         for star_appearance in star_appearances {
+            let known_stars = self.get_distant_star_appearances();
             if !star_is_already_known(&star_appearance, &known_stars[..]) {
                 let index = self.distant_stars.len();
                 self.distant_stars
@@ -128,11 +124,11 @@ impl CelestialSystem {
     }
 
     pub(crate) fn get_distant_star_appearances(&self) -> Vec<&StarAppearance> {
-        let mut bodies = Vec::new();
+        let mut stars = Vec::new();
         for star in &self.distant_stars {
-            bodies.push(star.get_appearance());
+            stars.push(star.get_appearance());
         }
-        bodies
+        stars
     }
 
     pub(crate) fn get_star_data(&self, index: Option<usize>) -> Option<&StarData> {
