@@ -165,7 +165,7 @@ where
 
 pub(crate) fn edit<'a, Fun, Mes, Val>(
     description: &'static str,
-    data: &String,
+    data: &str,
     units: &'static str,
     message: Fun,
     actual_value: &Option<Val>,

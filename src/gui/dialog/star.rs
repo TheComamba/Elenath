@@ -89,32 +89,32 @@ impl StarDialog {
             .star
             .get_mass()
             .map(|mass| mass_to_solar_masses(&mass).to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.radius_string = self
             .star
             .get_radius()
             .map(|radius| distance_to_sun_radii(&radius).to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.luminosity_string = self
             .star
             .get_luminous_intensity()
             .map(|luminosity| luminous_intensity_to_absolute_magnitude(luminosity).to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.temperature_string = self
             .star
             .get_temperature()
             .map(|temperature| temperature.to_K().to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.age_string = self
             .star
             .get_age()
             .map(|age| age.to_Gyr().to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.distance_string = self
             .star
             .get_distance()
             .map(|distance| distance.to_lyr().to_string())
-            .unwrap_or(String::new());
+            .unwrap_or_default();
         self.direction_string =
             serde_json::to_string(self.star.get_direction_in_ecliptic()).unwrap();
     }
