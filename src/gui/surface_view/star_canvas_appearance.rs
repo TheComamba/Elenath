@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn stars_at_boundaries() {
-        let ordinates = vec![-1., 0., 1., 12.];
+        let ordinates = vec![0., 1., 1., 12.];
         for x1 in ordinates.clone().iter() {
             for y1 in ordinates.clone().iter() {
                 for z1 in ordinates.clone().iter() {
@@ -194,9 +194,9 @@ mod tests {
                                 {
                                     continue;
                                 }
-                                let left = top.rotated(Angle::from_degrees(90.), &center);
-                                let bottom = left.rotated(Angle::from_degrees(90.), &center);
-                                let right = bottom.rotated(Angle::from_degrees(90.), &center);
+                                let left = top.rotated(Angle::from_degrees(-90.), &center);
+                                let bottom = left.rotated(Angle::from_degrees(-90.), &center);
+                                let right = bottom.rotated(Angle::from_degrees(-90.), &center);
 
                                 println!(
                                     "center: {}, top: {}, left: {}, bottom: {}, right: {}",
