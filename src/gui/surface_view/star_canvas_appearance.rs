@@ -301,6 +301,74 @@ mod tests {
     }
 
     #[test]
+    fn view_direction_z() {
+        let viewport = Viewport {
+            center_direction: Direction::Z,
+            top_direction: Direction::Y,
+            px_per_unit_height: SOME_FLOAT,
+        };
+        for x in [-0.1, 0.1] {
+            for y in [-0.1, 0.1] {
+                let star_direction = Direction::new(x, y, 1.).unwrap();
+                println!("star direction: {}", star_direction);
+                let star = StarAppearance::new(
+                    "".to_string(),
+                    SOME_ILLUMINANCE,
+                    SOME_COLOR,
+                    star_direction,
+                );
+                let appearance = StarCanvasAppearance::from_star_appearance(&star, &viewport);
+                let center_offset = appearance.unwrap().center_offset;
+                println!("center offset: {:?}", center_offset);
+                if x > 0. {
+                    assert!(center_offset.x < 0.);
+                } else {
+                    assert!(center_offset.x > 0.);
+                }
+                if y > 0. {
+                    assert!(center_offset.y < 0.);
+                } else {
+                    assert!(center_offset.y > 0.);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn view_direction_x() {
+        let viewport = Viewport {
+            center_direction: Direction::X,
+            top_direction: Direction::Z,
+            px_per_unit_height: SOME_FLOAT,
+        };
+        for y in [-0.1, 0.1] {
+            for z in [-0.1, 0.1] {
+                let star_direction = Direction::new(1., y, z).unwrap();
+                println!("star direction: {}", star_direction);
+                let star = StarAppearance::new(
+                    "".to_string(),
+                    SOME_ILLUMINANCE,
+                    SOME_COLOR,
+                    star_direction,
+                );
+                let appearance = StarCanvasAppearance::from_star_appearance(&star, &viewport);
+                let center_offset = appearance.unwrap().center_offset;
+                println!("center offset: {:?}", center_offset);
+                if y > 0. {
+                    assert!(center_offset.x < 0.);
+                } else {
+                    assert!(center_offset.x > 0.);
+                }
+                if z > 0. {
+                    assert!(center_offset.y < 0.);
+                } else {
+                    assert!(center_offset.y > 0.);
+                }
+            }
+        }
+    }
+
+    #[test]
     fn apparent_magnitude_6p5_star_is_barely_visible() {
         let star_appearance = StarAppearance::new(
             String::new(),
