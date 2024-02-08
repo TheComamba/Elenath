@@ -9,7 +9,8 @@ use astro_utils::{
     astro_display::AstroDisplay,
     color::sRGBColor,
     coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction, rotations::get_rotation_parameters,
+        cartesian::CartesianCoordinates, direction::Direction,
+        transformations::rotations::get_rotation_parameters,
     },
     units::distance::DISTANCE_ZERO,
 };
