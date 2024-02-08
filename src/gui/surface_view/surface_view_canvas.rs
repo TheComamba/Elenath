@@ -84,7 +84,7 @@ impl SurfaceViewState {
             surface_position,
             time_since_epoch,
         );
-        let observer_position = self.observer_position(&selected_planet, &observer_normal);
+        let observer_position = self.observer_position(selected_planet, &observer_normal);
         let observer_view_direction =
             SphericalCoordinates::new(self.view_longitude, self.view_latitude);
         let viewport = Viewport::calculate(
@@ -169,7 +169,7 @@ impl SurfaceViewState {
     ) {
         let planet_appearance = planet.get_data().to_star_appearance(
             celestial_system.get_central_body_data(),
-            &planet.get_position(),
+            planet.get_position(),
             observer_position,
         );
         let planet_appearance = match planet_appearance {
@@ -219,7 +219,7 @@ impl SurfaceViewState {
             frame,
             bounds,
             &canvas_appearance,
-            &celestial_system.get_central_body_data().get_radius(),
+            celestial_system.get_central_body_data().get_radius(),
             pixel_per_viewport_width,
             display_names,
             observer_position,
@@ -239,7 +239,7 @@ impl SurfaceViewState {
         if let Some(canvas_appearance) = canvas_appearance {
             let pos = frame.center() + canvas_appearance.center_offset;
             let color = canvas_appearance.color;
-            self.draw_hue(frame, &canvas_appearance);
+            self.draw_hue(frame, canvas_appearance);
 
             if !contains_workaround(&bounds, pos) {
                 return;
@@ -250,7 +250,7 @@ impl SurfaceViewState {
                 self.draw_disk(
                     frame,
                     pos,
-                    &radius,
+                    radius,
                     &relative_position,
                     color,
                     pixel_per_viewport_width,
@@ -273,8 +273,8 @@ impl SurfaceViewState {
             step_width = canvas_appearance.radius / steps as f32;
         }
         let pos: Point = frame.center() + canvas_appearance.center_offset;
-        let mut color = canvas_appearance.color.clone();
-        color.a = color.a / (steps as f32);
+        let mut color = canvas_appearance.color;
+        color.a /= steps as f32;
         for i in 0..steps {
             let mut radius = step_width * (i + 1) as f32;
             if radius > canvas_appearance.radius {
@@ -295,7 +295,7 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
     ) {
         let apparent_radius =
-            canvas_apparent_radius(radius, &relative_position, pixel_per_viewport_width);
+            canvas_apparent_radius(radius, relative_position, pixel_per_viewport_width);
 
         let solid_circle = Path::circle(pos, apparent_radius);
         frame.fill(&solid_circle, color);

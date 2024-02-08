@@ -18,7 +18,6 @@ use iced::{
     widget::{component, Button, Column, Component, Row, Text},
     Alignment, Element, Renderer,
 };
-use serde_json;
 use simple_si_units::{
     base::{Distance, Time},
     geometry::Angle,
@@ -141,63 +140,63 @@ impl PlanetDialog {
             "Name",
             self.planet.get_name(),
             "",
-            |t| PlanetDialogEvent::NameChanged(t),
+            PlanetDialogEvent::NameChanged,
             &Some(self.planet.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
             "Earth Masses",
-            |t| PlanetDialogEvent::MassChanged(t),
+            PlanetDialogEvent::MassChanged,
             &Some(self.planet.get_mass()),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
             "Earth Radii",
-            |t| PlanetDialogEvent::RadiusChanged(t),
+            PlanetDialogEvent::RadiusChanged,
             &Some(self.planet.get_radius()),
         );
         let color = edit(
             "Color",
             &self.color_string,
             "",
-            |t| PlanetDialogEvent::ColorChanged(t),
+            PlanetDialogEvent::ColorChanged,
             &Some(self.planet.get_color()),
         );
         let geometric_albedo = edit(
             "Geometric Albedo",
             &self.geometric_albedo_string,
             "",
-            |t| PlanetDialogEvent::GeometricAlbedoChanged(t),
+            PlanetDialogEvent::GeometricAlbedoChanged,
             &Some(self.planet.get_geometric_albedo()),
         );
         let semi_major_axis = edit(
             "Semi-major Axis",
             &self.semi_major_axis_string,
             "AU",
-            |t| PlanetDialogEvent::SemiMajorAxisChanged(t),
+            PlanetDialogEvent::SemiMajorAxisChanged,
             &Some(self.planet.get_orbital_parameters().get_semi_major_axis()),
         );
         let eccentricity = edit(
             "Eccentricity",
             &self.eccentricity_string,
             "",
-            |t| PlanetDialogEvent::EccentricityChanged(t),
+            PlanetDialogEvent::EccentricityChanged,
             &Some(self.planet.get_orbital_parameters().get_eccentricity()),
         );
         let inclination = edit(
             "Inclination",
             &self.inclination_string,
             "°",
-            |t| PlanetDialogEvent::InclinationChanged(t),
+            PlanetDialogEvent::InclinationChanged,
             &Some(self.planet.get_orbital_parameters().get_inclination()),
         );
         let longitude_of_ascending_node = edit(
             "Ascending Node",
             &self.longitude_of_ascending_node_string,
             "°",
-            |t| PlanetDialogEvent::LongitudeOfAscendingNodeChanged(t),
+            PlanetDialogEvent::LongitudeOfAscendingNodeChanged,
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -208,7 +207,7 @@ impl PlanetDialog {
             "Arg. of Periapsis",
             &self.argument_of_periapsis_string,
             "°",
-            |t| PlanetDialogEvent::ArgumentOfPeriapsisChanged(t),
+            PlanetDialogEvent::ArgumentOfPeriapsisChanged,
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -219,14 +218,14 @@ impl PlanetDialog {
             "Siderial Day",
             &self.siderial_rotation_period_string,
             "Earth Days",
-            |t| PlanetDialogEvent::SiderialRotationPeriodChanged(t),
+            PlanetDialogEvent::SiderialRotationPeriodChanged,
             &Some(self.planet.get_sideral_rotation_period()),
         );
         let rotation_axis = edit(
             "Rotation Axis",
             &self.rotation_axis_string,
             "",
-            |t| PlanetDialogEvent::RotationAxisChanged(t),
+            PlanetDialogEvent::RotationAxisChanged,
             &Some(self.planet.get_rotation_axis()),
         );
 

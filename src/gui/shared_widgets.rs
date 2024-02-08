@@ -1,7 +1,7 @@
 use super::{
     gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     message::GuiMessage,
-    Gui, GuiMode,
+    Gui, GuiViewMode,
 };
 use astro_utils::{astro_display::AstroDisplay, planets::planet_data::PlanetData};
 use iced::{
@@ -16,14 +16,14 @@ impl Gui {
     pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
         let local_view_button = std_button(
             "Local View",
-            GuiMessage::ModeSelected(GuiMode::SurfaceView),
+            GuiMessage::ModeSelected(GuiViewMode::Surface),
             true,
         );
         let top_view_button =
-            std_button("Top View", GuiMessage::ModeSelected(GuiMode::TopView), true);
+            std_button("Top View", GuiMessage::ModeSelected(GuiViewMode::Top), true);
         let table_view_button = std_button(
             "Table View",
-            GuiMessage::ModeSelected(GuiMode::TableView),
+            GuiMessage::ModeSelected(GuiViewMode::Table),
             true,
         );
         Row::new()
@@ -118,7 +118,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
     let display_names_toggle = Container::new(Toggler::new(
         Some("Display Names".to_string()),
         display_names,
-        |state| GuiMessage::SetShowNames(state),
+        GuiMessage::SetShowNames,
     ))
     .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
     Column::new()
@@ -132,12 +132,12 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .into()
 }
 
-pub(crate) fn control_field<'a, M>(
-    label: &'a str,
+pub(crate) fn control_field<M>(
+    label: &str,
     value: String,
     decrease: M,
     increase: M,
-) -> Row<'a, GuiMessage>
+) -> Row<'_, GuiMessage>
 where
     M: Into<GuiMessage>,
 {
@@ -165,7 +165,7 @@ where
 
 pub(crate) fn edit<'a, Fun, Mes, Val>(
     description: &'static str,
-    data: &String,
+    data: &str,
     units: &'static str,
     message: Fun,
     actual_value: &Option<Val>,
@@ -175,7 +175,7 @@ where
     Mes: 'a + Clone,
     Val: 'a + AstroDisplay,
 {
-    let description = if description.ends_with(":") {
+    let description = if description.ends_with(':') {
         description.to_string()
     } else {
         description.to_string() + ":"
@@ -183,7 +183,7 @@ where
     let description = Text::new(description)
         .width(SMALL_COLUMN_WIDTH)
         .horizontal_alignment(Horizontal::Right);
-    let data = TextInput::new("", &data)
+    let data = TextInput::new("", data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
     let units = Text::new(units).width(SMALL_COLUMN_WIDTH);

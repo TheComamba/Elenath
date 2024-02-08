@@ -16,10 +16,10 @@ pub(super) const SMALL_COLUMN_WIDTH: f32 = 150.0;
 pub(super) const BIG_COLUMN_WIDTH: f32 = 3.5 * SMALL_COLUMN_WIDTH;
 
 #[derive(Debug, Clone)]
-pub(crate) enum GuiMode {
-    SurfaceView,
-    TopView,
-    TableView,
+pub(crate) enum GuiViewMode {
+    Surface,
+    Top,
+    Table,
 }
 
 impl Sandbox for Gui {
@@ -28,7 +28,7 @@ impl Sandbox for Gui {
     fn new() -> Self {
         Gui {
             opened_file: None,
-            mode: GuiMode::SurfaceView,
+            mode: GuiViewMode::Surface,
             surface_view_state: SurfaceViewState::new(),
             top_view_state: TopViewState::new(),
             table_view_state: TableViewState::new(),
@@ -77,7 +77,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         match self.mode {
-            GuiMode::SurfaceView => self.surface_view_state.canvas(
+            GuiViewMode::Surface => self.surface_view_state.canvas(
                 renderer,
                 bounds,
                 &self.get_selected_planet(),
@@ -85,7 +85,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 self.time_since_epoch,
                 self.display_names,
             ),
-            GuiMode::TopView => self.top_view_state.canvas(
+            GuiViewMode::Top => self.top_view_state.canvas(
                 renderer,
                 bounds,
                 &self.get_selected_planet(),
@@ -112,7 +112,7 @@ impl Gui {
         let mut col = Column::new().push(toprow);
 
         match self.mode {
-            GuiMode::SurfaceView => {
+            GuiViewMode::Surface => {
                 let control_row = Row::new()
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
@@ -128,7 +128,7 @@ impl Gui {
                         .height(iced::Length::Fill),
                 )
             }
-            GuiMode::TopView => {
+            GuiViewMode::Top => {
                 let control_row = Row::new()
                     .push(surface_and_top_view_shared_control(
                         &self.time_since_epoch,
@@ -144,11 +144,11 @@ impl Gui {
                         .height(iced::Length::Fill),
                 )
             }
-            GuiMode::TableView => {
+            GuiViewMode::Table => {
                 let (planets, stars) = match &self.celestial_system {
                     Some(system) => {
                         let planets = system.get_planets_at_time(self.time_since_epoch);
-                        let stars = system.get_stars().into_iter().map(|s| s.clone()).collect();
+                        let stars = system.get_stars().into_iter().cloned().collect();
                         (planets, stars)
                     }
                     None => (Vec::new(), Vec::new()),
