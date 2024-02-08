@@ -156,6 +156,29 @@ impl SurfaceViewState {
         );
     }
 
+    fn draw_central_body(
+        &self,
+        frame: &mut canvas::Frame,
+        bounds: iced::Rectangle,
+        celestial_system: &CelestialSystem,
+        viewport: &Viewport,
+        observer_position: &CartesianCoordinates,
+        pixel_per_viewport_width: f32,
+        display_names: bool,
+    ) {
+        let canvas_appearance =
+            StarCanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
+        self.draw_body(
+            frame,
+            bounds,
+            &canvas_appearance,
+            celestial_system.get_central_body_data().get_radius(),
+            pixel_per_viewport_width,
+            display_names,
+            observer_position,
+        );
+    }
+
     fn draw_planet(
         &self,
         frame: &mut canvas::Frame,
@@ -167,59 +190,17 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let planet_appearance = planet.get_data().to_star_appearance(
-            celestial_system.get_central_body_data(),
-            planet.get_position(),
+        let canvas_appearance = StarCanvasAppearance::from_planet(
+            celestial_system,
+            planet,
+            viewport,
             observer_position,
         );
-        let planet_appearance = match planet_appearance {
-            Ok(appearance) => appearance,
-            Err(_) => {
-                return;
-            }
-        };
-
-        let canvas_appearance =
-            StarCanvasAppearance::from_star_appearance(&planet_appearance, viewport);
         self.draw_body(
             frame,
             bounds,
             &canvas_appearance,
             &Some(planet.get_data().get_radius()),
-            pixel_per_viewport_width,
-            display_names,
-            observer_position,
-        );
-    }
-
-    fn draw_central_body(
-        &self,
-        frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
-        celestial_system: &CelestialSystem,
-        viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
-        pixel_per_viewport_width: f32,
-        display_names: bool,
-    ) {
-        let central_body = celestial_system.get_central_body();
-        let central_body_pos = -observer_position;
-        let central_body_dir = central_body_pos.to_direction();
-        let central_body_dir = match central_body_dir {
-            Ok(dir) => dir,
-            Err(_) => {
-                return;
-            }
-        };
-        let mut central_body_appearance = central_body.get_appearance().clone();
-        central_body_appearance.set_direction_in_ecliptic(central_body_dir);
-        let canvas_appearance =
-            StarCanvasAppearance::from_star_appearance(&central_body_appearance, viewport);
-        self.draw_body(
-            frame,
-            bounds,
-            &canvas_appearance,
-            celestial_system.get_central_body_data().get_radius(),
             pixel_per_viewport_width,
             display_names,
             observer_position,
@@ -258,7 +239,7 @@ impl SurfaceViewState {
             }
 
             if display_names {
-                draw_name(canvas_appearance.name, color, pos, frame);
+                draw_name(&canvas_appearance.name, color, pos, frame);
             }
         }
     }

@@ -1,34 +1,78 @@
+use crate::model::{celestial_system::CelestialSystem, planet::Planet};
+
 use super::viewport::Viewport;
 use astro_utils::{
+    coordinates::cartesian::CartesianCoordinates,
     planets::surface_normal::direction_relative_to_surface_normal,
     stars::star_appearance::StarAppearance,
 };
 use iced::{Color, Vector};
 use simple_si_units::electromagnetic::Illuminance;
 
-pub(super) struct StarCanvasAppearance<'a> {
-    pub(super) name: &'a str,
+pub(super) struct StarCanvasAppearance {
+    pub(super) name: String,
     pub(super) center_offset: Vector,
     pub(super) radius: f32,
     pub(super) color: Color,
 }
 
-impl<'a> StarCanvasAppearance<'a> {
+impl StarCanvasAppearance {
     pub(super) const MIN_RADIUS: f32 = 1.;
     const MAX_RADIUS: f32 = 1e5;
     const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1e-6 };
 
     pub(super) fn from_star_appearance(
-        appearance: &'a StarAppearance,
+        appearance: &StarAppearance,
         viewport: &Viewport,
-    ) -> Option<StarCanvasAppearance<'a>> {
+    ) -> Option<StarCanvasAppearance> {
         let (color, radius) = Self::color_and_radius(appearance);
         Some(Self {
-            name: appearance.get_name(),
+            name: appearance.get_name().to_string(),
             center_offset: offset(appearance, viewport)?,
             radius,
             color,
         })
+    }
+
+    pub(super) fn from_central_body(
+        celestial_system: &CelestialSystem,
+        viewport: &Viewport,
+        observer_position: &CartesianCoordinates,
+    ) -> Option<StarCanvasAppearance> {
+        let central_body = celestial_system.get_central_body();
+        let central_body_pos = -observer_position;
+        let central_body_dir = central_body_pos.to_direction();
+        let central_body_dir = match central_body_dir {
+            Ok(dir) => dir,
+            Err(_) => {
+                return None;
+            }
+        };
+        let mut central_body_appearance = central_body.get_appearance().clone();
+        central_body_appearance.set_direction_in_ecliptic(central_body_dir);
+
+        StarCanvasAppearance::from_star_appearance(&central_body_appearance, viewport)
+    }
+
+    pub(super) fn from_planet(
+        celestial_system: &CelestialSystem,
+        planet: &Planet,
+        viewport: &Viewport,
+        observer_position: &CartesianCoordinates,
+    ) -> Option<StarCanvasAppearance> {
+        let planet_appearance = planet.get_data().to_star_appearance(
+            celestial_system.get_central_body_data(),
+            planet.get_position(),
+            observer_position,
+        );
+        let planet_appearance = match planet_appearance {
+            Ok(appearance) => appearance,
+            Err(_) => {
+                return None;
+            }
+        };
+
+        StarCanvasAppearance::from_star_appearance(&planet_appearance, viewport)
     }
 
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
