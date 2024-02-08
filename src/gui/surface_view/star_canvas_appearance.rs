@@ -113,16 +113,23 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 
 #[cfg(test)]
 mod tests {
-    use crate::gui::surface_view::{
-        star_canvas_appearance::StarCanvasAppearance, viewport::Viewport,
+    use crate::{
+        gui::surface_view::{star_canvas_appearance::StarCanvasAppearance, viewport::Viewport},
+        model::celestial_system::{CelestialSystem, SystemType},
     };
     use astro_utils::{
-        color::sRGBColor, coordinates::direction::Direction,
+        color::sRGBColor,
+        coordinates::direction::Direction,
+        planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
+        real_data::stars::SUN_DATA,
         stars::star_appearance::StarAppearance,
-        units::illuminance::apparent_magnitude_to_illuminance,
+        units::{
+            angle::ANGLE_ZERO, distance::EARTH_RADIUS,
+            illuminance::apparent_magnitude_to_illuminance, mass::EARTH_MASS, time::TIME_ZERO,
+        },
     };
     use iced::Vector;
-    use simple_si_units::{electromagnetic::Illuminance, geometry::Angle};
+    use simple_si_units::{base::Distance, electromagnetic::Illuminance, geometry::Angle};
 
     const SOME_ILLUMINANCE: Illuminance<f64> = Illuminance { lux: 100. };
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);
@@ -371,5 +378,88 @@ mod tests {
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 500.);
+    }
+
+    #[test]
+    fn aligned_planet_sun_and_observer() {
+        const CENTER: Vector = Vector { x: 0., y: 0. };
+
+        let mut celestial_system =
+            CelestialSystem::new(SystemType::Generated, SUN_DATA.to_star_data());
+        let orbit = OrbitParameters::new(
+            Distance::from_au(1.),
+            0.,
+            ANGLE_ZERO,
+            ANGLE_ZERO,
+            ANGLE_ZERO,
+        );
+        let planet_data = PlanetData::new(
+            "Inner".to_string(),
+            EARTH_MASS,
+            EARTH_RADIUS,
+            1.,
+            sRGBColor::from_sRGB(1., 1., 1.),
+            TIME_ZERO,
+            orbit,
+            Direction::Z,
+        );
+        celestial_system.add_planet_data(planet_data);
+        let planets = celestial_system.get_planets_at_time(TIME_ZERO);
+        let planet = planets.first().unwrap();
+        let planet_position = planet.get_position();
+
+        let away_from_sun = planet_position.to_direction().unwrap();
+        let to_sun = -&away_from_sun;
+        let viewport_away_from_sun = Viewport {
+            center_direction: away_from_sun,
+            top_direction: Direction::Z,
+            px_per_unit_height: SOME_FLOAT,
+        };
+        let viewport_to_sun = Viewport {
+            center_direction: to_sun,
+            top_direction: Direction::Z,
+            px_per_unit_height: SOME_FLOAT,
+        };
+
+        let inner_observer = planet_position * 0.5;
+
+        let sun_appearance = StarCanvasAppearance::from_central_body(
+            &celestial_system,
+            &viewport_to_sun,
+            &inner_observer,
+        );
+        assert!(sun_appearance.is_some());
+        let sun_appearance = sun_appearance.unwrap();
+        assert!(vecs_equal(sun_appearance.center_offset, CENTER));
+
+        let planet_appearance = StarCanvasAppearance::from_planet(
+            &celestial_system,
+            &planet,
+            &viewport_away_from_sun,
+            &inner_observer,
+        );
+        assert!(planet_appearance.is_some());
+        let planet_appearance = planet_appearance.unwrap();
+        assert!(vecs_equal(planet_appearance.center_offset, CENTER));
+
+        let outer_observer = planet_position * 1.5;
+        let sun_appearance = StarCanvasAppearance::from_central_body(
+            &celestial_system,
+            &viewport_to_sun,
+            &outer_observer,
+        );
+        assert!(sun_appearance.is_some());
+        let sun_appearance = sun_appearance.unwrap();
+        assert!(vecs_equal(sun_appearance.center_offset, CENTER));
+
+        let planet_appearance = StarCanvasAppearance::from_planet(
+            &celestial_system,
+            &planet,
+            &viewport_to_sun,
+            &outer_observer,
+        );
+        assert!(planet_appearance.is_some());
+        let planet_appearance = planet_appearance.unwrap();
+        assert!(vecs_equal(planet_appearance.center_offset, CENTER));
     }
 }
