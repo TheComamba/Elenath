@@ -54,7 +54,7 @@ impl<'a> StarCanvasAppearance<'a> {
 
 fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     let direction = direction_relative_to_surface_normal(
-        &appearance.get_direction_in_ecliptic(),
+        appearance.get_direction_in_ecliptic(),
         &viewport.center_direction,
         &viewport.top_direction,
     );

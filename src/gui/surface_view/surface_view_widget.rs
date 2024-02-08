@@ -32,17 +32,17 @@ pub(crate) struct SurfaceViewState {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum SurfaceViewMessage {
-    UpdateSurfaceLongitude(Angle<f64>),
-    UpdateSurfaceLatitude(Angle<f64>),
-    UpdateViewLongitude(Angle<f64>),
-    UpdateViewLatitude(Angle<f64>),
-    UpdateViewportOpeningAngle(Angle<f64>),
+pub(crate) enum SurfaceViewUpdate {
+    SurfaceLongitude(Angle<f64>),
+    SurfaceLatitude(Angle<f64>),
+    ViewLongitude(Angle<f64>),
+    ViewLatitude(Angle<f64>),
+    ViewportOpeningAngle(Angle<f64>),
 }
 
-impl Into<GuiMessage> for SurfaceViewMessage {
-    fn into(self) -> GuiMessage {
-        GuiMessage::UpdateSurfaceView(self)
+impl From<SurfaceViewUpdate> for GuiMessage {
+    fn from(val: SurfaceViewUpdate) -> Self {
+        GuiMessage::UpdateSurfaceView(val)
     }
 }
 
@@ -59,13 +59,13 @@ impl SurfaceViewState {
         }
     }
 
-    pub(crate) fn update(&mut self, message: SurfaceViewMessage) {
+    pub(crate) fn update(&mut self, message: SurfaceViewUpdate) {
         match message {
-            SurfaceViewMessage::UpdateSurfaceLongitude(mut longitude) => {
+            SurfaceViewUpdate::SurfaceLongitude(mut longitude) => {
                 longitude = normalized_angle(longitude);
                 self.surface_longitude = longitude;
             }
-            SurfaceViewMessage::UpdateSurfaceLatitude(mut latitude) => {
+            SurfaceViewUpdate::SurfaceLatitude(mut latitude) => {
                 if latitude.to_degrees() < -90. {
                     latitude = Angle::from_degrees(-90.);
                 } else if latitude.to_degrees() > 90. {
@@ -73,11 +73,11 @@ impl SurfaceViewState {
                 }
                 self.surface_latitude = latitude;
             }
-            SurfaceViewMessage::UpdateViewLongitude(mut longitude) => {
+            SurfaceViewUpdate::ViewLongitude(mut longitude) => {
                 longitude = normalized_angle(longitude);
                 self.view_longitude = longitude;
             }
-            SurfaceViewMessage::UpdateViewLatitude(mut latitude) => {
+            SurfaceViewUpdate::ViewLatitude(mut latitude) => {
                 if latitude.to_degrees() < 10. {
                     latitude = Angle::from_degrees(10.);
                 } else if latitude.to_degrees() > 90. {
@@ -85,7 +85,7 @@ impl SurfaceViewState {
                 }
                 self.view_latitude = latitude;
             }
-            SurfaceViewMessage::UpdateViewportOpeningAngle(mut angle) => {
+            SurfaceViewUpdate::ViewportOpeningAngle(mut angle) => {
                 if angle.to_degrees() < 10. {
                     angle = Angle::from_degrees(10.);
                 } else if angle.to_degrees() > 170. {
@@ -108,40 +108,40 @@ impl SurfaceViewState {
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",
             surface_long.astro_display(),
-            SurfaceViewMessage::UpdateSurfaceLongitude(surface_long - ANGLE_STEP),
-            SurfaceViewMessage::UpdateSurfaceLongitude(surface_long + ANGLE_STEP),
+            SurfaceViewUpdate::SurfaceLongitude(surface_long - ANGLE_STEP),
+            SurfaceViewUpdate::SurfaceLongitude(surface_long + ANGLE_STEP),
         );
 
         let surface_lat = self.surface_latitude;
         let surface_latitude_control_field = control_field(
             "Surface Latitude:",
             surface_lat.astro_display(),
-            SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat - ANGLE_STEP),
-            SurfaceViewMessage::UpdateSurfaceLatitude(surface_lat + ANGLE_STEP),
+            SurfaceViewUpdate::SurfaceLatitude(surface_lat - ANGLE_STEP),
+            SurfaceViewUpdate::SurfaceLatitude(surface_lat + ANGLE_STEP),
         );
 
         let view_long = self.view_longitude;
         let view_longitude_control_field = control_field(
             "Observer Longitude:",
             view_long.astro_display(),
-            SurfaceViewMessage::UpdateViewLongitude(view_long - ANGLE_STEP),
-            SurfaceViewMessage::UpdateViewLongitude(view_long + ANGLE_STEP),
+            SurfaceViewUpdate::ViewLongitude(view_long - ANGLE_STEP),
+            SurfaceViewUpdate::ViewLongitude(view_long + ANGLE_STEP),
         );
 
         let view_lat = self.view_latitude;
         let view_latitude_control_field = control_field(
             "Observer Latitude:",
             view_lat.astro_display(),
-            SurfaceViewMessage::UpdateViewLatitude(view_lat - ANGLE_STEP),
-            SurfaceViewMessage::UpdateViewLatitude(view_lat + ANGLE_STEP),
+            SurfaceViewUpdate::ViewLatitude(view_lat - ANGLE_STEP),
+            SurfaceViewUpdate::ViewLatitude(view_lat + ANGLE_STEP),
         );
 
         let viewport_angle = self.viewport_vertical_opening_angle;
         let viewport_angle_control_field = control_field(
             "Vertical Viewport Opening Angle:",
             viewport_angle.astro_display(),
-            SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle - ANGLE_STEP),
-            SurfaceViewMessage::UpdateViewportOpeningAngle(viewport_angle + ANGLE_STEP),
+            SurfaceViewUpdate::ViewportOpeningAngle(viewport_angle - ANGLE_STEP),
+            SurfaceViewUpdate::ViewportOpeningAngle(viewport_angle + ANGLE_STEP),
         );
         Column::new()
             .push(surface_longitude_control_field)

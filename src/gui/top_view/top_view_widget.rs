@@ -23,15 +23,15 @@ pub(crate) struct TopViewState {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum TopViewMessage {
-    UpdateLengthScale(Distance<f64>),
-    UpdateViewLongitude(Angle<f64>),
-    UpdateViewLatitude(Angle<f64>),
+pub(crate) enum TopViewUpdate {
+    LengthScale(Distance<f64>),
+    ViewLongitude(Angle<f64>),
+    ViewLatitude(Angle<f64>),
 }
 
-impl Into<GuiMessage> for TopViewMessage {
-    fn into(self) -> GuiMessage {
-        GuiMessage::UpdateTopView(self)
+impl From<TopViewUpdate> for GuiMessage {
+    fn from(val: TopViewUpdate) -> Self {
+        GuiMessage::UpdateTopView(val)
     }
 }
 
@@ -46,16 +46,16 @@ impl TopViewState {
         }
     }
 
-    pub(crate) fn update(&mut self, message: TopViewMessage) {
+    pub(crate) fn update(&mut self, message: TopViewUpdate) {
         match message {
-            TopViewMessage::UpdateLengthScale(length_per_pixel) => {
+            TopViewUpdate::LengthScale(length_per_pixel) => {
                 self.length_per_pixel = length_per_pixel;
             }
-            TopViewMessage::UpdateViewLongitude(mut longitude) => {
+            TopViewUpdate::ViewLongitude(mut longitude) => {
                 longitude = normalized_angle(longitude);
                 self.view_ecliptic.set_longitude(longitude);
             }
-            TopViewMessage::UpdateViewLatitude(mut latitude) => {
+            TopViewUpdate::ViewLatitude(mut latitude) => {
                 if latitude.to_degrees() < -90. {
                     latitude = Angle::from_degrees(-90.);
                 } else if latitude.to_degrees() > 90. {
@@ -75,8 +75,8 @@ impl TopViewState {
         let length_scale_control_field = control_field(
             "Length per 100px:",
             format!("{}", self.length_per_pixel * 100.),
-            TopViewMessage::UpdateLengthScale(self.length_per_pixel / 2.),
-            TopViewMessage::UpdateLengthScale(self.length_per_pixel * 2.),
+            TopViewUpdate::LengthScale(self.length_per_pixel / 2.),
+            TopViewUpdate::LengthScale(self.length_per_pixel * 2.),
         );
         const VIEW_ANGLE_STEP: Angle<f64> = Angle {
             rad: 10. * 2. * PI / 360.,
@@ -85,15 +85,15 @@ impl TopViewState {
         let view_longitude_control_field = control_field(
             "View longitude:",
             view_longitude.astro_display(),
-            TopViewMessage::UpdateViewLongitude(view_longitude - VIEW_ANGLE_STEP),
-            TopViewMessage::UpdateViewLongitude(view_longitude + VIEW_ANGLE_STEP),
+            TopViewUpdate::ViewLongitude(view_longitude - VIEW_ANGLE_STEP),
+            TopViewUpdate::ViewLongitude(view_longitude + VIEW_ANGLE_STEP),
         );
         let view_latitude = self.view_ecliptic.get_latitude();
         let view_latitude_control_field = control_field(
             "View latitude:",
             view_latitude.astro_display(),
-            TopViewMessage::UpdateViewLatitude(view_latitude - VIEW_ANGLE_STEP),
-            TopViewMessage::UpdateViewLatitude(view_latitude + VIEW_ANGLE_STEP),
+            TopViewUpdate::ViewLatitude(view_latitude - VIEW_ANGLE_STEP),
+            TopViewUpdate::ViewLatitude(view_latitude + VIEW_ANGLE_STEP),
         );
         Column::new()
             .push(length_scale_control_field)

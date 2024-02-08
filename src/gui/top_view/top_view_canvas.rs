@@ -84,13 +84,13 @@ impl TopViewState {
     ) {
         let view_direction = &self.view_ecliptic.get_spherical().to_direction();
         let (view_angle, view_rotation_axis) =
-            get_rotation_parameters(&Direction::Z, &view_direction);
+            get_rotation_parameters(&Direction::Z, view_direction);
 
         let offset = match selected_planet {
             Some(focus) => {
                 self.canvas_position(focus.get_position(), view_angle, &view_rotation_axis)
             }
-            None => iced::Vector::new(0.0 as f32, 0.0 as f32),
+            None => iced::Vector::new(0.0, 0.0),
         };
 
         self.draw_central_body(
@@ -110,7 +110,7 @@ impl TopViewState {
             let data = planet.get_data();
             self.draw_body(
                 frame,
-                &bounds,
+                bounds,
                 data.get_name(),
                 planet.get_position(),
                 data.get_color(),
@@ -173,7 +173,7 @@ impl TopViewState {
     ) {
         let radius = canvas_radius(&radius);
         let pos =
-            frame.center() + self.canvas_position(pos3d, view_angle, &view_rotation_axis) - offset;
+            frame.center() + self.canvas_position(pos3d, view_angle, view_rotation_axis) - offset;
         if contains_workaround(bounds, pos) {
             let circle = Path::circle(pos, radius);
             let color = canvas_color(color, albedo);
@@ -187,10 +187,10 @@ impl TopViewState {
 
     fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {
         const LENGTH_IN_PX: f32 = 200.0;
-        let start_pos = Point::ORIGIN + iced::Vector::new(50. as f32, bounds.height - 50. as f32);
-        let middle_pos = start_pos + iced::Vector::new(LENGTH_IN_PX as f32 / 2., 0.0 as f32);
-        let end_pos = start_pos + iced::Vector::new(LENGTH_IN_PX as f32, 0.0 as f32);
-        let delimitor_vec = iced::Vector::new(0.0 as f32, 5. as f32);
+        let start_pos = Point::ORIGIN + iced::Vector::new(50., bounds.height - 50.);
+        let middle_pos = start_pos + iced::Vector::new(LENGTH_IN_PX / 2., 0.0);
+        let end_pos = start_pos + iced::Vector::new(LENGTH_IN_PX, 0.0);
+        let delimitor_vec = iced::Vector::new(0.0, 5.);
 
         let scale = Path::new(|path_builder| {
             path_builder.move_to(start_pos + delimitor_vec);
@@ -200,16 +200,19 @@ impl TopViewState {
             path_builder.move_to(end_pos + delimitor_vec);
             path_builder.line_to(end_pos - delimitor_vec);
         });
-        let mut stroke = canvas::Stroke::default();
-        stroke.style = Style::Solid(Color::WHITE);
-
+        let stroke = canvas::Stroke {
+            style: Style::Solid(Color::WHITE),
+            ..Default::default()
+        };
         frame.stroke(&scale, stroke);
 
-        let mut text = canvas::Text::default();
-        text.color = Color::WHITE;
-        text.content = (LENGTH_IN_PX * self.length_per_pixel).astro_display();
-        text.position = middle_pos;
-        text.horizontal_alignment = Horizontal::Center;
+        let text = canvas::Text {
+            color: Color::WHITE,
+            content: (LENGTH_IN_PX * self.length_per_pixel).astro_display(),
+            position: middle_pos,
+            horizontal_alignment: Horizontal::Center,
+            ..Default::default()
+        };
         frame.fill_text(text);
     }
 }

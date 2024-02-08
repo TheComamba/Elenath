@@ -14,10 +14,12 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
     if name.is_empty() || name.starts_with("Gaia") {
         return;
     }
-    let mut name_widget = canvas::Text::default();
-    name_widget.color = color;
-    name_widget.content = name.to_string();
-    name_widget.position = body_center + iced::Vector::new(ORDINATE_OFFSET, ORDINATE_OFFSET);
+    let name_widget = canvas::Text {
+        color: color,
+        content: name.to_string(),
+        position: body_center + iced::Vector::new(ORDINATE_OFFSET, ORDINATE_OFFSET),
+        ..Default::default()
+    };
     frame.fill_text(name_widget);
 }
 
@@ -26,16 +28,18 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
  * https://github.com/TheComamba/IcedPlayground/blob/main/canvas_coordinates/src/main.rs
  */
 pub(super) fn contains_workaround(bounds: &Rectangle, point: Point) -> bool {
-    return point.x >= 0. && point.x <= bounds.width && point.y >= 0. && point.y <= bounds.height;
+    point.x >= 0. && point.x <= bounds.width && point.y >= 0. && point.y <= bounds.height
 }
 
 pub(crate) fn display_info_text(frame: &mut canvas::Frame, text: &str) {
-    let mut name_widget = canvas::Text::default();
-    name_widget.size = 30.0;
-    name_widget.color = Color::WHITE;
-    name_widget.content = text.to_string();
-    name_widget.position = frame.center();
-    name_widget.vertical_alignment = Vertical::Center;
-    name_widget.horizontal_alignment = Horizontal::Center;
+    let name_widget = canvas::Text {
+        size: 30.0,
+        color: Color::WHITE,
+        content: text.to_string(),
+        position: frame.center(),
+        vertical_alignment: Vertical::Center,
+        horizontal_alignment: Horizontal::Center,
+        ..Default::default()
+    };
     frame.fill_text(name_widget)
 }

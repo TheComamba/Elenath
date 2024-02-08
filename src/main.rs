@@ -7,10 +7,14 @@ mod gui;
 mod model;
 
 fn main() -> iced::Result {
-    let mut window_settings = iced::window::Settings::default();
-    window_settings.size = (1820, 980);
-    let mut settings = iced::settings::Settings::default();
-    settings.window = window_settings;
-    settings.antialiasing = true;
+    let window_settings = iced::window::Settings {
+        size: (1820, 980),
+        ..Default::default()
+    };
+    let settings = iced::settings::Settings {
+        window: window_settings,
+        antialiasing: true,
+        ..Default::default()
+    };
     Gui::run(settings)
 }

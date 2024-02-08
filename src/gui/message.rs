@@ -1,10 +1,10 @@
 use super::dialog::planet::PlanetDialog;
 use super::dialog::star::StarDialog;
-use super::gui_widget::GuiMode;
+use super::gui_widget::GuiViewMode;
 use super::Gui;
 use super::{
-    dialog::new_system::NewSystemDialog, surface_view::surface_view_widget::SurfaceViewMessage,
-    top_view::top_view_widget::TopViewMessage,
+    dialog::new_system::NewSystemDialog, surface_view::surface_view_widget::SurfaceViewUpdate,
+    top_view::top_view_widget::TopViewUpdate,
 };
 use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
@@ -14,14 +14,14 @@ use simple_si_units::base::Time;
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
-    UpdateSurfaceView(SurfaceViewMessage),
-    UpdateTopView(TopViewMessage),
+    UpdateSurfaceView(SurfaceViewUpdate),
+    UpdateTopView(TopViewUpdate),
     NewSystemDialog,
     NewSystemDialogSubmit(Result<CelestialSystem, ElenathError>),
     SaveToFile,
     SaveToNewFile,
     OpenFile,
-    ModeSelected(GuiMode),
+    ModeSelected(GuiViewMode),
     NewPlanetDialog,
     EditPlanetDialog(usize),
     NewPlanet(PlanetData),

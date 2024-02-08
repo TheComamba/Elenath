@@ -1,5 +1,5 @@
 use self::dialog::Dialog;
-use self::gui_widget::GuiMode;
+use self::gui_widget::GuiViewMode;
 use self::surface_view::surface_view_widget::SurfaceViewState;
 use self::table_view::table_view_widget::TableViewState;
 use self::top_view::top_view_widget::TopViewState;
@@ -20,7 +20,7 @@ mod top_view;
 
 pub(crate) struct Gui {
     opened_file: Option<PathBuf>,
-    mode: GuiMode,
+    mode: GuiViewMode,
     surface_view_state: SurfaceViewState,
     top_view_state: TopViewState,
     table_view_state: TableViewState,
@@ -35,10 +35,10 @@ pub(crate) struct Gui {
 impl Gui {
     pub(super) fn redraw(&mut self) {
         match self.mode {
-            GuiMode::SurfaceView => {
+            GuiViewMode::Surface => {
                 self.surface_view_state.redraw();
             }
-            GuiMode::TopView => {
+            GuiViewMode::Top => {
                 self.top_view_state.redraw();
             }
             _ => (),
@@ -64,7 +64,7 @@ impl Gui {
             .get_planets_data()
             .iter()
             .find(|p| p.get_name().eq(&self.selected_planet_name))
-            .map(|p| *p);
+            .copied();
         planet_data
     }
 

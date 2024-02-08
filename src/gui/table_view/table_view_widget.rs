@@ -32,8 +32,8 @@ impl TableViewState {
         }
     }
 
-    pub(crate) fn table_view<'a>(
-        &'a self,
+    pub(crate) fn table_view(
+        &self,
         planets: Vec<Planet>,
         stars: Vec<Star>,
         is_system_loaded: bool,
@@ -77,7 +77,7 @@ impl TableViewState {
     }
 }
 
-fn table<'a, T>(bodies: Vec<T>, table_col_data: &'a Vec<TableColData<T>>) -> Element<'a, GuiMessage>
+fn table<T>(bodies: Vec<T>, table_col_data: &[TableColData<T>]) -> Element<'_, GuiMessage>
 where
     T: PartOfCelestialSystem,
 {
@@ -112,7 +112,7 @@ fn table_header<T>(
     row.align_items(Alignment::Center)
 }
 
-fn table_row<'a, T>(data: T, table_col_data: &'a Vec<TableColData<T>>) -> Row<'a, GuiMessage>
+fn table_row<T>(data: T, table_col_data: &[TableColData<T>]) -> Row<'_, GuiMessage>
 where
     T: PartOfCelestialSystem,
 {

@@ -127,56 +127,56 @@ impl StarDialog {
             "Name",
             self.star.get_name(),
             "",
-            |t| StarDialogEvent::NameChanged(t),
+            StarDialogEvent::NameChanged,
             &Some(self.star.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
             "Solar Masses",
-            |t| StarDialogEvent::MassChanged(t),
+            StarDialogEvent::MassChanged,
             self.star.get_mass(),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
             "Solar Radii",
-            |t| StarDialogEvent::RadiusChanged(t),
+            StarDialogEvent::RadiusChanged,
             self.star.get_radius(),
         );
         let luminosity = edit(
             "Luminosity",
             &self.luminosity_string,
             "mag",
-            |t| StarDialogEvent::LuminosityChanged(t),
+            StarDialogEvent::LuminosityChanged,
             self.star.get_luminous_intensity(),
         );
         let temperature = edit(
             "Temperature",
             &self.temperature_string,
             "K",
-            |t| StarDialogEvent::TemperatureChanged(t),
+            StarDialogEvent::TemperatureChanged,
             self.star.get_temperature(),
         );
         let age = edit(
             "Age",
             &self.age_string,
             "Gyr",
-            |t| StarDialogEvent::AgeChanged(t),
+            StarDialogEvent::AgeChanged,
             self.star.get_age(),
         );
         let distance = edit(
             "Distance",
             &self.distance_string,
             "ly",
-            |t| StarDialogEvent::DistanceChanged(t),
+            StarDialogEvent::DistanceChanged,
             self.star.get_distance(),
         );
         let direction = edit(
             "Direction",
             &self.direction_string,
             "",
-            |t| StarDialogEvent::DirectionChanged(t),
+            StarDialogEvent::DirectionChanged,
             &Some(self.star.get_direction_in_ecliptic()),
         );
 

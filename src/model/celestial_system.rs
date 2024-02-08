@@ -88,7 +88,7 @@ impl CelestialSystem {
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
-        &self.central_body.get_data().unwrap()
+        self.central_body.get_data().unwrap()
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
