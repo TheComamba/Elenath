@@ -4,7 +4,10 @@ use astro_utils::{
     },
     planets::{planet_data::PlanetData, surface_normal::surface_normal_at_time},
 };
-use simple_si_units::{base::Time, geometry::Angle};
+use simple_si_units::{
+    base::Time,
+    geometry::{Angle, SolidAngle},
+};
 
 pub(super) struct Viewport {
     pub(super) center_direction: Direction,
@@ -16,7 +19,7 @@ impl Viewport {
     pub(super) fn calculate(
         observer_normal: &Direction,
         local_view_direction: &SphericalCoordinates,
-        opening_angle: Angle<f64>,
+        opening_angle: SolidAngle<f64>,
         rotation_axis: &Direction,
         canvas_height: f32,
     ) -> Self {
@@ -61,9 +64,10 @@ pub(super) fn observer_normal(
 mod tests {
     use super::*;
     use astro_utils::coordinates::{direction::Direction, spherical::SphericalCoordinates};
+    use astro_utils::units::solid_angle::SOLID_ANGLE_ZERO;
 
     const TEST_ACCURACY: f64 = 1e-5;
-    const SOME_ANGLE: Angle<f64> = Angle { rad: 1.0 };
+    const SOME_SOLID_ANGLE: SolidAngle<f64> = SolidAngle { sr: 1.0 };
     const SOME_HEIGHT: f32 = 100.;
 
     #[test]
@@ -86,7 +90,7 @@ mod tests {
                                 let viewport = Viewport::calculate(
                                     &observer_normal,
                                     &view_direction,
-                                    SOME_ANGLE,
+                                    SOME_SOLID_ANGLE,
                                     &rotation_axis,
                                     SOME_HEIGHT,
                                 );
@@ -112,28 +116,28 @@ mod tests {
         let westward_viewport = Viewport::calculate(
             &observer_normal,
             &west_view,
-            SOME_ANGLE,
+            SOME_SOLID_ANGLE,
             &rotation_axis,
             SOME_HEIGHT,
         );
         let southward_viewport = Viewport::calculate(
             &observer_normal,
             &south_view,
-            SOME_ANGLE,
+            SOME_SOLID_ANGLE,
             &rotation_axis,
             SOME_HEIGHT,
         );
         let eastward_viewport = Viewport::calculate(
             &observer_normal,
             &east_view,
-            SOME_ANGLE,
+            SOME_SOLID_ANGLE,
             &rotation_axis,
             SOME_HEIGHT,
         );
         let northward_viewport = Viewport::calculate(
             &observer_normal,
             &north_view,
-            SOME_ANGLE,
+            SOME_SOLID_ANGLE,
             &rotation_axis,
             SOME_HEIGHT,
         );
@@ -179,7 +183,7 @@ mod tests {
                                             let viewport = Viewport::calculate(
                                                 &observer_normal,
                                                 &view_direction,
-                                                SOME_ANGLE,
+                                                SOME_SOLID_ANGLE,
                                                 &rotation_axis,
                                                 SOME_HEIGHT,
                                             );
@@ -221,7 +225,7 @@ mod tests {
         let viewport = Viewport::calculate(
             &observer_normal,
             &view_direction,
-            Angle::from_degrees(0.0),
+            SOLID_ANGLE_ZERO,
             &rotation_axis,
             SOME_HEIGHT,
         );

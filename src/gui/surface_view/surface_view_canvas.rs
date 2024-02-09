@@ -90,7 +90,7 @@ impl SurfaceViewState {
         let viewport = Viewport::calculate(
             &observer_normal,
             &observer_view_direction,
-            self.viewport_vertical_opening_angle,
+            self.viewport_opening_angle,
             selected_planet.get_data().get_rotation_axis(),
             bounds.height,
         );
