@@ -17,7 +17,7 @@ use astro_utils::{
 };
 use iced::{
     widget::canvas::{self, Path},
-    Color, Point,
+    Color, Point, Rectangle,
 };
 use simple_si_units::base::{Distance, Time};
 
@@ -71,7 +71,7 @@ impl SurfaceViewState {
     fn draw_bodies(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
         time_since_epoch: Time<f64>,
@@ -90,9 +90,9 @@ impl SurfaceViewState {
         let viewport = Viewport::calculate(
             &observer_normal,
             &observer_view_direction,
-            self.viewport_vertical_opening_angle,
+            self.viewport_opening_angle,
             selected_planet.get_data().get_rotation_axis(),
-            bounds.height,
+            bounds,
         );
 
         for distant_star in celestial_system.get_distant_star_appearances() {
@@ -102,7 +102,7 @@ impl SurfaceViewState {
                 distant_star,
                 &viewport,
                 &observer_position,
-                viewport.px_per_unit_height,
+                viewport.px_per_distance,
                 display_names,
             );
         }
@@ -113,7 +113,7 @@ impl SurfaceViewState {
             celestial_system,
             &viewport,
             &observer_position,
-            viewport.px_per_unit_height,
+            viewport.px_per_distance,
             display_names,
         );
 
@@ -128,7 +128,7 @@ impl SurfaceViewState {
                 &planet,
                 &viewport,
                 &observer_position,
-                viewport.px_per_unit_height,
+                viewport.px_per_distance,
                 display_names,
             );
         }

@@ -103,8 +103,8 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
         &viewport.top_direction,
     );
     if direction.z() > 0.0 {
-        let x = direction.y() as f32 * viewport.px_per_unit_height; // rotation_reference corresponds to the x axis while iced y corresponds to top.
-        let y = -direction.x() as f32 * viewport.px_per_unit_height; // y axis is inverted
+        let x = direction.y() as f32 * viewport.px_per_distance; // rotation_reference corresponds to the x axis while iced y corresponds to top.
+        let y = -direction.x() as f32 * viewport.px_per_distance; // y axis is inverted
         Some(iced::Vector::new(x as f32, y as f32))
     } else {
         None
@@ -154,7 +154,7 @@ mod tests {
                     let viewport = Viewport {
                         center_direction: center_direction.clone(),
                         top_direction,
-                        px_per_unit_height: SOME_FLOAT,
+                        px_per_distance: SOME_FLOAT,
                     };
                     let star_appearance = StarAppearance::new(
                         String::new(),
@@ -206,14 +206,14 @@ mod tests {
                                 let viewport = Viewport {
                                     center_direction: center.clone(),
                                     top_direction: top.clone(),
-                                    px_per_unit_height: SOME_FLOAT,
+                                    px_per_distance: SOME_FLOAT,
                                 };
                                 let half_opening_angle = center.angle_to(&top);
                                 if half_opening_angle.to_degrees().abs() > 89. {
                                     continue;
                                 }
-                                let expected_offset = half_opening_angle.rad.sin() as f32
-                                    * viewport.px_per_unit_height;
+                                let expected_offset =
+                                    half_opening_angle.rad.sin() as f32 * viewport.px_per_distance;
 
                                 println!("half opening angle: {}", half_opening_angle);
                                 println!("expected offset: {}", expected_offset);
@@ -305,7 +305,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::Z,
             top_direction: Direction::Y,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         for x in [-0.1, 0.1] {
             for y in [-0.1, 0.1] {
@@ -339,7 +339,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Z,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         for y in [-0.1, 0.1] {
             for z in [-0.1, 0.1] {
@@ -379,7 +379,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
@@ -400,7 +400,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
@@ -420,7 +420,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
@@ -440,7 +440,7 @@ mod tests {
         let viewport = Viewport {
             center_direction: Direction::X,
             top_direction: Direction::Y,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
@@ -481,12 +481,12 @@ mod tests {
         let viewport_away_from_sun = Viewport {
             center_direction: away_from_sun,
             top_direction: Direction::Z,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
         let viewport_to_sun = Viewport {
             center_direction: to_sun,
             top_direction: Direction::Z,
-            px_per_unit_height: SOME_FLOAT,
+            px_per_distance: SOME_FLOAT,
         };
 
         let inner_observer = planet_position * 0.5;

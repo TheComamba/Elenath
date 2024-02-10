@@ -74,7 +74,7 @@ impl TopViewState {
     pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
         let length_scale_control_field = control_field(
             "Length per 100px:",
-            format!("{}", self.length_per_pixel * 100.),
+            (self.length_per_pixel * 100.).astro_display(),
             TopViewUpdate::LengthScale(self.length_per_pixel / 2.),
             TopViewUpdate::LengthScale(self.length_per_pixel * 2.),
         );
