@@ -4,6 +4,7 @@ use astro_utils::{
     },
     planets::{planet_data::PlanetData, surface_normal::surface_normal_at_time},
 };
+use iced::Rectangle;
 use simple_si_units::{
     base::Time,
     geometry::{Angle, SolidAngle},
@@ -12,7 +13,7 @@ use simple_si_units::{
 pub(super) struct Viewport {
     pub(super) center_direction: Direction,
     pub(super) top_direction: Direction,
-    pub(super) px_per_unit_height: f32,
+    pub(super) px_per_distance: f32,
 }
 
 impl Viewport {
@@ -21,7 +22,7 @@ impl Viewport {
         local_view_direction: &SphericalCoordinates,
         opening_angle: SolidAngle<f64>,
         rotation_axis: &Direction,
-        canvas_height: f32,
+        bounds: Rectangle,
     ) -> Self {
         let view_direction = local_view_direction.to_direction();
         let center_direction = view_direction.active_rotation_to_new_z_axis(observer_normal);
@@ -32,13 +33,19 @@ impl Viewport {
                 Err(_) => center_direction.some_orthogonal_vector(),
             },
         };
-        let top_direction = center_direction.rotated(opening_angle / 2., &ortho);
-        let viewport_height = (opening_angle / 2.).rad.sin() * 2.; //Viewport is at unit distance
-        let px_per_unit_height = canvas_height / viewport_height as f32;
+        let aspect_ration = bounds.width / bounds.height;
+        // A = a * b = a^2 * aspect_ratio
+        // a = sqrt(A / aspect_ratio)
+        let vertical_angle = Angle {
+            rad: (opening_angle.sr / aspect_ration as f64).sqrt(),
+        };
+        let top_direction = center_direction.rotated(vertical_angle / 2., &ortho);
+        let viewport_height = (vertical_angle / 2.).rad.sin() * 2.; //Viewport is at unit distance
+        let px_per_distance = bounds.height / viewport_height as f32;
         Self {
             center_direction,
             top_direction,
-            px_per_unit_height,
+            px_per_distance,
         }
     }
 }
@@ -68,7 +75,12 @@ mod tests {
 
     const TEST_ACCURACY: f64 = 1e-5;
     const SOME_SOLID_ANGLE: SolidAngle<f64> = SolidAngle { sr: 1.0 };
-    const SOME_HEIGHT: f32 = 100.;
+    const SOME_SQUARE: Rectangle = Rectangle {
+        x: 0.,
+        y: 0.,
+        width: 100.,
+        height: 100.,
+    };
 
     #[test]
     fn view_direction_z_does_not_influence_center_direction_and_makes_rotation_axis_irrelevant() {
@@ -92,7 +104,7 @@ mod tests {
                                     &view_direction,
                                     SOME_SOLID_ANGLE,
                                     &rotation_axis,
-                                    SOME_HEIGHT,
+                                    SOME_SQUARE,
                                 );
                                 assert!(viewport
                                     .center_direction
@@ -118,28 +130,28 @@ mod tests {
             &west_view,
             SOME_SOLID_ANGLE,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
         let southward_viewport = Viewport::calculate(
             &observer_normal,
             &south_view,
             SOME_SOLID_ANGLE,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
         let eastward_viewport = Viewport::calculate(
             &observer_normal,
             &east_view,
             SOME_SOLID_ANGLE,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
         let northward_viewport = Viewport::calculate(
             &observer_normal,
             &north_view,
             SOME_SOLID_ANGLE,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
         assert!(westward_viewport
             .center_direction
@@ -185,7 +197,7 @@ mod tests {
                                                 &view_direction,
                                                 SOME_SOLID_ANGLE,
                                                 &rotation_axis,
-                                                SOME_HEIGHT,
+                                                SOME_SQUARE,
                                             );
 
                                             let ortho = rotation_axis
@@ -227,7 +239,7 @@ mod tests {
             &view_direction,
             SOLID_ANGLE_ZERO,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
         let expected_top_direction = viewport.center_direction;
         assert!(viewport
@@ -240,12 +252,14 @@ mod tests {
         let observer_normal = Direction::X;
         let rotation_axis = Direction::Z;
         let view_direction = SphericalCoordinates::Z_DIRECTION;
+        let opening_angle = Angle::from_degrees(90.0);
+        let opening_solid_angle = opening_angle * opening_angle;
         let viewport = Viewport::calculate(
             &observer_normal,
             &view_direction,
-            Angle::from_degrees(90.0),
+            opening_solid_angle,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
 
         let expected_top_direction = Direction::new(1., 0., 1.).unwrap();
@@ -259,12 +273,14 @@ mod tests {
         let observer_normal = Direction::X;
         let rotation_axis = Direction::Z;
         let view_direction = SphericalCoordinates::Z_DIRECTION;
+        let opening_angle = Angle::from_degrees(180.0);
+        let opening_solid_angle = opening_angle * opening_angle;
         let viewport = Viewport::calculate(
             &observer_normal,
             &view_direction,
-            Angle::from_degrees(180.0),
+            opening_solid_angle,
             &rotation_axis,
-            SOME_HEIGHT,
+            SOME_SQUARE,
         );
 
         let expected_top_direction = rotation_axis;
