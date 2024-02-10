@@ -10,7 +10,7 @@ use astro_utils::{
     units::{
         angle::ANGLE_ZERO,
         distance::{distance_to_earth_radii, DISTANCE_ZERO, EARTH_RADIUS},
-        mass::{mass_to_earth_masses, EARTH_MASS, MASS_ZERO},
+        mass::{EARTH_MASS, MASS_ZERO},
         time::TIME_ZERO,
     },
 };
@@ -91,7 +91,7 @@ impl PlanetDialog {
     }
 
     fn fill_string_members(&mut self) {
-        self.mass_string = mass_to_earth_masses(&self.planet.get_mass()).to_string();
+        self.mass_string = self.planet.get_mass().to_earth_mass().to_string();
         self.radius_string = distance_to_earth_radii(&self.planet.get_radius()).to_string();
         self.color_string = serde_json::to_string(self.planet.get_color()).unwrap();
         self.geometric_albedo_string = self.planet.get_geometric_albedo().to_string();

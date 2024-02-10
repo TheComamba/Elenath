@@ -7,7 +7,7 @@ use astro_utils::{
         luminous_intensity::{
             absolute_magnitude_to_luminous_intensity, luminous_intensity_to_absolute_magnitude,
         },
-        mass::{mass_to_solar_masses, SOLAR_MASS},
+        mass::SOLAR_MASS,
     },
 };
 use iced::{
@@ -88,7 +88,7 @@ impl StarDialog {
         self.mass_string = self
             .star
             .get_mass()
-            .map(|mass| mass_to_solar_masses(&mass).to_string())
+            .map(|mass| mass.to_solar_mass().to_string())
             .unwrap_or_default();
         self.radius_string = self
             .star

@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/srad-for-opening-angle#d9503dd0ceaab7dc041e3d7af35a919787ac7392"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#0e6a14d5c68dcec1e6aa202798282efa8e31fff3"
 dependencies = [
  "directories",
  "flate2",
