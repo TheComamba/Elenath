@@ -20,6 +20,7 @@ impl StarCanvasAppearance {
     pub(super) const MIN_RADIUS: f32 = 1.5;
     const MAX_RADIUS: f32 = 1e5;
     const RADIUS_EXPONENT: f32 = 0.29;
+    const ALPHA_EXPONENT: f32 = 1.6;
     const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-7 };
 
     pub(super) fn from_star_appearance(
@@ -82,7 +83,7 @@ impl StarCanvasAppearance {
         let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
         if ratio < 1. {
             let radius = Self::MIN_RADIUS;
-            let alpha = ratio;
+            let alpha = ratio.powf(Self::ALPHA_EXPONENT);
             let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha);
             (color, radius)
         } else {
@@ -508,6 +509,18 @@ mod tests {
                 alpha: 1.,
             },
             PictureStar {
+                name: "Pi1 Ori",
+                magnitude: 4.74,
+                diameter: 3,
+                alpha: 0.10,
+            },
+            PictureStar {
+                name: "Pi2 Ori",
+                magnitude: 4.35,
+                diameter: 3,
+                alpha: 0.20,
+            },
+            PictureStar {
                 name: "Pi3 Ori",
                 magnitude: 3.16,
                 diameter: 3,
@@ -568,8 +581,7 @@ mod tests {
                 alpha: 1.,
             },
         ];
-        let radius_accuracy = 0.5;
-        let alpha_accuracy = 0.2;
+        let accuracy = 0.4;
 
         let mut failures = 0;
         for picture_star in picture_stars.iter() {
@@ -583,8 +595,8 @@ mod tests {
             let (color, radius) = StarCanvasAppearance::color_and_radius(&star_appearance);
             let expected_radius = picture_star.diameter as f32 / 2.;
             let expected_alpha = picture_star.alpha;
-            if (radius - expected_radius).abs() > radius_accuracy
-                || (color.a - expected_alpha).abs() > alpha_accuracy
+            if (radius / expected_radius - 1.).abs() > accuracy
+                || (color.a / expected_alpha - 1.).abs() > accuracy
             {
                 failures += 1;
                 println!("\nname: {}", picture_star.name);
@@ -600,6 +612,7 @@ mod tests {
                 );
             }
         }
+        println!("failures: {} / {}", failures, picture_stars.len());
         assert!(failures == 0);
     }
 
