@@ -4,14 +4,13 @@ use crate::{
     gui::{
         gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
         message::GuiMessage,
-        shared_widgets::edit,
     },
     model::{
         celestial_system::{CelestialSystem, SystemType},
         new_celestial_system::{generated_system, solar_system, GeneratedCentralBody},
     },
 };
-use astro_utils::units::distance::DISTANCE_ZERO;
+use astro_utils::astro_display::AstroDisplay;
 use iced::{
     widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
     Alignment, Element, Renderer,
@@ -23,8 +22,14 @@ pub(crate) struct NewSystemDialog {
     system_type: SystemType,
     load_gaia_data: bool,
     generated_central_body: GeneratedCentralBody,
-    max_generation_distance_text: String,
-    max_generation_distance: Distance<f64>,
+    generation_distance: GenerationDistance,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub(crate) enum GenerationDistance {
+    Fast,
+    Decent,
+    Realistic,
 }
 
 impl NewSystemDialog {
@@ -33,18 +38,26 @@ impl NewSystemDialog {
             system_type: SystemType::Real,
             load_gaia_data: false,
             generated_central_body: GeneratedCentralBody::Sun,
-            max_generation_distance_text: String::new(),
-            max_generation_distance: DISTANCE_ZERO,
+            generation_distance: GenerationDistance::Fast,
         }
     }
 
     fn celestial_system(&self) -> Result<CelestialSystem, ElenathError> {
         match self.system_type {
             SystemType::Real => solar_system(self.load_gaia_data),
-            SystemType::Generated => {
-                generated_system(&self.generated_central_body, self.max_generation_distance)
-            }
+            SystemType::Generated => generated_system(
+                &self.generated_central_body,
+                max_generation_distance(self.generation_distance),
+            ),
         }
+    }
+}
+
+fn max_generation_distance(distance: GenerationDistance) -> Distance<f64> {
+    match distance {
+        GenerationDistance::Fast => Distance::from_lyr(100.0),
+        GenerationDistance::Decent => Distance::from_lyr(800.0),
+        GenerationDistance::Realistic => Distance::from_parsec(1000.0),
     }
 }
 
@@ -63,7 +76,7 @@ pub(crate) enum NewSystemDialogEvent {
     SystemTypeSelected(SystemType),
     LoadGaiaDataSelected(bool),
     GeneratedCentralBodySelected(GeneratedCentralBody),
-    MaxGenerationDistanceChanged(String),
+    MaxGenerationDistanceChanged(GenerationDistance),
     Submit,
 }
 
@@ -83,11 +96,8 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
             NewSystemDialogEvent::GeneratedCentralBodySelected(generated_central_body) => {
                 self.generated_central_body = generated_central_body;
             }
-            NewSystemDialogEvent::MaxGenerationDistanceChanged(max_generation_distance_text) => {
-                if let Ok(max_generation_distance) = max_generation_distance_text.parse::<f64>() {
-                    self.max_generation_distance_text = max_generation_distance_text;
-                    self.max_generation_distance = Distance::from_lyr(max_generation_distance);
-                }
+            NewSystemDialogEvent::MaxGenerationDistanceChanged(generation_distance) => {
+                self.generation_distance = generation_distance;
             }
             NewSystemDialogEvent::Submit => {
                 return Some(GuiMessage::NewSystemDialogSubmit(self.celestial_system()));
@@ -150,16 +160,47 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     .padding(PADDING)
                     .spacing(PADDING);
 
-                let max_generation_distance_input = edit(
-                    "Maximum distance",
-                    &self.max_generation_distance_text,
-                    "ly",
+                let fast_distance_radio = Radio::new(
+                    format!(
+                        "Fast\n{}",
+                        max_generation_distance(GenerationDistance::Fast).astro_display()
+                    ),
+                    GenerationDistance::Fast,
+                    Some(self.generation_distance),
                     NewSystemDialogEvent::MaxGenerationDistanceChanged,
-                    &Some(self.max_generation_distance),
-                );
+                )
+                .width(SMALL_COLUMN_WIDTH);
+                let decent_distance_radio = Radio::new(
+                    format!(
+                        "Decent\n{}",
+                        max_generation_distance(GenerationDistance::Decent).astro_display()
+                    ),
+                    GenerationDistance::Decent,
+                    Some(self.generation_distance),
+                    NewSystemDialogEvent::MaxGenerationDistanceChanged,
+                )
+                .width(SMALL_COLUMN_WIDTH);
+                let realistic_distance_radio = Radio::new(
+                    format!(
+                        "Realistic\n{}",
+                        max_generation_distance(GenerationDistance::Realistic).astro_display()
+                    ),
+                    GenerationDistance::Realistic,
+                    Some(self.generation_distance),
+                    NewSystemDialogEvent::MaxGenerationDistanceChanged,
+                )
+                .width(SMALL_COLUMN_WIDTH);
+                let generation_distance_row = Row::new()
+                    .push(fast_distance_radio)
+                    .push(decent_distance_radio)
+                    .push(realistic_distance_radio)
+                    .padding(PADDING)
+                    .spacing(PADDING);
+
                 col = col
                     .push(central_body_row)
-                    .push(max_generation_distance_input);
+                    .push(Text::new("Maximum Generation Distance"))
+                    .push(generation_distance_row);
             }
         }
 
