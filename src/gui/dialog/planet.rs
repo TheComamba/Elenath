@@ -91,44 +91,44 @@ impl PlanetDialog {
     }
 
     fn fill_string_members(&mut self) {
-        self.mass_string = self.planet.get_mass().to_earth_mass().to_string();
-        self.radius_string = distance_to_earth_radii(&self.planet.get_radius()).to_string();
+        self.mass_string = format!("{:.2}", self.planet.get_mass().to_earth_mass());
+        self.radius_string = format!("{:.2}", distance_to_earth_radii(&self.planet.get_radius()));
         self.color_string = serde_json::to_string(self.planet.get_color()).unwrap();
-        self.geometric_albedo_string = self.planet.get_geometric_albedo().to_string();
-        self.semi_major_axis_string = self
-            .planet
-            .get_orbital_parameters()
-            .get_semi_major_axis()
-            .to_au()
-            .to_string();
-        self.eccentricity_string = self
-            .planet
-            .get_orbital_parameters()
-            .get_eccentricity()
-            .to_string();
-        self.inclination_string = self
-            .planet
-            .get_orbital_parameters()
-            .get_inclination()
-            .to_degrees()
-            .to_string();
-        self.longitude_of_ascending_node_string = self
-            .planet
-            .get_orbital_parameters()
-            .get_longitude_of_ascending_node()
-            .to_degrees()
-            .to_string();
-        self.argument_of_periapsis_string = self
-            .planet
-            .get_orbital_parameters()
-            .get_argument_of_periapsis()
-            .to_degrees()
-            .to_string();
-        self.siderial_rotation_period_string = self
-            .planet
-            .get_sideral_rotation_period()
-            .to_days()
-            .to_string();
+        self.geometric_albedo_string = format!("{:.2}", self.planet.get_geometric_albedo());
+        self.semi_major_axis_string = format!(
+            "{:.2}",
+            self.planet
+                .get_orbital_parameters()
+                .get_semi_major_axis()
+                .to_au()
+        );
+        self.eccentricity_string = format!(
+            "{:.4}",
+            self.planet.get_orbital_parameters().get_eccentricity()
+        );
+        self.inclination_string = format!(
+            "{:.2}",
+            self.planet
+                .get_orbital_parameters()
+                .get_inclination()
+                .to_degrees()
+        );
+        self.longitude_of_ascending_node_string = format!(
+            "{:.2}",
+            self.planet
+                .get_orbital_parameters()
+                .get_longitude_of_ascending_node()
+                .to_degrees()
+        );
+        self.argument_of_periapsis_string = format!(
+            "{:.2}",
+            self.planet
+                .get_orbital_parameters()
+                .get_argument_of_periapsis()
+                .to_degrees()
+        );
+        self.siderial_rotation_period_string =
+            format!("{:.4}", self.planet.get_sideral_rotation_period().to_days());
         self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis()).unwrap();
     }
 

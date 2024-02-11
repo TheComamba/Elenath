@@ -88,32 +88,37 @@ impl StarDialog {
         self.mass_string = self
             .star
             .get_mass()
-            .map(|mass| mass.to_solar_mass().to_string())
+            .map(|mass| format!("{:.2}", mass.to_solar_mass()))
             .unwrap_or_default();
         self.radius_string = self
             .star
             .get_radius()
-            .map(|radius| distance_to_sun_radii(&radius).to_string())
+            .map(|radius| format!("{:.2}", distance_to_sun_radii(&radius)))
             .unwrap_or_default();
         self.luminosity_string = self
             .star
             .get_luminous_intensity()
-            .map(|luminosity| luminous_intensity_to_absolute_magnitude(luminosity).to_string())
+            .map(|luminosity| {
+                format!(
+                    "{:.2}",
+                    luminous_intensity_to_absolute_magnitude(luminosity)
+                )
+            })
             .unwrap_or_default();
         self.temperature_string = self
             .star
             .get_temperature()
-            .map(|temperature| temperature.to_K().to_string())
+            .map(|temperature| format!("{:.0}", temperature.to_K()))
             .unwrap_or_default();
         self.age_string = self
             .star
             .get_age()
-            .map(|age| age.to_Gyr().to_string())
+            .map(|age| format!("{:.2}", age.to_Gyr()))
             .unwrap_or_default();
         self.distance_string = self
             .star
             .get_distance()
-            .map(|distance| distance.to_lyr().to_string())
+            .map(|distance| format!("{:.2}", distance.to_lyr()))
             .unwrap_or_default();
         self.direction_string =
             serde_json::to_string(self.star.get_direction_in_ecliptic()).unwrap();
