@@ -383,7 +383,9 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
                 self.rotation_axis_string = rotation_axis_string;
             }
             PlanetDialogEvent::Randomize => {
+                let name = self.planet.get_name().clone();
                 self.planet = generate_random_planet();
+                self.planet.set_name(name);
                 self.fill_string_members();
             }
             PlanetDialogEvent::Submit => match self.planet_index {

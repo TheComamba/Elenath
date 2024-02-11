@@ -308,12 +308,14 @@ impl Component<GuiMessage, Renderer> for StarDialog {
             }
             StarDialogEvent::Randomize => {
                 let max_distance = Distance::from_lyr(2000.);
+                let name = self.star.get_name().clone();
                 self.star = match generate_random_star(Some(max_distance)) {
                     Ok(star) => star,
                     Err(e) => {
                         return Some(GuiMessage::ErrorEncountered(e.into()));
                     }
                 };
+                self.star.set_name(name);
                 self.fill_string_members();
             }
             StarDialogEvent::Submit => match self.star_dialog_type {
