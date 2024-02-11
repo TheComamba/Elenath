@@ -105,6 +105,9 @@ impl CelestialSystem {
                 .partial_cmp(&a.get_appearance().get_illuminance())
                 .unwrap()
         });
+        for (i, star) in self.distant_stars.iter_mut().enumerate() {
+            star.set_index(i);
+        }
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
@@ -172,6 +175,8 @@ impl CelestialSystem {
 
 #[cfg(test)]
 mod tests {
+    use crate::model::part_of_celestial_system::PartOfCelestialSystem;
+
     use super::*;
     use astro_utils::{
         real_data::{
@@ -246,6 +251,21 @@ mod tests {
                 stars[i].get_appearance().get_illuminance()
                     >= stars[i + 1].get_appearance().get_illuminance()
             );
+        }
+    }
+
+    #[test]
+    fn star_index_is_correct_after_sorting() {
+        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        for star in BRIGHTEST_STARS.iter().rev() {
+            system.add_star_from_data(star.to_star_data());
+        }
+        for (i, star) in system.get_stars().iter().enumerate() {
+            if i == 0 {
+                assert_eq!(star.get_index(), None);
+            } else {
+                assert_eq!(star.get_index(), Some(i - 1));
+            }
         }
     }
 }
