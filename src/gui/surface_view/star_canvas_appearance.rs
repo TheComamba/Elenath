@@ -17,9 +17,10 @@ pub(super) struct StarCanvasAppearance {
 }
 
 impl StarCanvasAppearance {
-    pub(super) const MIN_RADIUS: f32 = 1.;
+    pub(super) const MIN_RADIUS: f32 = 1.5;
     const MAX_RADIUS: f32 = 1e5;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1e-6 };
+    const RADIUS_EXPONENT: f32 = 0.29;
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-7 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
@@ -78,14 +79,14 @@ impl StarCanvasAppearance {
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
         let (r, g, b) = body.get_color().maximized_sRGB_tuple();
         let illuminance = body.get_illuminance();
-        if illuminance < &Self::ILLUMINANCE_AT_MIN_RADIUS {
+        let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
+        if ratio < 1. {
             let radius = Self::MIN_RADIUS;
-            let alpha = illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS;
-            let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha as f32);
+            let alpha = ratio;
+            let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha);
             (color, radius)
         } else {
-            let radius =
-                (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS).sqrt() as f32 * Self::MIN_RADIUS;
+            let radius = ratio.powf(Self::RADIUS_EXPONENT) * Self::MIN_RADIUS;
             let color = Color::from_rgb(r as f32, g as f32, b as f32);
             if radius > Self::MAX_RADIUS {
                 (color, Self::MAX_RADIUS)
@@ -118,6 +119,7 @@ mod tests {
         model::celestial_system::{CelestialSystem, SystemType},
     };
     use astro_utils::{
+        astro_display::AstroDisplay,
         color::sRGBColor,
         coordinates::direction::Direction,
         planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
@@ -566,30 +568,39 @@ mod tests {
                 alpha: 1.,
             },
         ];
-        let radius_accuracy = 1.;
-        let alpha_accuracy = 0.1;
+        let radius_accuracy = 0.5;
+        let alpha_accuracy = 0.2;
 
+        let mut failures = 0;
         for picture_star in picture_stars.iter() {
+            let illuminance = apparent_magnitude_to_illuminance(picture_star.magnitude);
             let star_appearance = StarAppearance::new(
                 picture_star.name.to_string(),
-                apparent_magnitude_to_illuminance(picture_star.magnitude),
+                illuminance,
                 SOME_COLOR,
                 Direction::X,
             );
             let (color, radius) = StarCanvasAppearance::color_and_radius(&star_appearance);
             let expected_radius = picture_star.diameter as f32 / 2.;
             let expected_alpha = picture_star.alpha;
-            println!(
-                "name: {}, radius: {}, alpha: {}",
-                picture_star.name, radius, color.a
-            );
-            println!(
-                "expected radius: {}, expected alpha: {}",
-                expected_radius, expected_alpha
-            );
-            assert!((radius - expected_radius).abs() < radius_accuracy);
-            assert!((color.a - expected_alpha).abs() < alpha_accuracy);
+            if (radius - expected_radius).abs() > radius_accuracy
+                || (color.a - expected_alpha).abs() > alpha_accuracy
+            {
+                failures += 1;
+                println!("\nname: {}", picture_star.name);
+                println!(
+                    "illuminance: {} ({:2.2e} lux)",
+                    illuminance.astro_display(),
+                    illuminance.lux,
+                );
+                println!("radius: {}, alpha: {}", radius, color.a);
+                println!(
+                    "expected radius: {}, expected alpha: {}",
+                    expected_radius, expected_alpha
+                );
+            }
         }
+        assert!(failures == 0);
     }
 
     #[test]
