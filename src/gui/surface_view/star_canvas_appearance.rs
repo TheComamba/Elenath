@@ -449,6 +449,150 @@ mod tests {
     }
 
     #[test]
+    fn recreating_picture_appearance() {
+        struct PictureStar {
+            name: &'static str,
+            magnitude: f64,
+            diameter: i32,
+            alpha: f32,
+        }
+        let picture_stars = vec![
+            PictureStar {
+                name: "Elnath",
+                magnitude: 1.65,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Zeta Tauri",
+                magnitude: 3.01,
+                diameter: 4,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Epsilon Tauri",
+                magnitude: 3.53,
+                diameter: 3,
+                alpha: 0.87,
+            },
+            PictureStar {
+                name: "Aldebaran",
+                magnitude: 0.87,
+                diameter: 6,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Gamma Tauri",
+                magnitude: 3.65,
+                diameter: 3,
+                alpha: 0.67,
+            },
+            PictureStar {
+                name: "Meissa",
+                magnitude: 3.47,
+                diameter: 3,
+                alpha: 0.92,
+            },
+            PictureStar {
+                name: "Betelgeus",
+                magnitude: 0.42,
+                diameter: 6,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Bellatrix",
+                magnitude: 1.64,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Pi3 Ori",
+                magnitude: 3.16,
+                diameter: 3,
+                alpha: 0.90,
+            },
+            PictureStar {
+                name: "Pi4 Ori",
+                magnitude: 3.69,
+                diameter: 3,
+                alpha: 0.75,
+            },
+            PictureStar {
+                name: "Pi5 Ori",
+                magnitude: 3.69,
+                diameter: 3,
+                alpha: 0.70,
+            },
+            PictureStar {
+                name: "Pi6 Ori",
+                magnitude: 4.47,
+                diameter: 3,
+                alpha: 0.30,
+            },
+            PictureStar {
+                name: "Alnitak",
+                magnitude: 1.88,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Alnilam",
+                magnitude: 1.69,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Mintaka",
+                magnitude: 2.20,
+                diameter: 4,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Saiph",
+                magnitude: 2.07,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Riegel",
+                magnitude: 0.18,
+                diameter: 7,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Sirius",
+                magnitude: -1.46,
+                diameter: 10,
+                alpha: 1.,
+            },
+        ];
+        let radius_accuracy = 1.;
+        let alpha_accuracy = 0.1;
+
+        for picture_star in picture_stars.iter() {
+            let star_appearance = StarAppearance::new(
+                picture_star.name.to_string(),
+                apparent_magnitude_to_illuminance(picture_star.magnitude),
+                SOME_COLOR,
+                Direction::X,
+            );
+            let (color, radius) = StarCanvasAppearance::color_and_radius(&star_appearance);
+            let expected_radius = picture_star.diameter as f32 / 2.;
+            let expected_alpha = picture_star.alpha;
+            println!(
+                "name: {}, radius: {}, alpha: {}",
+                picture_star.name, radius, color.a
+            );
+            println!(
+                "expected radius: {}, expected alpha: {}",
+                expected_radius, expected_alpha
+            );
+            assert!((radius - expected_radius).abs() < radius_accuracy);
+            assert!((color.a - expected_alpha).abs() < alpha_accuracy);
+        }
+    }
+
+    #[test]
     fn aligned_planet_sun_and_observer() {
         const CENTER: Vector = Vector { x: 0., y: 0. };
 
