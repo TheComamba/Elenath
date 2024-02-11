@@ -17,7 +17,7 @@ pub(super) struct StarCanvasAppearance {
 }
 
 impl StarCanvasAppearance {
-    pub(super) const MIN_RADIUS: f32 = 1.5;
+    pub(super) const MIN_RADIUS: f32 = 1.;
     const MAX_RADIUS: f32 = 1e5;
     const RADIUS_EXPONENT: f32 = 0.29;
     const ALPHA_EXPONENT: f32 = 1.6;
@@ -41,18 +41,8 @@ impl StarCanvasAppearance {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
     ) -> Option<StarCanvasAppearance> {
-        let central_body = celestial_system.get_central_body();
-        let central_body_pos = -observer_position;
-        let central_body_dir = central_body_pos.to_direction();
-        let central_body_dir = match central_body_dir {
-            Ok(dir) => dir,
-            Err(_) => {
-                return None;
-            }
-        };
-        let mut central_body_appearance = central_body.get_appearance().clone();
-        central_body_appearance.set_direction_in_ecliptic(central_body_dir);
-
+        let central_body_appearance =
+            celestial_system.get_central_body_appearance(observer_position);
         StarCanvasAppearance::from_star_appearance(&central_body_appearance, viewport)
     }
 
@@ -429,7 +419,7 @@ mod tests {
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 1.);
-        assert!(canvas_appearance.radius < 16.);
+        assert!(canvas_appearance.radius < 10.);
     }
 
     #[test]
@@ -453,6 +443,7 @@ mod tests {
 
     #[test]
     fn recreating_picture_appearance() {
+        const PICTURE_MIN_RADIUS: f32 = 1.5;
         struct PictureStar {
             name: &'static str,
             magnitude: f64,
@@ -593,7 +584,9 @@ mod tests {
                 Direction::X,
             );
             let (color, radius) = StarCanvasAppearance::color_and_radius(&star_appearance);
-            let expected_radius = picture_star.diameter as f32 / 2.;
+            let expected_radius = picture_star.diameter as f32 / 2.
+                * StarCanvasAppearance::MIN_RADIUS
+                / PICTURE_MIN_RADIUS;
             let expected_alpha = picture_star.alpha;
             if (radius / expected_radius - 1.).abs() > accuracy
                 || (color.a / expected_alpha - 1.).abs() > accuracy
