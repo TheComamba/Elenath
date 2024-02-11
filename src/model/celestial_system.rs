@@ -1,5 +1,6 @@
 use super::{planet::Planet, star::Star};
 use astro_utils::{
+    coordinates::{cartesian::CartesianCoordinates, direction::Direction},
     planets::planet_data::PlanetData,
     stars::{
         gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
@@ -12,7 +13,7 @@ use std::path::PathBuf;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct CelestialSystem {
     system_type: SystemType,
-    central_body: Star,
+    central_body: StarData,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
 }
@@ -24,8 +25,8 @@ pub(crate) enum SystemType {
 }
 
 impl CelestialSystem {
-    pub(crate) fn new(system_type: SystemType, central_body_data: StarData) -> Self {
-        let central_body = Star::from_data(central_body_data, None);
+    pub(crate) fn new(system_type: SystemType, mut central_body: StarData) -> Self {
+        central_body.set_distance(None);
         CelestialSystem {
             system_type,
             central_body,
@@ -79,16 +80,25 @@ impl CelestialSystem {
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
         match index {
             Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
-            None => self.central_body = Star::from_data(star_data, None),
+            None => self.central_body = star_data,
         }
     }
 
-    pub(crate) fn get_central_body(&self) -> &Star {
+    pub(crate) fn get_central_body_data(&self) -> &StarData {
         &self.central_body
     }
 
-    pub(crate) fn get_central_body_data(&self) -> &StarData {
-        self.central_body.get_data().unwrap()
+    pub(crate) fn get_central_body_appearance(
+        &self,
+        observer_pos: &CartesianCoordinates,
+    ) -> StarAppearance {
+        let mut body = self.central_body.clone();
+        let relative_position = -observer_pos;
+        let distance = relative_position.length();
+        let direction = relative_position.to_direction().unwrap_or(Direction::Z);
+        body.set_distance(Some(distance));
+        body.set_direction_in_ecliptic(direction);
+        body.to_star_appearance()
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
@@ -105,20 +115,18 @@ impl CelestialSystem {
 
     pub(crate) fn get_planets_at_time(&self, time: Time<f64>) -> Vec<Planet> {
         let mut bodies = Vec::new();
-        if let Some(central_body) = self.central_body.get_data() {
-            for (i, planet_data) in self.planets.iter().enumerate() {
-                let planet = Planet::new(planet_data.clone(), central_body, time, Some(i));
-                bodies.push(planet);
-            }
+        for (i, planet_data) in self.planets.iter().enumerate() {
+            let planet = Planet::new(planet_data.clone(), &self.central_body, time, Some(i));
+            bodies.push(planet);
         }
         bodies
     }
 
-    pub(crate) fn get_stars(&self) -> Vec<&Star> {
+    pub(crate) fn get_stars(&self) -> Vec<Star> {
         let mut bodies = Vec::new();
-        bodies.push(&self.central_body);
+        bodies.push(Star::from_data(self.central_body.clone(), None));
         for star in &self.distant_stars {
-            bodies.push(star);
+            bodies.push(star.clone());
         }
         bodies
     }
@@ -134,7 +142,7 @@ impl CelestialSystem {
     pub(crate) fn get_star_data(&self, index: Option<usize>) -> Option<&StarData> {
         match index {
             Some(index) => self.distant_stars.get(index).and_then(|s| s.get_data()),
-            None => self.central_body.get_data(),
+            None => Some(&self.central_body),
         }
     }
 }

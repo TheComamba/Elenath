@@ -41,18 +41,8 @@ impl StarCanvasAppearance {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
     ) -> Option<StarCanvasAppearance> {
-        let central_body = celestial_system.get_central_body();
-        let central_body_pos = -observer_position;
-        let central_body_dir = central_body_pos.to_direction();
-        let central_body_dir = match central_body_dir {
-            Ok(dir) => dir,
-            Err(_) => {
-                return None;
-            }
-        };
-        let mut central_body_appearance = central_body.get_appearance().clone();
-        central_body_appearance.set_direction_in_ecliptic(central_body_dir);
-
+        let central_body_appearance =
+            celestial_system.get_central_body_appearance(observer_position);
         StarCanvasAppearance::from_star_appearance(&central_body_appearance, viewport)
     }
 

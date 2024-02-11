@@ -191,10 +191,9 @@ impl StarDialog {
             .push(temperature)
             .push(age);
         if !self.is_central_body() {
-            col = col.push(distance);
+            col = col.push(distance).push(direction);
         }
-        col.push(direction)
-            .push(submit_button)
+        col.push(submit_button)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)

@@ -148,7 +148,7 @@ impl Gui {
                 let (planets, stars) = match &self.celestial_system {
                     Some(system) => {
                         let planets = system.get_planets_at_time(self.time_since_epoch);
-                        let stars = system.get_stars().into_iter().cloned().collect();
+                        let stars = system.get_stars().into_iter().collect();
                         (planets, stars)
                     }
                     None => (Vec::new(), Vec::new()),
