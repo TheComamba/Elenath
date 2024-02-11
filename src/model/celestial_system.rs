@@ -51,16 +51,28 @@ impl CelestialSystem {
 
     pub(crate) fn add_planet_data(&mut self, planet: PlanetData) {
         self.planets.push(planet);
+        self.sort_planets_by_semimajor_axis();
     }
 
     pub(crate) fn overwrite_planet_data(&mut self, index: usize, planet: PlanetData) {
         self.planets[index] = planet;
+        self.sort_planets_by_semimajor_axis();
+    }
+
+    fn sort_planets_by_semimajor_axis(&mut self) {
+        self.planets.sort_by(|a, b| {
+            a.get_orbital_parameters()
+                .get_semi_major_axis()
+                .partial_cmp(&b.get_orbital_parameters().get_semi_major_axis())
+                .unwrap()
+        });
     }
 
     pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
         let index = self.distant_stars.len();
         self.distant_stars
             .push(Star::from_data(star_data, Some(index)));
+        self.sort_stars_by_brightness();
     }
 
     pub(crate) fn add_star_appearances_without_duplicates(
@@ -75,6 +87,7 @@ impl CelestialSystem {
                     .push(Star::from_appearance(star_appearance, Some(index)));
             }
         }
+        self.sort_stars_by_brightness();
     }
 
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
@@ -82,6 +95,16 @@ impl CelestialSystem {
             Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
             None => self.central_body = star_data,
         }
+        self.sort_stars_by_brightness();
+    }
+
+    fn sort_stars_by_brightness(&mut self) {
+        self.distant_stars.sort_by(|a, b| {
+            b.get_appearance()
+                .get_illuminance()
+                .partial_cmp(&a.get_appearance().get_illuminance())
+                .unwrap()
+        });
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
@@ -178,10 +201,10 @@ mod tests {
         let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(EARTH.to_planet_data());
-        system.overwrite_planet_data(0, VENUS.to_planet_data());
+        system.overwrite_planet_data(0, JUPITER.to_planet_data());
         let planets = system.get_planets_data();
         assert_eq!(planets[0].get_name(), "Earth");
-        assert_eq!(planets[1].get_name(), "Venus");
+        assert_eq!(planets[1].get_name(), "Jupiter");
     }
 
     #[test]
@@ -202,7 +225,7 @@ mod tests {
         for i in 1..stars.len() - 1 {
             assert!(
                 stars[i].get_appearance().get_illuminance()
-                    <= stars[i + 1].get_appearance().get_illuminance()
+                    >= stars[i + 1].get_appearance().get_illuminance()
             );
         }
     }
@@ -221,7 +244,7 @@ mod tests {
         for i in 1..stars.len() - 1 {
             assert!(
                 stars[i].get_appearance().get_illuminance()
-                    <= stars[i + 1].get_appearance().get_illuminance()
+                    >= stars[i + 1].get_appearance().get_illuminance()
             );
         }
     }
