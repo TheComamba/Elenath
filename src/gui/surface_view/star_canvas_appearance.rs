@@ -17,9 +17,11 @@ pub(super) struct StarCanvasAppearance {
 }
 
 impl StarCanvasAppearance {
-    pub(super) const MIN_RADIUS: f32 = 1.;
+    pub(super) const MIN_RADIUS: f32 = 1.5;
     const MAX_RADIUS: f32 = 1e5;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1e-6 };
+    const RADIUS_EXPONENT: f32 = 0.29;
+    const ALPHA_EXPONENT: f32 = 1.6;
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-7 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
@@ -78,14 +80,14 @@ impl StarCanvasAppearance {
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
         let (r, g, b) = body.get_color().maximized_sRGB_tuple();
         let illuminance = body.get_illuminance();
-        if illuminance < &Self::ILLUMINANCE_AT_MIN_RADIUS {
+        let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
+        if ratio < 1. {
             let radius = Self::MIN_RADIUS;
-            let alpha = illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS;
-            let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha as f32);
+            let alpha = ratio.powf(Self::ALPHA_EXPONENT);
+            let color = Color::from_rgba(r as f32, g as f32, b as f32, alpha);
             (color, radius)
         } else {
-            let radius =
-                (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS).sqrt() as f32 * Self::MIN_RADIUS;
+            let radius = ratio.powf(Self::RADIUS_EXPONENT) * Self::MIN_RADIUS;
             let color = Color::from_rgb(r as f32, g as f32, b as f32);
             if radius > Self::MAX_RADIUS {
                 (color, Self::MAX_RADIUS)
@@ -118,6 +120,7 @@ mod tests {
         model::celestial_system::{CelestialSystem, SystemType},
     };
     use astro_utils::{
+        astro_display::AstroDisplay,
         color::sRGBColor,
         coordinates::direction::Direction,
         planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
@@ -446,6 +449,171 @@ mod tests {
             StarCanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 500.);
+    }
+
+    #[test]
+    fn recreating_picture_appearance() {
+        struct PictureStar {
+            name: &'static str,
+            magnitude: f64,
+            diameter: i32,
+            alpha: f32,
+        }
+        let picture_stars = vec![
+            PictureStar {
+                name: "Elnath",
+                magnitude: 1.65,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Zeta Tauri",
+                magnitude: 3.01,
+                diameter: 4,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Epsilon Tauri",
+                magnitude: 3.53,
+                diameter: 3,
+                alpha: 0.87,
+            },
+            PictureStar {
+                name: "Aldebaran",
+                magnitude: 0.87,
+                diameter: 6,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Gamma Tauri",
+                magnitude: 3.65,
+                diameter: 3,
+                alpha: 0.67,
+            },
+            PictureStar {
+                name: "Meissa",
+                magnitude: 3.47,
+                diameter: 3,
+                alpha: 0.92,
+            },
+            PictureStar {
+                name: "Betelgeus",
+                magnitude: 0.42,
+                diameter: 6,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Bellatrix",
+                magnitude: 1.64,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Pi1 Ori",
+                magnitude: 4.74,
+                diameter: 3,
+                alpha: 0.10,
+            },
+            PictureStar {
+                name: "Pi2 Ori",
+                magnitude: 4.35,
+                diameter: 3,
+                alpha: 0.20,
+            },
+            PictureStar {
+                name: "Pi3 Ori",
+                magnitude: 3.16,
+                diameter: 3,
+                alpha: 0.90,
+            },
+            PictureStar {
+                name: "Pi4 Ori",
+                magnitude: 3.69,
+                diameter: 3,
+                alpha: 0.75,
+            },
+            PictureStar {
+                name: "Pi5 Ori",
+                magnitude: 3.69,
+                diameter: 3,
+                alpha: 0.70,
+            },
+            PictureStar {
+                name: "Pi6 Ori",
+                magnitude: 4.47,
+                diameter: 3,
+                alpha: 0.30,
+            },
+            PictureStar {
+                name: "Alnitak",
+                magnitude: 1.88,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Alnilam",
+                magnitude: 1.69,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Mintaka",
+                magnitude: 2.20,
+                diameter: 4,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Saiph",
+                magnitude: 2.07,
+                diameter: 5,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Riegel",
+                magnitude: 0.18,
+                diameter: 7,
+                alpha: 1.,
+            },
+            PictureStar {
+                name: "Sirius",
+                magnitude: -1.46,
+                diameter: 10,
+                alpha: 1.,
+            },
+        ];
+        let accuracy = 0.4;
+
+        let mut failures = 0;
+        for picture_star in picture_stars.iter() {
+            let illuminance = apparent_magnitude_to_illuminance(picture_star.magnitude);
+            let star_appearance = StarAppearance::new(
+                picture_star.name.to_string(),
+                illuminance,
+                SOME_COLOR,
+                Direction::X,
+            );
+            let (color, radius) = StarCanvasAppearance::color_and_radius(&star_appearance);
+            let expected_radius = picture_star.diameter as f32 / 2.;
+            let expected_alpha = picture_star.alpha;
+            if (radius / expected_radius - 1.).abs() > accuracy
+                || (color.a / expected_alpha - 1.).abs() > accuracy
+            {
+                failures += 1;
+                println!("\nname: {}", picture_star.name);
+                println!(
+                    "illuminance: {} ({:2.2e} lux)",
+                    illuminance.astro_display(),
+                    illuminance.lux,
+                );
+                println!("radius: {}, alpha: {}", radius, color.a);
+                println!(
+                    "expected radius: {}, expected alpha: {}",
+                    expected_radius, expected_alpha
+                );
+            }
+        }
+        println!("failures: {} / {}", failures, picture_stars.len());
+        assert!(failures == 0);
     }
 
     #[test]
