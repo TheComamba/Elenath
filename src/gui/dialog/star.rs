@@ -34,7 +34,7 @@ pub(crate) struct StarDialog {
     direction_string: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum StarDialogType {
     New,
     Edit,
@@ -182,16 +182,18 @@ impl StarDialog {
 
         let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
 
-        Column::new()
+        let mut col = Column::new()
             .push(randomize_button)
             .push(name)
             .push(mass)
             .push(radius)
             .push(luminosity)
             .push(temperature)
-            .push(age)
-            .push(distance)
-            .push(direction)
+            .push(age);
+        if !self.is_central_body() {
+            col = col.push(distance);
+        }
+        col.push(direction)
             .push(submit_button)
             .spacing(PADDING)
             .width(iced::Length::Fill)
@@ -214,6 +216,10 @@ impl StarDialog {
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
             .into()
+    }
+
+    fn is_central_body(&self) -> bool {
+        self.star_dialog_type == StarDialogType::Edit && self.star_index == None
     }
 }
 
@@ -313,7 +319,11 @@ impl Component<GuiMessage, Renderer> for StarDialog {
             }
             StarDialogEvent::Submit => match self.star_dialog_type {
                 StarDialogType::Edit => {
-                    return Some(GuiMessage::StarEdited(self.star_index, self.star.clone()))
+                    let mut star = self.star.clone();
+                    if self.is_central_body() {
+                        star.set_distance(None);
+                    }
+                    return Some(GuiMessage::StarEdited(self.star_index, star));
                 }
                 StarDialogType::New => return Some(GuiMessage::NewStar(self.star.clone())),
             },
