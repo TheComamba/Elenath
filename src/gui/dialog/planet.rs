@@ -1,11 +1,12 @@
 use super::Dialog;
 use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 use astro_utils::{
+    astro_display::AstroDisplay,
     color::sRGBColor,
     coordinates::direction::Direction,
     planets::{
-        orbit_parameters::OrbitParameters, planet_data::PlanetData,
-        random_planets::generate_random_planet,
+        derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
+        planet_data::PlanetData, random_planets::generate_random_planet,
     },
     units::{
         angle::ANGLE_ZERO,
@@ -19,7 +20,7 @@ use iced::{
     Alignment, Element, Renderer,
 };
 use simple_si_units::{
-    base::{Distance, Time},
+    base::{Distance, Mass, Time},
     geometry::Angle,
 };
 
@@ -27,6 +28,8 @@ use simple_si_units::{
 pub(crate) struct PlanetDialog {
     planet: PlanetData,
     planet_index: Option<usize>,
+    previous_planet: Option<DerivedPlanetData>,
+    central_body_mass: Mass<f64>,
     mass_string: String,
     radius_string: String,
     color_string: String,
@@ -41,10 +44,17 @@ pub(crate) struct PlanetDialog {
 }
 
 impl PlanetDialog {
-    pub(crate) fn edit(planet: PlanetData, planet_index: usize) -> Self {
+    pub(crate) fn edit(
+        planet: PlanetData,
+        planet_index: usize,
+        previous_planet: Option<DerivedPlanetData>,
+        central_body_mass: Mass<f64>,
+    ) -> Self {
         let mut dialog = PlanetDialog {
             planet: planet.clone(),
             planet_index: Some(planet_index),
+            previous_planet,
+            central_body_mass,
             mass_string: String::new(),
             radius_string: String::new(),
             color_string: String::new(),
@@ -61,7 +71,7 @@ impl PlanetDialog {
         dialog
     }
 
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(central_body_mass: Mass<f64>) -> Self {
         let mut dialog = PlanetDialog {
             planet: PlanetData::new(
                 String::new(),
@@ -74,6 +84,8 @@ impl PlanetDialog {
                 Direction::Z,
             ),
             planet_index: None,
+            previous_planet: None,
+            central_body_mass,
             mass_string: String::new(),
             radius_string: String::new(),
             color_string: String::new(),
@@ -253,7 +265,45 @@ impl PlanetDialog {
     }
 
     fn additional_info_column(&self) -> Element<'_, PlanetDialogEvent> {
+        let derived_data = DerivedPlanetData::new(
+            &self.planet,
+            self.central_body_mass,
+            self.previous_planet.as_ref(),
+        );
+
+        let density_text =
+            Text::new("Density: ".to_string() + &derived_data.get_density().astro_display());
+
+        // let escape_velocity_text = Text::new(
+        //     "Escape Velocity: ".to_string() +
+        //     &derived_data.get_escape_velocity().astro_display()
+        // );
+
+        // let surface_gravity_text = Text::new(
+        //     "Surface Gravity: ".to_string() +
+        //     &derived_data.get_surface_gravity().astro_display()
+        // );
+
+        let orbital_period_text = Text::new(
+            "Orbital Period: ".to_string() + &derived_data.get_orbital_period().astro_display(),
+        );
+
+        let orbital_resonance_text = Text::new(
+            "Orbital Resonance: ".to_string()
+                + &derived_data.get_orbital_resonance().astro_display(),
+        );
+
+        let synodic_period_text = Text::new(
+            "Mean Synodic Day: ".to_string() + &derived_data.get_mean_synodic_day().astro_display(),
+        );
+
         Column::new()
+            .push(density_text)
+            // .push(escape_velocity_text)
+            // .push(surface_gravity_text)
+            .push(orbital_period_text)
+            .push(orbital_resonance_text)
+            .push(synodic_period_text)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
