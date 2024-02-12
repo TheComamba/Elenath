@@ -1,6 +1,6 @@
 use astro_utils::{
     astro_display::AstroDisplay,
-    coordinates::direction::Direction,
+    coordinates::ecliptic::EclipticCoordinates,
     stars::{random_stars::generate_random_star, star_data::StarData},
     units::{
         distance::{distance_to_sun_radii, SOLAR_RADIUS},
@@ -14,7 +14,10 @@ use iced::{
     widget::{component, Button, Column, Component, Row, Text},
     Alignment, Element, Renderer,
 };
-use simple_si_units::base::{Distance, Temperature, Time};
+use simple_si_units::{
+    base::{Distance, Temperature, Time},
+    geometry::Angle,
+};
 
 use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 
@@ -31,7 +34,8 @@ pub(crate) struct StarDialog {
     temperature_string: String,
     age_string: String,
     distance_string: String,
-    direction_string: String,
+    longitude_string: String,
+    latitude_string: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -52,7 +56,7 @@ impl StarDialog {
                 None,
                 None,
                 None,
-                Direction::Z,
+                EclipticCoordinates::Z_DIRECTION,
             ),
             star_index: None,
             mass_string: String::new(),
@@ -61,7 +65,8 @@ impl StarDialog {
             temperature_string: String::new(),
             age_string: String::new(),
             distance_string: String::new(),
-            direction_string: String::new(),
+            longitude_string: String::new(),
+            latitude_string: String::new(),
         };
         dialog.fill_string_members();
         dialog
@@ -78,7 +83,8 @@ impl StarDialog {
             temperature_string: String::new(),
             age_string: String::new(),
             distance_string: String::new(),
-            direction_string: String::new(),
+            longitude_string: String::new(),
+            latitude_string: String::new(),
         };
         dialog.fill_string_members();
         dialog
@@ -120,8 +126,8 @@ impl StarDialog {
             .get_distance()
             .map(|distance| format!("{:.2}", distance.to_lyr()))
             .unwrap_or_default();
-        self.direction_string =
-            serde_json::to_string(self.star.get_direction_in_ecliptic()).unwrap();
+        self.longitude_string = format!("{:.2}", self.star.get_pos().get_longitude().to_degrees());
+        self.latitude_string = format!("{:.2}", self.star.get_pos().get_latitude().to_degrees());
     }
 
     fn edit_column(&self) -> Element<'_, StarDialogEvent> {
@@ -177,12 +183,19 @@ impl StarDialog {
             StarDialogEvent::DistanceChanged,
             self.star.get_distance(),
         );
-        let direction = edit(
-            "Direction",
-            &self.direction_string,
-            "",
-            StarDialogEvent::DirectionChanged,
-            &Some(self.star.get_direction_in_ecliptic()),
+        let longitude = edit(
+            "Longitude",
+            &self.longitude_string,
+            "°",
+            StarDialogEvent::LongitudeChanged,
+            &Some(self.star.get_pos().get_longitude()),
+        );
+        let latitude = edit(
+            "Latitude",
+            &self.latitude_string,
+            "°",
+            StarDialogEvent::LatitudeChanged,
+            &Some(self.star.get_pos().get_latitude()),
         );
 
         let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
@@ -196,7 +209,7 @@ impl StarDialog {
             .push(temperature)
             .push(age);
         if !self.is_central_body() {
-            col = col.push(distance).push(direction);
+            col = col.push(distance).push(longitude).push(latitude);
         }
         col.push(submit_button)
             .spacing(PADDING)
@@ -249,7 +262,8 @@ pub(crate) enum StarDialogEvent {
     TemperatureChanged(String),
     AgeChanged(String),
     DistanceChanged(String),
-    DirectionChanged(String),
+    LongitudeChanged(String),
+    LatitudeChanged(String),
     Randomize,
     Submit,
 }
@@ -303,13 +317,21 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                 }
                 self.distance_string = distance_string;
             }
-            StarDialogEvent::DirectionChanged(direction_string) => {
-                if let Ok(dir) = serde_json::from_str::<Direction>(&direction_string) {
-                    if let Ok(dir) = Direction::new(dir.x(), dir.y(), dir.z()) {
-                        self.star.set_direction_in_ecliptic(dir);
-                    }
+            StarDialogEvent::LongitudeChanged(longitude_string) => {
+                if let Ok(longitude) = longitude_string.parse::<f64>() {
+                    let mut pos = self.star.get_pos().clone();
+                    pos.set_longitude(Angle::from_degrees(longitude));
+                    self.star.set_pos(pos);
                 }
-                self.direction_string = direction_string;
+                self.longitude_string = longitude_string;
+            }
+            StarDialogEvent::LatitudeChanged(latitude_string) => {
+                if let Ok(latitude) = latitude_string.parse::<f64>() {
+                    let mut pos = self.star.get_pos().clone();
+                    pos.set_latitude(Angle::from_degrees(latitude));
+                    self.star.set_pos(pos);
+                }
+                self.latitude_string = latitude_string;
             }
             StarDialogEvent::Randomize => {
                 let max_distance = Distance::from_lyr(2000.);

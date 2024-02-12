@@ -240,11 +240,24 @@ impl TableColData<Star> {
                 }),
             },
             TableColData {
-                header: "Direction in Ecliptic",
+                header: "Ecl. Lon.",
                 content_closure: Box::new(|body| {
                     body.get_data()
                         .unwrap()
-                        .get_direction_in_ecliptic()
+                        .get_pos()
+                        .get_spherical()
+                        .get_longitude()
+                        .astro_display()
+                }),
+            },
+            TableColData {
+                header: "Ecl. Lat.",
+                content_closure: Box::new(|body| {
+                    body.get_data()
+                        .unwrap()
+                        .get_pos()
+                        .get_spherical()
+                        .get_latitude()
                         .astro_display()
                 }),
             },

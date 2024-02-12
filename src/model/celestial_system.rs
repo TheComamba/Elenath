@@ -1,6 +1,6 @@
 use super::{planet::Planet, star::Star};
 use astro_utils::{
-    coordinates::{cartesian::CartesianCoordinates, direction::Direction},
+    coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
         gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
@@ -121,9 +121,9 @@ impl CelestialSystem {
         let mut body = self.central_body.clone();
         let relative_position = -observer_pos;
         let distance = relative_position.length();
-        let direction = relative_position.to_direction().unwrap_or(Direction::Z);
+        let pos = relative_position.to_ecliptic();
         body.set_distance(Some(distance));
-        body.set_direction_in_ecliptic(direction);
+        body.set_pos(pos);
         body.to_star_appearance()
     }
 
