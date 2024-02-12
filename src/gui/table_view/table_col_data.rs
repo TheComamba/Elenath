@@ -1,12 +1,9 @@
-use astro_utils::{
-    astro_display::AstroDisplay, units::luminous_intensity::luminous_intensity_to_illuminance,
-};
-
 use crate::model::{planet::Planet, star::Star};
+use astro_utils::astro_display::AstroDisplay;
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
-    pub(super) content_closure: Box<dyn Fn(&T) -> String>,
+    pub(super) content_closure: Box<dyn Fn(&T) -> Option<String>>,
 }
 
 impl TableColData<Planet> {
@@ -14,141 +11,151 @@ impl TableColData<Planet> {
         vec![
             TableColData {
                 header: "Planet Name",
-                content_closure: Box::new(|body| body.get_data().get_name().to_string()),
+                content_closure: Box::new(|body| {
+                    let name = body.get_data().get_name();
+                    Some(name.to_string())
+                }),
             },
             TableColData {
                 header: "Mass",
-                content_closure: Box::new(|body| body.get_data().get_mass().astro_display()),
+                content_closure: Box::new(|body| {
+                    let mass = body.get_data().get_mass();
+                    Some(mass.astro_display())
+                }),
             },
             TableColData {
                 header: "Radius",
-                content_closure: Box::new(|body| body.get_data().get_radius().astro_display()),
+                content_closure: Box::new(|body| {
+                    let radius = body.get_data().get_radius();
+                    Some(radius.astro_display())
+                }),
             },
             TableColData {
                 header: "Density",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data().get_density().astro_display()
+                    let density = body.get_derived_data().get_density();
+                    Some(density.astro_display())
                 }),
             },
             TableColData {
                 header: "Surface Gravity",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data()
-                        .get_surface_gravity()
-                        .astro_display()
+                    let surface_gravity = body.get_derived_data().get_surface_gravity();
+                    Some(surface_gravity.astro_display())
                 }),
             },
             TableColData {
                 header: "Escape Velocity",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data()
-                        .get_escape_velocity()
-                        .astro_display()
+                    let escape_velocity = body.get_derived_data().get_escape_velocity();
+                    Some(escape_velocity.astro_display())
                 }),
             },
             TableColData {
                 header: "Color",
-                content_closure: Box::new(|body| body.get_data().get_color().astro_display()),
+                content_closure: Box::new(|body| {
+                    let color = body.get_data().get_color();
+                    Some(color.astro_display())
+                }),
             },
             TableColData {
                 header: "Geometric Albedo",
                 content_closure: Box::new(|body| {
-                    format!("{:.2}", body.get_data().get_geometric_albedo())
+                    let albedo = body.get_data().get_geometric_albedo();
+                    Some(format!("{:.2}", albedo))
                 }),
             },
             TableColData {
                 header: "Black Body Temp.",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data()
-                        .get_black_body_temperature()
-                        .astro_display()
+                    let temperature = body.get_derived_data().get_black_body_temperature();
+                    Some(temperature.astro_display())
                 }),
             },
             TableColData {
                 header: "Semi-major Axis",
                 content_closure: Box::new(|body| {
-                    body.get_data()
+                    let semi_major_axis = body
+                        .get_data()
                         .get_orbital_parameters()
-                        .get_semi_major_axis()
-                        .astro_display()
+                        .get_semi_major_axis();
+                    Some(semi_major_axis.astro_display())
                 }),
             },
             TableColData {
                 header: "Eccentricity",
                 content_closure: Box::new(|body| {
-                    format!(
-                        "{:.2}",
-                        body.get_data().get_orbital_parameters().get_eccentricity()
-                    )
+                    let eccentricity = body.get_data().get_orbital_parameters().get_eccentricity();
+                    Some(format!("{:.2}", eccentricity))
                 }),
             },
             TableColData {
                 header: "Inclination",
                 content_closure: Box::new(|body| {
-                    body.get_data()
-                        .get_orbital_parameters()
-                        .get_inclination()
-                        .astro_display()
+                    let inclination = body.get_data().get_orbital_parameters().get_inclination();
+                    Some(inclination.astro_display())
                 }),
             },
             TableColData {
                 header: "Ascending Node",
                 content_closure: Box::new(|body| {
-                    body.get_data()
+                    let ascending_node = body
+                        .get_data()
                         .get_orbital_parameters()
-                        .get_longitude_of_ascending_node()
-                        .astro_display()
+                        .get_longitude_of_ascending_node();
+                    Some(ascending_node.astro_display())
                 }),
             },
             TableColData {
                 header: "Arg. of Periapsis",
                 content_closure: Box::new(|body| {
-                    body.get_data()
+                    let arg_of_periapsis = body
+                        .get_data()
                         .get_orbital_parameters()
-                        .get_argument_of_periapsis()
-                        .astro_display()
+                        .get_argument_of_periapsis();
+                    Some(arg_of_periapsis.astro_display())
                 }),
             },
             TableColData {
                 header: "Orbital Period",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data().get_orbital_period().astro_display()
+                    let orbital_period = body.get_derived_data().get_orbital_period();
+                    Some(orbital_period.astro_display())
                 }),
             },
             TableColData {
                 header: "Orbital Resonance",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data()
-                        .get_orbital_resonance()
-                        .astro_display()
+                    let orbital_resonance = body.get_derived_data().get_orbital_resonance()?;
+                    Some(orbital_resonance.astro_display())
                 }),
             },
             TableColData {
                 header: "Sideral Day",
                 content_closure: Box::new(|body| {
-                    body.get_data()
-                        .get_sideral_rotation_period()
-                        .astro_display()
+                    let siderial_day = body.get_data().get_sideral_rotation_period();
+                    Some(siderial_day.astro_display())
                 }),
             },
             TableColData {
                 header: "Synodic Day",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data()
-                        .get_mean_synodic_day()
-                        .astro_display()
+                    let synodic_day = body.get_derived_data().get_mean_synodic_day();
+                    Some(synodic_day.astro_display())
                 }),
             },
             TableColData {
                 header: "Rotation Axis",
                 content_closure: Box::new(|body| {
-                    body.get_data().get_rotation_axis().astro_display()
+                    let rotation_axis = body.get_data().get_rotation_axis();
+                    Some(rotation_axis.astro_display())
                 }),
             },
             TableColData {
                 header: "Axial Tilt",
                 content_closure: Box::new(|body| {
-                    body.get_derived_data().get_axial_tilt().astro_display()
+                    let axial_tilt = body.get_derived_data().get_axial_tilt();
+                    Some(axial_tilt.astro_display())
                 }),
             },
         ]
@@ -160,105 +167,87 @@ impl TableColData<Star> {
         vec![
             TableColData {
                 header: "Star Name",
-                content_closure: Box::new(|body| body.get_data().unwrap().get_name().to_string()),
+                content_closure: Box::new(|body| {
+                    let name = body.get_appearance().get_name();
+                    Some(name.to_string())
+                }),
             },
             TableColData {
                 header: "Mass",
                 content_closure: Box::new(|body| {
-                    if let Some(mass) = body.get_data().unwrap().get_mass() {
-                        mass.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let mass = (*body.get_data()?.get_mass())?;
+                    Some(mass.astro_display())
                 }),
             },
             TableColData {
                 header: "Radius",
                 content_closure: Box::new(|body| {
-                    if let Some(radius) = body.get_data().unwrap().get_radius() {
-                        radius.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let radius = (*body.get_data()?.get_radius())?;
+                    Some(radius.astro_display())
                 }),
             },
             TableColData {
                 header: "Luminous Intensity",
                 content_closure: Box::new(|body| {
-                    if let Some(luminous_intensity) =
-                        body.get_data().unwrap().get_luminous_intensity()
-                    {
-                        luminous_intensity.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let luminous_intensity = (*body.get_data()?.get_luminous_intensity())?;
+                    Some(luminous_intensity.astro_display())
                 }),
             },
             TableColData {
                 header: "Temperature",
                 content_closure: Box::new(|body| {
-                    if let Some(temperature) = body.get_data().unwrap().get_temperature() {
-                        temperature.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let temperature = (*body.get_data()?.get_temperature())?;
+                    Some(temperature.astro_display())
+                }),
+            },
+            TableColData {
+                header: "Color",
+                content_closure: Box::new(|body| {
+                    let color = body.get_appearance().get_color();
+                    Some(color.astro_display())
                 }),
             },
             TableColData {
                 header: "Age",
                 content_closure: Box::new(|body| {
-                    if let Some(age) = body.get_data().unwrap().get_age() {
-                        age.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let age = (*body.get_data()?.get_age())?;
+                    Some(age.astro_display())
                 }),
             },
             TableColData {
                 header: "Distance",
                 content_closure: Box::new(|body| {
-                    if let Some(distance) = body.get_data().unwrap().get_distance() {
-                        distance.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let distance = (*body.get_data()?.get_distance())?;
+                    Some(distance.astro_display())
                 }),
             },
             TableColData {
                 header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
-                    if let (Some(luminous_intensity), Some(distance)) = (
-                        body.get_data().unwrap().get_luminous_intensity(),
-                        body.get_data().unwrap().get_distance(),
-                    ) {
-                        let illuminance =
-                            luminous_intensity_to_illuminance(luminous_intensity, distance);
-                        illuminance.astro_display()
-                    } else {
-                        String::from("N/A")
-                    }
+                    let illuminance = body.get_appearance().get_illuminance();
+                    Some(illuminance.astro_display())
                 }),
             },
             TableColData {
                 header: "Ecl. Lon.",
                 content_closure: Box::new(|body| {
-                    body.get_data()
-                        .unwrap()
+                    let longitude = body
+                        .get_appearance()
                         .get_pos()
                         .get_spherical()
-                        .get_longitude()
-                        .astro_display()
+                        .get_longitude();
+                    Some(longitude.astro_display())
                 }),
             },
             TableColData {
                 header: "Ecl. Lat.",
                 content_closure: Box::new(|body| {
-                    body.get_data()
-                        .unwrap()
+                    let latitude = body
+                        .get_appearance()
                         .get_pos()
                         .get_spherical()
-                        .get_latitude()
-                        .astro_display()
+                        .get_latitude();
+                    Some(latitude.astro_display())
                 }),
             },
         ]
