@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/derived-planetary-data#5c10fc1dea721b5cf65026c448082a245d691f0b"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/derived-planetary-data#2838d169162be2cdb065039a54ba875ee0311b2c"
 dependencies = [
  "directories",
  "flate2",

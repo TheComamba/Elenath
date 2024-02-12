@@ -8,6 +8,7 @@ use astro_utils::{
         derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
         planet_data::PlanetData, random_planets::generate_random_planet,
     },
+    stars::star_data::StarData,
     units::{
         angle::ANGLE_ZERO,
         distance::{distance_to_earth_radii, DISTANCE_ZERO, EARTH_RADIUS},
@@ -20,7 +21,7 @@ use iced::{
     Alignment, Element, Renderer,
 };
 use simple_si_units::{
-    base::{Distance, Mass, Time},
+    base::{Distance, Time},
     geometry::Angle,
 };
 
@@ -29,7 +30,7 @@ pub(crate) struct PlanetDialog {
     planet: PlanetData,
     planet_index: Option<usize>,
     previous_planet: Option<DerivedPlanetData>,
-    central_body_mass: Mass<f64>,
+    central_body: StarData,
     mass_string: String,
     radius_string: String,
     color_string: String,
@@ -48,13 +49,13 @@ impl PlanetDialog {
         planet: PlanetData,
         planet_index: usize,
         previous_planet: Option<DerivedPlanetData>,
-        central_body_mass: Mass<f64>,
+        central_body: StarData,
     ) -> Self {
         let mut dialog = PlanetDialog {
             planet: planet.clone(),
             planet_index: Some(planet_index),
             previous_planet,
-            central_body_mass,
+            central_body,
             mass_string: String::new(),
             radius_string: String::new(),
             color_string: String::new(),
@@ -71,7 +72,7 @@ impl PlanetDialog {
         dialog
     }
 
-    pub(crate) fn new(central_body_mass: Mass<f64>) -> Self {
+    pub(crate) fn new(central_body: StarData) -> Self {
         let mut dialog = PlanetDialog {
             planet: PlanetData::new(
                 String::new(),
@@ -85,7 +86,7 @@ impl PlanetDialog {
             ),
             planet_index: None,
             previous_planet: None,
-            central_body_mass,
+            central_body,
             mass_string: String::new(),
             radius_string: String::new(),
             color_string: String::new(),
@@ -267,22 +268,20 @@ impl PlanetDialog {
     fn additional_info_column(&self) -> Element<'_, PlanetDialogEvent> {
         let derived_data = DerivedPlanetData::new(
             &self.planet,
-            self.central_body_mass,
+            &self.central_body,
             self.previous_planet.as_ref(),
         );
 
         let density_text =
             Text::new("Density: ".to_string() + &derived_data.get_density().astro_display());
 
-        // let escape_velocity_text = Text::new(
-        //     "Escape Velocity: ".to_string() +
-        //     &derived_data.get_escape_velocity().astro_display()
-        // );
+        let surface_gravity_text = Text::new(
+            "Surface Gravity: ".to_string() + &derived_data.get_surface_gravity().astro_display(),
+        );
 
-        // let surface_gravity_text = Text::new(
-        //     "Surface Gravity: ".to_string() +
-        //     &derived_data.get_surface_gravity().astro_display()
-        // );
+        let escape_velocity_text = Text::new(
+            "Escape Velocity: ".to_string() + &derived_data.get_escape_velocity().astro_display(),
+        );
 
         let orbital_period_text = Text::new(
             "Orbital Period: ".to_string() + &derived_data.get_orbital_period().astro_display(),
@@ -297,13 +296,23 @@ impl PlanetDialog {
             "Mean Synodic Day: ".to_string() + &derived_data.get_mean_synodic_day().astro_display(),
         );
 
+        let axial_tilt_text =
+            Text::new("Axial Tilt: ".to_string() + &derived_data.get_axial_tilt().astro_display());
+
+        let black_body_temperature_text = Text::new(
+            "Black Body Temperature: ".to_string()
+                + &derived_data.get_black_body_temperature().astro_display(),
+        );
+
         Column::new()
             .push(density_text)
-            // .push(escape_velocity_text)
-            // .push(surface_gravity_text)
+            .push(surface_gravity_text)
+            .push(escape_velocity_text)
             .push(orbital_period_text)
             .push(orbital_resonance_text)
             .push(synodic_period_text)
+            .push(axial_tilt_text)
+            .push(black_body_temperature_text)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)

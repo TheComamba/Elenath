@@ -2,8 +2,9 @@ use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::{derived_data::DerivedPlanetData, planet_data::PlanetData},
+    stars::star_data::StarData,
 };
-use simple_si_units::base::{Mass, Time};
+use simple_si_units::base::Time;
 
 pub(crate) struct Planet {
     data: PlanetData,
@@ -15,12 +16,13 @@ pub(crate) struct Planet {
 impl Planet {
     pub(crate) fn new(
         data: PlanetData,
-        central_body_mass: Mass<f64>,
+        central_body: &StarData,
         previous: Option<&DerivedPlanetData>,
         time: Time<f64>,
         index: Option<usize>,
     ) -> Self {
-        let derived_data = DerivedPlanetData::new(&data, central_body_mass, previous);
+        let central_body_mass = central_body.get_mass().unwrap();
+        let derived_data = DerivedPlanetData::new(&data, central_body, previous);
         let pos = data.get_orbital_parameters().calculate_position(
             data.get_mass(),
             central_body_mass,

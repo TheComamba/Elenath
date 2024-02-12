@@ -56,28 +56,26 @@ impl Gui {
                     .celestial_system
                     .as_ref()
                     .ok_or(ElenathError::NoCelestialSystem)?;
-                let central_body_mass =
-                    celestial_system.get_central_body_data().get_mass().unwrap();
-                self.dialog = Some(Box::new(PlanetDialog::new(central_body_mass)));
+                let central_body = celestial_system.get_central_body_data().clone();
+                self.dialog = Some(Box::new(PlanetDialog::new(central_body)));
             }
             GuiMessage::EditPlanetDialog(index) => {
                 let celestial_system = &self
                     .celestial_system
                     .as_ref()
                     .ok_or(ElenathError::NoCelestialSystem)?;
-                let central_body_mass =
-                    celestial_system.get_central_body_data().get_mass().unwrap();
+                let central_body = celestial_system.get_central_body_data();
                 let planet = celestial_system
                     .get_planet_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
                 let previous_planet = celestial_system
                     .get_planet_data(index - 1)
-                    .map(|p| DerivedPlanetData::new(p, central_body_mass, None));
+                    .map(|p| DerivedPlanetData::new(p, central_body, None));
                 self.dialog = Some(Box::new(PlanetDialog::edit(
                     planet.clone(),
                     index,
                     previous_planet,
-                    central_body_mass,
+                    central_body.clone(),
                 )));
             }
             GuiMessage::NewPlanet(planet) => {

@@ -140,7 +140,6 @@ impl CelestialSystem {
     }
 
     pub(crate) fn get_planets_at_time(&self, time: Time<f64>) -> Vec<Planet> {
-        let central_body_mass = self.central_body.get_mass().unwrap();
         let mut bodies: Vec<Planet> = Vec::new();
         for (i, planet_data) in self.planets.iter().enumerate() {
             let previous = if i > 0 {
@@ -150,7 +149,7 @@ impl CelestialSystem {
             };
             let planet = Planet::new(
                 planet_data.clone(),
-                central_body_mass,
+                &self.central_body,
                 previous,
                 time,
                 Some(i),

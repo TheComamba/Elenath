@@ -50,7 +50,7 @@ impl Gui {
         self.get_selected_planet_data().map(|data| {
             Planet::new(
                 (*data).clone(),
-                system.get_central_body_data().get_mass().unwrap(),
+                system.get_central_body_data(),
                 None,
                 self.time_since_epoch,
                 None,
