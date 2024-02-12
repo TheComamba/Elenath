@@ -57,6 +57,7 @@ impl StarDialog {
                 None,
                 None,
                 EclipticCoordinates::Z_DIRECTION,
+                None,
             ),
             star_index: None,
             mass_string: String::new(),
