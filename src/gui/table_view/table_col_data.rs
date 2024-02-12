@@ -25,6 +25,28 @@ impl TableColData<Planet> {
                 content_closure: Box::new(|body| body.get_data().get_radius().astro_display()),
             },
             TableColData {
+                header: "Density",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data().get_density().astro_display()
+                }),
+            },
+            TableColData {
+                header: "Surface Gravity",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data()
+                        .get_surface_gravity()
+                        .astro_display()
+                }),
+            },
+            TableColData {
+                header: "Escape Velocity",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data()
+                        .get_escape_velocity()
+                        .astro_display()
+                }),
+            },
+            TableColData {
                 header: "Color",
                 content_closure: Box::new(|body| body.get_data().get_color().astro_display()),
             },
@@ -32,6 +54,14 @@ impl TableColData<Planet> {
                 header: "Geometric Albedo",
                 content_closure: Box::new(|body| {
                     format!("{:.2}", body.get_data().get_geometric_albedo())
+                }),
+            },
+            TableColData {
+                header: "Black Body Temp.",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data()
+                        .get_black_body_temperature()
+                        .astro_display()
                 }),
             },
             TableColData {
@@ -80,6 +110,20 @@ impl TableColData<Planet> {
                 }),
             },
             TableColData {
+                header: "Orbital Period",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data().get_orbital_period().astro_display()
+                }),
+            },
+            TableColData {
+                header: "Orbital Resonance",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data()
+                        .get_orbital_resonance()
+                        .astro_display()
+                }),
+            },
+            TableColData {
                 header: "Sideral Day",
                 content_closure: Box::new(|body| {
                     body.get_data()
@@ -88,9 +132,23 @@ impl TableColData<Planet> {
                 }),
             },
             TableColData {
+                header: "Synodic Day",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data()
+                        .get_mean_synodic_day()
+                        .astro_display()
+                }),
+            },
+            TableColData {
                 header: "Rotation Axis",
                 content_closure: Box::new(|body| {
                     body.get_data().get_rotation_axis().astro_display()
+                }),
+            },
+            TableColData {
+                header: "Axial Tilt",
+                content_closure: Box::new(|body| {
+                    body.get_derived_data().get_axial_tilt().astro_display()
                 }),
             },
         ]
@@ -147,12 +205,13 @@ impl TableColData<Star> {
                 }),
             },
             TableColData {
-                header: "Direction in Ecliptic",
+                header: "Age",
                 content_closure: Box::new(|body| {
-                    body.get_data()
-                        .unwrap()
-                        .get_direction_in_ecliptic()
-                        .astro_display()
+                    if let Some(age) = body.get_data().unwrap().get_age() {
+                        age.astro_display()
+                    } else {
+                        String::from("N/A")
+                    }
                 }),
             },
             TableColData {
@@ -178,6 +237,15 @@ impl TableColData<Star> {
                     } else {
                         String::from("N/A")
                     }
+                }),
+            },
+            TableColData {
+                header: "Direction in Ecliptic",
+                content_closure: Box::new(|body| {
+                    body.get_data()
+                        .unwrap()
+                        .get_direction_in_ecliptic()
+                        .astro_display()
                 }),
             },
         ]

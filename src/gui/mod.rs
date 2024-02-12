@@ -51,6 +51,7 @@ impl Gui {
             Planet::new(
                 (*data).clone(),
                 system.get_central_body_data(),
+                None,
                 self.time_since_epoch,
                 None,
             )

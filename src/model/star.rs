@@ -35,6 +35,10 @@ impl Star {
     pub(crate) fn get_appearance(&self) -> &StarAppearance {
         &self.appearance
     }
+
+    pub(super) fn set_index(&mut self, index: usize) {
+        self.index = Some(index);
+    }
 }
 
 impl PartOfCelestialSystem for Star {
