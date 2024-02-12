@@ -34,7 +34,8 @@ pub(crate) enum GuiMessage {
     UpdateTime(Time<f64>),
     UpdateTimeStep(Time<f64>),
     PlanetSelected(String),
-    SetShowNames(bool),
+    SetDisplayNames(bool),
+    SetDisplayConstellations(bool),
     DialogClosed,
     ErrorEncountered(ElenathError),
 }
@@ -160,8 +161,11 @@ impl Gui {
             GuiMessage::PlanetSelected(name) => {
                 self.selected_planet_name = name;
             }
-            GuiMessage::SetShowNames(display_names) => {
+            GuiMessage::SetDisplayNames(display_names) => {
                 self.display_names = display_names;
+            }
+            GuiMessage::SetDisplayConstellations(display_constellations) => {
+                self.display_constellations = display_constellations;
             }
             GuiMessage::DialogClosed => {
                 self.dialog = None;

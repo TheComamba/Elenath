@@ -37,6 +37,7 @@ impl Sandbox for Gui {
             celestial_system: None,
             selected_planet_name: String::new(),
             display_names: true,
+            display_constellations: false,
             dialog: None,
         }
     }
@@ -120,6 +121,7 @@ impl Gui {
                         self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
+                        self.display_constellations,
                     ))
                     .push(self.surface_view_state.control_field());
                 col = col.push(control_row).push(
@@ -136,6 +138,7 @@ impl Gui {
                         self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
+                        self.display_constellations,
                     ))
                     .push(self.top_view_state.control_field());
                 col = col.push(control_row).push(

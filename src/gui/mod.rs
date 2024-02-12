@@ -29,6 +29,7 @@ pub(crate) struct Gui {
     celestial_system: Option<CelestialSystem>,
     selected_planet_name: String,
     display_names: bool,
+    display_constellations: bool,
     pub(crate) dialog: Option<Box<dyn Dialog>>,
 }
 

@@ -101,6 +101,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
     planets: Vec<&PlanetData>,
     selected_planet: Option<&PlanetData>,
     display_names: bool,
+    display_constellations: bool,
 ) -> iced::Element<'a, GuiMessage> {
     let time_control_field = control_field(
         "Time since Epoch:",
@@ -108,24 +109,36 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         GuiMessage::UpdateTime(*time_since_epoch - *time_step),
         GuiMessage::UpdateTime(*time_since_epoch + *time_step),
     );
+
     let time_step_control_field = control_field(
         "Time step:",
         time_step.astro_display(),
         GuiMessage::UpdateTimeStep(*time_step / 2.),
         GuiMessage::UpdateTimeStep(*time_step * 2.),
     );
+
     let planet_picker = planet_picker(planets, selected_planet);
+
     let display_names_toggle = Container::new(Toggler::new(
         Some("Display Names".to_string()),
         display_names,
-        GuiMessage::SetShowNames,
+        GuiMessage::SetDisplayNames,
     ))
     .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
+
+    let diplay_constellations_toggle = Container::new(Toggler::new(
+        Some("Display Constellations".to_string()),
+        display_constellations,
+        GuiMessage::SetDisplayConstellations,
+    ))
+    .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
+
     Column::new()
         .push(time_control_field)
         .push(time_step_control_field)
         .push(planet_picker)
         .push(display_names_toggle)
+        .push(diplay_constellations_toggle)
         .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
         .align_items(Alignment::Center)
         .spacing(PADDING)
