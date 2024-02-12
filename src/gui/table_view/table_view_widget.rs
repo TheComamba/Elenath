@@ -131,7 +131,8 @@ where
     let edit_button = Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
     let mut row = Row::new().push(edit_button);
     for col in table_col_data.iter() {
-        row = row.push(table_cell(Text::new((col.content_closure)(&data)).into()));
+        let content = (col.content_closure)(&data).unwrap_or("N/A".to_string());
+        row = row.push(table_cell(Text::new(content).into()));
     }
     row.align_items(Alignment::Center)
 }
