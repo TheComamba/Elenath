@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#b39082e29a64b2de368bd46a99b9168d9ea162e3"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/store-star-position-in-equatorial-coordinates#b1b26cf387e23d63980455494a3f974baa864bcc"
 dependencies = [
  "directories",
  "flate2",
