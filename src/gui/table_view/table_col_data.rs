@@ -175,28 +175,28 @@ impl TableColData<Star> {
             TableColData {
                 header: "Mass",
                 content_closure: Box::new(|body| {
-                    let mass = body.get_data()?.get_mass();
+                    let mass = (*body.get_data()?.get_mass())?;
                     Some(mass.astro_display())
                 }),
             },
             TableColData {
                 header: "Radius",
                 content_closure: Box::new(|body| {
-                    let radius = body.get_data()?.get_radius();
+                    let radius = (*body.get_data()?.get_radius())?;
                     Some(radius.astro_display())
                 }),
             },
             TableColData {
                 header: "Luminous Intensity",
                 content_closure: Box::new(|body| {
-                    let luminous_intensity = body.get_data()?.get_luminous_intensity();
+                    let luminous_intensity = (*body.get_data()?.get_luminous_intensity())?;
                     Some(luminous_intensity.astro_display())
                 }),
             },
             TableColData {
                 header: "Temperature",
                 content_closure: Box::new(|body| {
-                    let temperature = body.get_data()?.get_temperature();
+                    let temperature = (*body.get_data()?.get_temperature())?;
                     Some(temperature.astro_display())
                 }),
             },
@@ -210,14 +210,14 @@ impl TableColData<Star> {
             TableColData {
                 header: "Age",
                 content_closure: Box::new(|body| {
-                    let age = body.get_data()?.get_age();
+                    let age = (*body.get_data()?.get_age())?;
                     Some(age.astro_display())
                 }),
             },
             TableColData {
                 header: "Distance",
                 content_closure: Box::new(|body| {
-                    let distance = body.get_data()?.get_distance();
+                    let distance = (*body.get_data()?.get_distance())?;
                     Some(distance.astro_display())
                 }),
             },
