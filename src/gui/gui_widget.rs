@@ -1,8 +1,7 @@
 use super::{
     dialog::error::ErrorDialog, message::GuiMessage,
-    shared_widgets::surface_and_top_view_shared_control,
-    surface_view::surface_view_widget::SurfaceViewState,
-    table_view::table_view_widget::TableViewState, top_view::top_view_widget::TopViewState, Gui,
+    shared_widgets::surface_and_top_view_shared_control, surface_view::widget::SurfaceViewState,
+    table_view::widget::TableViewState, top_view::widget::TopViewState, Gui,
 };
 use iced::{
     widget::{canvas, Column, Container, Row, Text},

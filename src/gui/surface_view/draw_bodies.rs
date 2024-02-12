@@ -1,76 +1,26 @@
 use super::{
-    star_canvas_appearance::StarCanvasAppearance,
-    surface_view_widget::SurfaceViewState,
+    star_appearance::StarCanvasAppearance,
     viewport::{observer_normal, Viewport},
+    widget::SurfaceViewState,
 };
 use crate::{
-    gui::shared_canvas_functionality::{
-        contains_workaround, display_info_text, draw_background, draw_name,
-    },
+    gui::shared_canvas_functionality::{contains_workaround, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
-    coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
-    },
+    coordinates::{cartesian::CartesianCoordinates, spherical::SphericalCoordinates},
     stars::star_appearance::StarAppearance,
 };
 use iced::{
-    widget::canvas::{self, Path},
+    widget::canvas::{self, Frame, Path},
     Color, Point, Rectangle,
 };
 use simple_si_units::base::{Distance, Time};
 
 impl SurfaceViewState {
-    fn observer_position(
+    pub(super) fn draw_bodies(
         &self,
-        selected_planet: &Planet,
-        observer_normal: &Direction,
-    ) -> CartesianCoordinates {
-        let body_radius = selected_planet.get_data().get_radius();
-        selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
-    }
-
-    pub(crate) fn canvas(
-        &self,
-        renderer: &iced::Renderer,
-        bounds: iced::Rectangle,
-        selected_planet: &Option<Planet>,
-        celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
-        display_names: bool,
-    ) -> Vec<canvas::Geometry> {
-        let background = self
-            .background_cache
-            .draw(renderer, bounds.size(), |frame| {
-                draw_background(bounds, frame);
-            });
-
-        let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            if let Some(celestial_system) = celestial_system {
-                if let Some(selected_planet) = selected_planet {
-                    self.draw_bodies(
-                        frame,
-                        bounds,
-                        selected_planet,
-                        celestial_system,
-                        time_since_epoch,
-                        display_names,
-                    );
-                } else {
-                    display_info_text(frame, "Please select a planet.");
-                }
-            } else {
-                display_info_text(frame, "Please load or generate a celestial system.");
-            }
-        });
-
-        vec![background, bodies]
-    }
-
-    fn draw_bodies(
-        &self,
-        frame: &mut canvas::Frame,
+        frame: &mut Frame,
         bounds: Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,

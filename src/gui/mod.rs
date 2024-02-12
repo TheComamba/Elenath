@@ -1,8 +1,8 @@
 use self::dialog::Dialog;
 use self::gui_widget::GuiViewMode;
-use self::surface_view::surface_view_widget::SurfaceViewState;
-use self::table_view::table_view_widget::TableViewState;
-use self::top_view::top_view_widget::TopViewState;
+use self::surface_view::widget::SurfaceViewState;
+use self::table_view::widget::TableViewState;
+use self::top_view::widget::TopViewState;
 use crate::model::celestial_system::CelestialSystem;
 use crate::model::planet::Planet;
 use astro_utils::planets::planet_data::PlanetData;

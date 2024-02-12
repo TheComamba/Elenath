@@ -106,7 +106,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 #[cfg(test)]
 mod tests {
     use crate::{
-        gui::surface_view::{star_canvas_appearance::StarCanvasAppearance, viewport::Viewport},
+        gui::surface_view::{star_appearance::StarCanvasAppearance, viewport::Viewport},
         model::celestial_system::{CelestialSystem, SystemType},
     };
     use astro_utils::{

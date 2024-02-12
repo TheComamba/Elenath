@@ -1,4 +1,4 @@
-use super::top_view_widget::TopViewState;
+use super::widget::TopViewState;
 use crate::{
     gui::shared_canvas_functionality::{
         contains_workaround, display_info_text, draw_background, draw_name,

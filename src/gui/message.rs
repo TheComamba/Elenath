@@ -3,8 +3,8 @@ use super::dialog::star::StarDialog;
 use super::gui_widget::GuiViewMode;
 use super::Gui;
 use super::{
-    dialog::new_system::NewSystemDialog, surface_view::surface_view_widget::SurfaceViewUpdate,
-    top_view::top_view_widget::TopViewUpdate,
+    dialog::new_system::NewSystemDialog, surface_view::widget::SurfaceViewUpdate,
+    top_view::widget::TopViewUpdate,
 };
 use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
