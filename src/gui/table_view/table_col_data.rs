@@ -1,8 +1,5 @@
-use astro_utils::{
-    astro_display::AstroDisplay, units::luminous_intensity::luminous_intensity_to_illuminance,
-};
-
 use crate::model::{planet::Planet, star::Star};
+use astro_utils::astro_display::AstroDisplay;
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
@@ -171,7 +168,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Star Name",
                 content_closure: Box::new(|body| {
-                    let name = body.get_data()?.get_name();
+                    let name = body.get_appearance().get_name();
                     Some(name.to_string())
                 }),
             },
@@ -204,6 +201,13 @@ impl TableColData<Star> {
                 }),
             },
             TableColData {
+                header: "Color",
+                content_closure: Box::new(|body| {
+                    let color = body.get_appearance().get_color();
+                    Some(color.astro_display())
+                }),
+            },
+            TableColData {
                 header: "Age",
                 content_closure: Box::new(|body| {
                     let age = body.get_data()?.get_age();
@@ -220,23 +224,29 @@ impl TableColData<Star> {
             TableColData {
                 header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
-                    let lum_intensity = (*body.get_data()?.get_luminous_intensity())?;
-                    let distance = (*body.get_data()?.get_distance())?;
-                    let illuminance = luminous_intensity_to_illuminance(&lum_intensity, &distance);
+                    let illuminance = body.get_appearance().get_illuminance();
                     Some(illuminance.astro_display())
                 }),
             },
             TableColData {
                 header: "Ecl. Lon.",
                 content_closure: Box::new(|body| {
-                    let longitude = body.get_data()?.get_pos().get_spherical().get_longitude();
+                    let longitude = body
+                        .get_appearance()
+                        .get_pos()
+                        .get_spherical()
+                        .get_longitude();
                     Some(longitude.astro_display())
                 }),
             },
             TableColData {
                 header: "Ecl. Lat.",
                 content_closure: Box::new(|body| {
-                    let latitude = body.get_data()?.get_pos().get_spherical().get_latitude();
+                    let latitude = body
+                        .get_appearance()
+                        .get_pos()
+                        .get_spherical()
+                        .get_latitude();
                     Some(latitude.astro_display())
                 }),
             },
