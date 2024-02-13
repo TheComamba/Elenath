@@ -1,15 +1,10 @@
-use super::{
-    star_appearance::StarCanvasAppearance,
-    viewport::{observer_normal, Viewport},
-    widget::SurfaceViewState,
-};
+use super::{star_appearance::StarCanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
-    coordinates::{cartesian::CartesianCoordinates, spherical::SphericalCoordinates},
-    stars::star_appearance::StarAppearance,
+    coordinates::cartesian::CartesianCoordinates, stars::star_appearance::StarAppearance,
 };
 use iced::{
     widget::canvas::{self, Frame, Path},
@@ -26,25 +21,9 @@ impl SurfaceViewState {
         celestial_system: &CelestialSystem,
         time_since_epoch: Time<f64>,
         display_names: bool,
+        viewport: &Viewport,
+        observer_position: &CartesianCoordinates,
     ) {
-        let surface_position =
-            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude);
-        let observer_normal = observer_normal(
-            selected_planet.get_data(),
-            surface_position,
-            time_since_epoch,
-        );
-        let observer_position = self.observer_position(selected_planet, &observer_normal);
-        let observer_view_direction =
-            SphericalCoordinates::new(self.view_longitude, self.view_latitude);
-        let viewport = Viewport::calculate(
-            &observer_normal,
-            &observer_view_direction,
-            self.viewport_opening_angle,
-            selected_planet.get_data().get_rotation_axis(),
-            bounds,
-        );
-
         for distant_star in celestial_system.get_distant_star_appearances() {
             self.draw_star(
                 frame,

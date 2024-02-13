@@ -84,6 +84,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 &self.celestial_system,
                 self.time_since_epoch,
                 self.display_names,
+                self.display_constellations,
             ),
             GuiViewMode::Top => self.top_view_state.canvas(
                 renderer,
