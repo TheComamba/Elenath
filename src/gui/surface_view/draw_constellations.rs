@@ -50,23 +50,31 @@ impl SurfaceViewState {
             a: 0.5,
         };
 
-        let max_line_distance = largest_nearest_neghbour_distance(&appearances) * 1.1;
-
-        for i in 0..appearances.len() {
-            for j in i + 1..appearances.len() {
-                let v_i = &appearances[i].center_offset;
-                let v_j = &appearances[j].center_offset;
-                if distance(v_i, v_j) < max_line_distance {
-                    let stroke = Stroke {
-                        style: Style::Solid(Color::WHITE),
-                        ..Default::default()
-                    };
-                    let p_i = frame.center() + *v_i;
-                    let p_j = frame.center() + *v_j;
-                    frame.stroke(&Path::line(p_i, p_j), stroke);
-                }
-            }
+        for connection in connections(&appearances) {
+            let i = connection.0;
+            let j = connection.1;
+            let p_i = frame.center() + appearances[i].center_offset;
+            let p_j = frame.center() + appearances[j].center_offset;
+            let stroke = Stroke {
+                style: Style::Solid(Color::WHITE),
+                ..Default::default()
+            };
+            frame.stroke(&Path::line(p_i, p_j), stroke);
         }
+
+        // let outline = Path::new(|b| {
+        //     for appearance in &appearances {
+        //         let position = frame.center() + appearance.center_offset;
+        //         let radius = appearance.radius * 50.;
+        //         b.circle(position, radius);
+        //     }
+        // });
+        // let stroke = Stroke {
+        //     style: Style::Solid(color),
+        //     width: 1.,
+        //     ..Default::default()
+        // };
+        // frame.stroke(&outline, stroke);
 
         let center = weighted_average_position(&appearances);
         let position = frame.center() + center;
@@ -85,30 +93,34 @@ impl SurfaceViewState {
     }
 }
 
-fn largest_nearest_neghbour_distance(stars: &[CanvasAppearance]) -> f32 {
-    const MIN: f32 = 10.;
-    const MAX: f32 = 300.;
-    let mut largest_nearest_neighbour_distance = MIN;
-    for i in 0..stars.len() {
-        let mut nearest_neighbour_distance = MAX;
-        for j in i + 1..stars.len() {
-            let offset_i = stars[i].center_offset;
+fn find_nearest_neighbour(
+    index: usize,
+    stars: &[CanvasAppearance],
+    excluding: &Vec<usize>,
+) -> Option<usize> {
+    let mut nearest_neighbour = None;
+    let offset = stars[index].center_offset;
+    for j in 0..stars.len() {
+        if index != j && !excluding.contains(&j) {
             let offset_j = stars[j].center_offset;
-            let distance = distance(&offset_i, &offset_j);
-            if distance < nearest_neighbour_distance {
-                nearest_neighbour_distance = distance;
+            let distance = distance_squared(&offset, &offset_j);
+            if let Some(nn) = nearest_neighbour {
+                let nn_offset = stars[nn as usize].center_offset;
+                let nn_distance = distance_squared(&offset, &nn_offset);
+                if distance < nn_distance {
+                    nearest_neighbour = Some(j);
+                }
+            } else {
+                nearest_neighbour = Some(j);
             }
         }
-        if nearest_neighbour_distance > largest_nearest_neighbour_distance {
-            largest_nearest_neighbour_distance = nearest_neighbour_distance;
-        }
     }
-    largest_nearest_neighbour_distance
+    nearest_neighbour
 }
 
-fn distance(offset_i: &Vector, offset_j: &Vector) -> f32 {
+fn distance_squared(offset_i: &Vector, offset_j: &Vector) -> f32 {
     let diff = offset_i.clone() - offset_j.clone();
-    (diff.x.powi(2) + diff.y.powi(2)).sqrt()
+    diff.x.powi(2) + diff.y.powi(2)
 }
 
 fn weighted_average_position(stars: &[CanvasAppearance]) -> Vector {
@@ -120,4 +132,33 @@ fn weighted_average_position(stars: &[CanvasAppearance]) -> Vector {
         total_weight += weight;
     }
     sum * (1. / total_weight)
+}
+
+fn connections(stars: &[CanvasAppearance]) -> Vec<(usize, usize)> {
+    prims_algorithm(stars)
+}
+
+fn prims_algorithm(stars: &[CanvasAppearance]) -> Vec<(usize, usize)> {
+    let mut connections = Vec::new();
+    if stars.len() < 2 {
+        return connections;
+    }
+    let mut visited = vec![0];
+    while visited.len() < stars.len() {
+        let mut current_best = (0, 0, f32::MAX);
+        for i in &visited {
+            let nn = find_nearest_neighbour(*i, stars, &visited);
+            if let Some(nn) = nn {
+                let offset_i = stars[*i].center_offset;
+                let offset_nn = stars[nn].center_offset;
+                let distance_squared = distance_squared(&offset_i, &offset_nn);
+                if distance_squared < current_best.2 {
+                    current_best = (*i, nn, distance_squared);
+                }
+            }
+        }
+        connections.push((current_best.0, current_best.1));
+        visited.push(current_best.1);
+    }
+    connections
 }
