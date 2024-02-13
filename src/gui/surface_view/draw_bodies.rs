@@ -1,4 +1,4 @@
-use super::{star_appearance::StarCanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
+use super::{canvas_appearance::CanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
@@ -73,7 +73,7 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let canvas_appearance = StarCanvasAppearance::from_star_appearance(star, viewport);
+        let canvas_appearance = CanvasAppearance::from_star_appearance(star, viewport);
         self.draw_body(
             frame,
             bounds,
@@ -96,7 +96,7 @@ impl SurfaceViewState {
         display_names: bool,
     ) {
         let canvas_appearance =
-            StarCanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
+            CanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
         self.draw_body(
             frame,
             bounds,
@@ -119,12 +119,8 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let canvas_appearance = StarCanvasAppearance::from_planet(
-            celestial_system,
-            planet,
-            viewport,
-            observer_position,
-        );
+        let canvas_appearance =
+            CanvasAppearance::from_planet(celestial_system, planet, viewport, observer_position);
         self.draw_body(
             frame,
             bounds,
@@ -140,7 +136,7 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        canvas_appearance: &Option<StarCanvasAppearance>,
+        canvas_appearance: &Option<CanvasAppearance>,
         radius: &Option<Distance<f64>>,
         pixel_per_viewport_width: f32,
         display_names: bool,
@@ -173,9 +169,9 @@ impl SurfaceViewState {
         }
     }
 
-    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &StarCanvasAppearance) {
+    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &CanvasAppearance) {
         // Radial gradients are not yet impelemented in iced.
-        let mut step_width = StarCanvasAppearance::MIN_RADIUS;
+        let mut step_width = CanvasAppearance::MIN_RADIUS;
         const MAX_STEPS: i32 = 100;
         let mut steps = (0.99 * canvas_appearance.radius / step_width).ceil() as i32;
         if steps > MAX_STEPS {

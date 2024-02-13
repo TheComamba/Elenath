@@ -2,7 +2,7 @@ use super::{viewport::Viewport, widget::SurfaceViewState};
 use crate::{
     gui::{
         shared_canvas_functionality::contains_workaround,
-        surface_view::star_appearance::StarCanvasAppearance,
+        surface_view::canvas_appearance::CanvasAppearance,
     },
     model::{celestial_system::CelestialSystem, constellation::*, star::Star},
 };
@@ -39,7 +39,7 @@ impl SurfaceViewState {
         let appearances: Vec<_> = stars
             .iter()
             .map(|s| s.get_appearance())
-            .map(|s| StarCanvasAppearance::from_star_appearance(s, viewport))
+            .map(|s| CanvasAppearance::from_star_appearance(s, viewport))
             .filter_map(|a| a)
             .collect();
 
@@ -85,7 +85,7 @@ impl SurfaceViewState {
     }
 }
 
-fn largest_nearest_neghbour_distance(stars: &[StarCanvasAppearance]) -> f32 {
+fn largest_nearest_neghbour_distance(stars: &[CanvasAppearance]) -> f32 {
     const MIN: f32 = 10.;
     const MAX: f32 = 300.;
     let mut largest_nearest_neighbour_distance = MIN;
@@ -111,7 +111,7 @@ fn distance(offset_i: &Vector, offset_j: &Vector) -> f32 {
     (diff.x.powi(2) + diff.y.powi(2)).sqrt()
 }
 
-fn weighted_average_position(stars: &[StarCanvasAppearance]) -> Vector {
+fn weighted_average_position(stars: &[CanvasAppearance]) -> Vector {
     let mut sum = Vector::new(0., 0.);
     let mut total_weight = 0.;
     for star in stars {
