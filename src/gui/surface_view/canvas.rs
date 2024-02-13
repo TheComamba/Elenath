@@ -101,13 +101,7 @@ impl SurfaceViewState {
         );
 
         if display_constellations {
-            self.draw_constellations(
-                frame,
-                bounds,
-                celestial_system,
-                &viewport,
-                &observer_position,
-            );
+            self.draw_constellations(frame, bounds, celestial_system, &viewport);
         }
     }
 }
