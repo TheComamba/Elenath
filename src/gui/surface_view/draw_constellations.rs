@@ -4,9 +4,12 @@ use crate::{
         shared_canvas_functionality::contains_workaround,
         surface_view::canvas_appearance::CanvasAppearance,
     },
-    model::{celestial_system::CelestialSystem, constellation::*},
+    model::celestial_system::CelestialSystem,
 };
-use astro_utils::stars::star_data::StarData;
+use astro_utils::stars::{
+    constellation::{collect_constellations, Constellation},
+    star_data::StarData,
+};
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{Frame, Path, Stroke, Style, Text},
@@ -29,9 +32,8 @@ impl SurfaceViewState {
             .cloned()
             .collect();
 
-        for constellation_name in collect_constellation_names(&stars[..]) {
-            let stars = collect_stars_in_constellation(&constellation_name, &stars[..]);
-            self.draw_constellation(frame, bounds, constellation_name, stars, &viewport);
+        for constellation in collect_constellations(&stars[..]) {
+            self.draw_constellation(frame, bounds, constellation, &viewport);
         }
     }
 
@@ -39,13 +41,12 @@ impl SurfaceViewState {
         &self,
         frame: &mut Frame,
         bounds: Rectangle,
-        constellation_name: String,
-        stars: Vec<&StarData>,
+        constellation: Constellation,
         viewport: &Viewport,
     ) {
-        let appearances: Vec<_> = stars
+        let appearances: Vec<_> = constellation
+            .get_stars()
             .iter()
-            .map(|s| s.to_star_appearance())
             .map(|s| CanvasAppearance::from_star_appearance(&s, viewport))
             .filter_map(|a| a)
             .collect();
@@ -87,7 +88,7 @@ impl SurfaceViewState {
         let position = frame.center() + center;
         if contains_workaround(&bounds, position) {
             let name_widget = Text {
-                content: constellation_name,
+                content: constellation.get_name().to_string(),
                 position,
                 color,
                 size: 20.,

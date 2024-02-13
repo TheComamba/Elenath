@@ -1,5 +1,4 @@
 pub(super) mod celestial_system;
-pub(super) mod constellation;
 pub(super) mod new_celestial_system;
 pub(super) mod part_of_celestial_system;
 pub(super) mod planet;
