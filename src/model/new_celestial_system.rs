@@ -16,7 +16,7 @@ pub(crate) enum GeneratedCentralBody {
 }
 
 pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, ElenathError> {
-    let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+    let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
     system.add_planet_data(MERCURY.to_planet_data());
     system.add_planet_data(VENUS.to_planet_data());
     system.add_planet_data(EARTH.to_planet_data());
@@ -45,7 +45,7 @@ pub(crate) fn generated_system(
     max_distance: Distance<f64>,
 ) -> Result<CelestialSystem, ElenathError> {
     let central_body_data = match central_body {
-        GeneratedCentralBody::Sun => SUN_DATA.to_star_data(),
+        GeneratedCentralBody::Sun => SUN.to_star_data(),
         GeneratedCentralBody::RandomStar => generate_random_star(None)?,
     };
 

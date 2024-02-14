@@ -114,7 +114,7 @@ mod tests {
         color::sRGBColor,
         coordinates::{direction::Direction, ecliptic::EclipticCoordinates},
         planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
-        real_data::stars::SUN_DATA,
+        real_data::stars::SUN,
         stars::star_appearance::StarAppearance,
         units::{
             angle::ANGLE_ZERO, distance::EARTH_RADIUS,
@@ -610,8 +610,7 @@ mod tests {
     fn aligned_planet_sun_and_observer() {
         const CENTER: Vector = Vector { x: 0., y: 0. };
 
-        let mut celestial_system =
-            CelestialSystem::new(SystemType::Generated, SUN_DATA.to_star_data());
+        let mut celestial_system = CelestialSystem::new(SystemType::Generated, SUN.to_star_data());
         let orbit = OrbitParameters::new(
             Distance::from_au(1.),
             0.,

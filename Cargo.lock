@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/zodiacs#84457fe1a92a8f509c56d8a04929c66d6addd636"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/zodiacs#426ffa27dff9279f847affb731809741adabdc96"
 dependencies = [
  "directories",
  "flate2",
@@ -2338,9 +2338,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.29"
+version = "0.3.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2900ede94e305130c13ddd391e0ab7cbaeb783945ae07a279c268cb05109c6cb"
+checksum = "d231b230927b5e4ad203db57bbcbee2802f6bce620b1e4a9024a07d94e2907ec"
 
 [[package]]
 name = "png"
@@ -2521,9 +2521,9 @@ dependencies = [
 
 [[package]]
 name = "read-fonts"
-version = "0.15.4"
+version = "0.15.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d70252c718fb23d41771a4f927e924700edefc2a91ecd52a2ee6f2461d4e6b64"
+checksum = "c044ab88c43e2eae05b34a17fc13598736679fdb03d71b49fcfe114443ec8a86"
 dependencies = [
  "font-types",
 ]
@@ -3302,7 +3302,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.6.0",
+ "winnow 0.6.1",
 ]
 
 [[package]]
@@ -4201,9 +4201,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b1dbce9e90e5404c5a52ed82b1d13fc8cfbdad85033b6f57546ffd1265f8451"
+checksum = "d90f4e0f530c4c69f62b80d839e9ef3855edc9cba471a160c4d692deed62b401"
 dependencies = [
  "memchr",
 ]

@@ -192,7 +192,7 @@ mod tests {
     use astro_utils::{
         real_data::{
             planets::*,
-            stars::{BRIGHTEST_STARS, SUN_DATA},
+            stars::{BRIGHTEST_STARS, SUN},
         },
         units::luminous_intensity::absolute_magnitude_to_luminous_intensity,
     };
@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         system.add_planet_data(VENUS.to_planet_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(MARS.to_planet_data());
@@ -214,7 +214,7 @@ mod tests {
 
     #[test]
     fn edited_planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(EARTH.to_planet_data());
         system.overwrite_planet_data(0, JUPITER.to_planet_data());
@@ -233,7 +233,7 @@ mod tests {
 
     #[test]
     fn stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         for star in BRIGHTEST_STARS.iter().rev() {
             system.add_star_from_data(star.to_star_data());
         }
@@ -248,11 +248,11 @@ mod tests {
 
     #[test]
     fn edited_stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         for star in BRIGHTEST_STARS.iter() {
             system.add_star_from_data(star.to_star_data());
         }
-        let mut bright_star = SUN_DATA.to_star_data();
+        let mut bright_star = SUN.to_star_data();
         bright_star.set_distance(Some(Distance::from_lyr(1.)));
         bright_star.set_luminous_intensity(Some(absolute_magnitude_to_luminous_intensity(-10.)));
         system.overwrite_star_data(Some(17), bright_star);
@@ -267,7 +267,7 @@ mod tests {
 
     #[test]
     fn star_index_is_correct_after_sorting() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         for star in BRIGHTEST_STARS.iter().rev() {
             system.add_star_from_data(star.to_star_data());
         }
