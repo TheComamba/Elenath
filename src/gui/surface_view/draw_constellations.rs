@@ -58,9 +58,8 @@ impl SurfaceViewState {
             a: 0.5,
         };
 
-        for connection in connections(&appearances) {
-            let i = connection.0;
-            let j = connection.1;
+        for connection in constellation.get_connections() {
+            let (i, j) = connection.get_indices();
             let p_i = frame.center() + appearances[i].center_offset;
             let p_j = frame.center() + appearances[j].center_offset;
             let stroke = Stroke {
