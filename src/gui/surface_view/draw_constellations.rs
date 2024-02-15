@@ -70,20 +70,6 @@ impl SurfaceViewState {
             }
         }
 
-        // let outline = Path::new(|b| {
-        //     for appearance in &appearances {
-        //         let position = frame.center() + appearance.center_offset;
-        //         let radius = appearance.radius * 50.;
-        //         b.circle(position, radius);
-        //     }
-        // });
-        // let stroke = Stroke {
-        //     style: Style::Solid(color),
-        //     width: 1.,
-        //     ..Default::default()
-        // };
-        // frame.stroke(&outline, stroke);
-
         let center = weighted_average_position(&appearances);
         let position = frame.center() + center;
         if contains_workaround(&bounds, position) {
@@ -101,36 +87,6 @@ impl SurfaceViewState {
     }
 }
 
-fn find_nearest_neighbour(
-    index: usize,
-    stars: &[CanvasAppearance],
-    excluding: &Vec<usize>,
-) -> Option<usize> {
-    let mut nearest_neighbour = None;
-    let offset = stars[index].center_offset;
-    for j in 0..stars.len() {
-        if index != j && !excluding.contains(&j) {
-            let offset_j = stars[j].center_offset;
-            let distance = distance_squared(&offset, &offset_j);
-            if let Some(nn) = nearest_neighbour {
-                let nn_offset = stars[nn as usize].center_offset;
-                let nn_distance = distance_squared(&offset, &nn_offset);
-                if distance < nn_distance {
-                    nearest_neighbour = Some(j);
-                }
-            } else {
-                nearest_neighbour = Some(j);
-            }
-        }
-    }
-    nearest_neighbour
-}
-
-fn distance_squared(offset_i: &Vector, offset_j: &Vector) -> f32 {
-    let diff = offset_i.clone() - offset_j.clone();
-    diff.x.powi(2) + diff.y.powi(2)
-}
-
 fn weighted_average_position(stars: &[Option<CanvasAppearance>]) -> Vector {
     let mut sum = Vector::new(0., 0.);
     let mut total_weight = 0.;
@@ -142,33 +98,4 @@ fn weighted_average_position(stars: &[Option<CanvasAppearance>]) -> Vector {
         }
     }
     sum * (1. / total_weight)
-}
-
-fn connections(stars: &[CanvasAppearance]) -> Vec<(usize, usize)> {
-    prims_algorithm(stars)
-}
-
-fn prims_algorithm(stars: &[CanvasAppearance]) -> Vec<(usize, usize)> {
-    let mut connections = Vec::new();
-    if stars.len() < 2 {
-        return connections;
-    }
-    let mut visited = vec![0];
-    while visited.len() < stars.len() {
-        let mut current_best = (0, 0, f32::MAX);
-        for i in &visited {
-            let nn = find_nearest_neighbour(*i, stars, &visited);
-            if let Some(nn) = nn {
-                let offset_i = stars[*i].center_offset;
-                let offset_nn = stars[nn].center_offset;
-                let distance_squared = distance_squared(&offset_i, &offset_nn);
-                if distance_squared < current_best.2 {
-                    current_best = (*i, nn, distance_squared);
-                }
-            }
-        }
-        connections.push((current_best.0, current_best.1));
-        visited.push(current_best.1);
-    }
-    connections
 }
