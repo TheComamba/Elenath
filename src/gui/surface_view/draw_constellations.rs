@@ -7,7 +7,7 @@ use crate::{
     model::celestial_system::CelestialSystem,
 };
 use astro_utils::stars::{
-    constellation::{collect_constellations, Constellation},
+    constellation::constellation::{collect_constellations, Constellation},
     star_data::StarData,
 };
 use iced::{
@@ -44,12 +44,11 @@ impl SurfaceViewState {
         constellation: Constellation,
         viewport: &Viewport,
     ) {
-        let appearances: Vec<_> = constellation
+        let appearances = constellation
             .get_stars()
             .iter()
             .map(|s| CanvasAppearance::from_star_appearance(&s, viewport))
-            .filter_map(|a| a)
-            .collect();
+            .collect::<Vec<_>>();
 
         let color = Color {
             r: 1.,
@@ -60,13 +59,15 @@ impl SurfaceViewState {
 
         for connection in constellation.get_connections() {
             let (i, j) = connection.get_indices();
-            let p_i = frame.center() + appearances[i].center_offset;
-            let p_j = frame.center() + appearances[j].center_offset;
-            let stroke = Stroke {
-                style: Style::Solid(Color::WHITE),
-                ..Default::default()
-            };
-            frame.stroke(&Path::line(p_i, p_j), stroke);
+            if let (Some(star_i), Some(star_j)) = (&appearances[i], &appearances[j]) {
+                let p_i = frame.center() + star_i.center_offset;
+                let p_j = frame.center() + star_j.center_offset;
+                let stroke = Stroke {
+                    style: Style::Solid(Color::WHITE),
+                    ..Default::default()
+                };
+                frame.stroke(&Path::line(p_i, p_j), stroke);
+            }
         }
 
         // let outline = Path::new(|b| {
@@ -130,13 +131,15 @@ fn distance_squared(offset_i: &Vector, offset_j: &Vector) -> f32 {
     diff.x.powi(2) + diff.y.powi(2)
 }
 
-fn weighted_average_position(stars: &[CanvasAppearance]) -> Vector {
+fn weighted_average_position(stars: &[Option<CanvasAppearance>]) -> Vector {
     let mut sum = Vector::new(0., 0.);
     let mut total_weight = 0.;
     for star in stars {
-        let weight = star.radius.powi(2) * star.color.a;
-        sum = sum + star.center_offset * weight;
-        total_weight += weight;
+        if let Some(star) = star {
+            let weight = star.radius.powi(2) * star.color.a;
+            sum = sum + star.center_offset * weight;
+            total_weight += weight;
+        }
     }
     sum * (1. / total_weight)
 }
