@@ -32,6 +32,7 @@ pub(crate) struct StarDialog {
     star_dialog_type: StarDialogType,
     star: StarData,
     star_index: Option<usize>,
+    time_since_epoch: Time<f64>,
     mass_string: String,
     radius_string: String,
     luminosity_string: String,
@@ -49,7 +50,7 @@ enum StarDialogType {
 }
 
 impl StarDialog {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(time_since_epoch: Time<f64>) -> Self {
         let mut dialog = StarDialog {
             star_dialog_type: StarDialogType::New,
             star: StarData::new(
@@ -65,6 +66,7 @@ impl StarDialog {
                 StarDataEvolution::NONE,
             ),
             star_index: None,
+            time_since_epoch,
             mass_string: String::new(),
             radius_string: String::new(),
             luminosity_string: String::new(),
@@ -78,11 +80,16 @@ impl StarDialog {
         dialog
     }
 
-    pub(crate) fn edit(star: StarData, star_index: Option<usize>) -> Self {
+    pub(crate) fn edit(
+        star: StarData,
+        star_index: Option<usize>,
+        time_since_epoch: Time<f64>,
+    ) -> Self {
         let mut dialog = StarDialog {
             star_dialog_type: StarDialogType::Edit,
             star,
             star_index,
+            time_since_epoch,
             mass_string: String::new(),
             radius_string: String::new(),
             luminosity_string: String::new(),
@@ -146,56 +153,56 @@ impl StarDialog {
             &Some(self.star.get_name()),
         );
         let mass = edit(
-            "Mass",
+            "Mass at epoch",
             &self.mass_string,
             "Solar Masses",
             StarDialogEvent::MassChanged,
             self.star.get_mass_at_epoch(),
         );
         let radius = edit(
-            "Radius",
+            "Radius at epoch",
             &self.radius_string,
             "Solar Radii",
             StarDialogEvent::RadiusChanged,
             self.star.get_radius_at_epoch(),
         );
         let luminosity = edit(
-            "Luminosity",
+            "Luminosity at epoch",
             &self.luminosity_string,
             "mag",
             StarDialogEvent::LuminosityChanged,
             self.star.get_luminous_intensity_at_epoch(),
         );
         let temperature = edit(
-            "Temperature",
+            "Temperature at epoch",
             &self.temperature_string,
             "K",
             StarDialogEvent::TemperatureChanged,
             &Some(self.star.get_temperature_at_epoch()),
         );
         let age = edit(
-            "Age",
+            "Age at epoch",
             &self.age_string,
             "Gyr",
             StarDialogEvent::AgeChanged,
             self.star.get_age_at_epoch(),
         );
         let distance = edit(
-            "Distance",
+            "Distance at epoch",
             &self.distance_string,
             "ly",
             StarDialogEvent::DistanceChanged,
             &Some(self.star.get_distance_at_epoch()),
         );
         let longitude = edit(
-            "Longitude",
+            "Longitude at epoch",
             &self.longitude_string,
             "°",
             StarDialogEvent::LongitudeChanged,
             &Some(self.star.get_pos_at_epoch().get_longitude()),
         );
         let latitude = edit(
-            "Latitude",
+            "Latitude at epoch",
             &self.latitude_string,
             "°",
             StarDialogEvent::LatitudeChanged,
@@ -243,9 +250,73 @@ impl StarDialog {
         let color =
             Text::new("Color: ".to_string() + &appearance.get_color_at_epoch().astro_display());
 
+        let current_mass = Text::new(
+            "Current Mass: ".to_string()
+                + &self.star.get_mass(self.time_since_epoch).astro_display(),
+        );
+
+        let current_radius = Text::new(
+            "Current Radius: ".to_string()
+                + &self.star.get_radius(self.time_since_epoch).astro_display(),
+        );
+
+        let current_temperature = Text::new(
+            "Current Temperature: ".to_string()
+                + &self
+                    .star
+                    .get_temperature(self.time_since_epoch)
+                    .astro_display(),
+        );
+
+        let current_luminous_intensity = Text::new(
+            "Current Luminous Intensity: ".to_string()
+                + &self
+                    .star
+                    .get_luminous_intensity(self.time_since_epoch)
+                    .astro_display(),
+        );
+
+        let current_age = Text::new(
+            "Current Age: ".to_string() + &self.star.get_age(self.time_since_epoch).astro_display(),
+        );
+
+        let current_distance = Text::new(
+            "Current Distance: ".to_string()
+                + &self
+                    .star
+                    .get_distance(self.time_since_epoch)
+                    .astro_display(),
+        );
+
+        let current_longitude = Text::new(
+            "Current Longitude: ".to_string()
+                + &self
+                    .star
+                    .get_pos(self.time_since_epoch)
+                    .get_longitude()
+                    .astro_display(),
+        );
+
+        let current_latitude = Text::new(
+            "Current Latitude: ".to_string()
+                + &self
+                    .star
+                    .get_pos(self.time_since_epoch)
+                    .get_latitude()
+                    .astro_display(),
+        );
+
         Column::new()
             .push(illuminance)
             .push(color)
+            .push(current_mass)
+            .push(current_radius)
+            .push(current_temperature)
+            .push(current_luminous_intensity)
+            .push(current_age)
+            .push(current_distance)
+            .push(current_longitude)
+            .push(current_latitude)
             .spacing(PADDING)
             .width(iced::Length::Fill)
             .align_items(Alignment::Center)
