@@ -192,7 +192,7 @@ mod tests {
     use astro_utils::{
         real_data::{
             planets::*,
-            stars::{BRIGHTEST_STARS, SUN},
+            stars::{all::get_many_stars, SUN},
         },
         units::luminous_intensity::absolute_magnitude_to_luminous_intensity,
     };
@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn central_body_has_distance_none() {
-        for star in BRIGHTEST_STARS.iter() {
+        for star in get_many_stars().iter() {
             let system = CelestialSystem::new(SystemType::Real, star.to_star_data());
             assert!(system.get_central_body_data().get_distance().is_none());
         }
@@ -234,7 +234,7 @@ mod tests {
     #[test]
     fn stars_are_sorted_by_brightness() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in BRIGHTEST_STARS.iter().rev() {
+        for star in get_many_stars().iter().rev() {
             system.add_star_from_data(star.to_star_data());
         }
         let stars = system.get_stars();
@@ -249,7 +249,7 @@ mod tests {
     #[test]
     fn edited_stars_are_sorted_by_brightness() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in BRIGHTEST_STARS.iter() {
+        for star in get_many_stars().iter() {
             system.add_star_from_data(star.to_star_data());
         }
         let mut bright_star = SUN.to_star_data();
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn star_index_is_correct_after_sorting() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in BRIGHTEST_STARS.iter().rev() {
+        for star in get_many_stars().iter().rev() {
             system.add_star_from_data(star.to_star_data());
         }
         for (i, star) in system.get_stars().iter().enumerate() {

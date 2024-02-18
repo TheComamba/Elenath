@@ -1,7 +1,7 @@
 use super::celestial_system::{CelestialSystem, SystemType};
 use crate::error::ElenathError;
 use astro_utils::{
-    real_data::{planets::*, stars::*},
+    real_data::{planets::*, stars::all::get_many_stars, stars::SUN},
     stars::{
         gaia_data::fetch_brightest_stars,
         random_stars::{generate_random_star, generate_random_stars},
@@ -28,7 +28,7 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, Elen
     system.add_planet_data(NEPTUNE.to_planet_data());
     system.add_planet_data(PLUTO.to_planet_data());
 
-    for data in BRIGHTEST_STARS.iter() {
+    for data in get_many_stars().iter() {
         system.add_star_from_data(data.to_star_data());
     }
 
