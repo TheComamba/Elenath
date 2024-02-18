@@ -21,16 +21,12 @@ const MAX_ROWS: usize = 250;
 
 pub(crate) struct TableViewState {
     pub(crate) displayed_body_type: BodyType,
-    planet_col_data: Vec<TableColData<Planet>>,
-    star_col_data: Vec<TableColData<Star>>,
 }
 
 impl TableViewState {
     pub(crate) fn new() -> TableViewState {
         TableViewState {
             displayed_body_type: BodyType::Planet,
-            planet_col_data: TableColData::default_planet_col_data(),
-            star_col_data: TableColData::default_star_col_data(),
         }
     }
 
@@ -40,46 +36,61 @@ impl TableViewState {
         stars: Vec<Star>,
         is_system_loaded: bool,
     ) -> Element<'_, GuiMessage> {
-        let planet_table_width =
-            Length::Fixed(self.planet_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
-        let planet_table = Scrollable::new(
-            Column::new()
-                .push(table_header(
+        let table = match self.displayed_body_type {
+            BodyType::Planet => {
+                let planet_col_data = TableColData::default_planet_col_data();
+                table(
+                    planet_col_data,
+                    is_system_loaded,
+                    planets,
                     GuiMessage::NewPlanetDialog,
-                    &self.planet_col_data,
+                )
+            }
+            BodyType::Star => {
+                let star_col_data = TableColData::default_star_col_data();
+                table(
+                    star_col_data,
                     is_system_loaded,
-                ))
-                .push(Container::new(Rule::horizontal(10)).width(planet_table_width))
-                .push(table(planets, &self.planet_col_data)),
-        )
-        .direction(Direction::Horizontal(Properties::default()))
-        .width(Length::Fill)
-        .height(Length::Fill);
-
-        let star_table_width =
-            Length::Fixed(self.star_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
-        let star_table = Scrollable::new(
-            Column::new()
-                .push(table_header(
+                    stars,
                     GuiMessage::NewStarDialog,
-                    &self.star_col_data,
-                    is_system_loaded,
-                ))
-                .push(Container::new(Rule::horizontal(10)).width(star_table_width))
-                .push(table(stars, &self.star_col_data)),
-        )
-        .direction(Direction::Horizontal(Properties::default()))
-        .width(Length::Fill)
-        .height(Length::Fill);
+                )
+            }
+        };
 
         Column::new()
             .push(body_type_selection_tabs())
-            .push(planet_table)
-            .push(star_table)
+            .push(table)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
+}
+
+fn table<T>(
+    col_data: Vec<TableColData<T>>,
+    is_system_loaded: bool,
+    bodies: Vec<T>,
+    new_message: GuiMessage,
+) -> Scrollable<'static, GuiMessage>
+where
+    T: PartOfCelestialSystem,
+{
+    let width = table_width(&col_data);
+    Scrollable::new(
+        Column::new()
+            .push(table_header(new_message, &col_data, is_system_loaded))
+            .push(Container::new(Rule::horizontal(10)).width(width))
+            .push(table_contents(bodies, col_data)),
+    )
+    .direction(Direction::Horizontal(Properties::default()))
+    .width(Length::Fill)
+    .height(Length::Fill)
+}
+
+fn table_width<T>(table_col_data: &[TableColData<T>]) -> Length {
+    let planet_table_width =
+        Length::Fixed(table_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
+    planet_table_width
 }
 
 fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
@@ -98,17 +109,21 @@ fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
         .push(star_button)
         .align_items(Alignment::Center)
         .spacing(PADDING)
+        .padding(PADDING)
         .into()
 }
 
-fn table<T>(bodies: Vec<T>, table_col_data: &[TableColData<T>]) -> Element<'_, GuiMessage>
+fn table_contents<T>(
+    bodies: Vec<T>,
+    table_col_data: Vec<TableColData<T>>,
+) -> Element<'static, GuiMessage>
 where
     T: PartOfCelestialSystem,
 {
     let mut col = Column::new();
     let length = bodies.len();
     for (sorting_index, body) in bodies.into_iter().enumerate().take(MAX_ROWS) {
-        col = col.push(table_row(sorting_index, body, table_col_data));
+        col = col.push(table_row(sorting_index, body, &table_col_data));
     }
     if length > MAX_ROWS {
         col = col.push(Text::new(format!("... and {} more", length - MAX_ROWS)));
@@ -140,8 +155,8 @@ fn table_header<T>(
 fn table_row<T>(
     sorting_index: usize,
     data: T,
-    table_col_data: &[TableColData<T>],
-) -> Row<'_, GuiMessage>
+    table_col_data: &Vec<TableColData<T>>,
+) -> Row<'static, GuiMessage>
 where
     T: PartOfCelestialSystem,
 {
