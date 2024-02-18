@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Copy)]
 pub(crate) enum BodyType {
     Planet,
     Star,

@@ -1,6 +1,6 @@
 use super::col_data::TableColData;
 use crate::{
-    gui::message::GuiMessage,
+    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button},
     model::{
         part_of_celestial_system::{BodyType, PartOfCelestialSystem},
         planet::Planet,
@@ -20,6 +20,7 @@ const BUTTON_CELL_WIDTH: f32 = 50.;
 const MAX_ROWS: usize = 250;
 
 pub(crate) struct TableViewState {
+    pub(crate) displayed_body_type: BodyType,
     planet_col_data: Vec<TableColData<Planet>>,
     star_col_data: Vec<TableColData<Star>>,
 }
@@ -27,6 +28,7 @@ pub(crate) struct TableViewState {
 impl TableViewState {
     pub(crate) fn new() -> TableViewState {
         TableViewState {
+            displayed_body_type: BodyType::Planet,
             planet_col_data: TableColData::default_planet_col_data(),
             star_col_data: TableColData::default_star_col_data(),
         }
@@ -71,12 +73,32 @@ impl TableViewState {
         .height(Length::Fill);
 
         Column::new()
+            .push(body_type_selection_tabs())
             .push(planet_table)
             .push(star_table)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
+}
+
+fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
+    let planet_button = std_button(
+        "Planets",
+        GuiMessage::TableViewBodyTypeSelected(BodyType::Planet),
+        true,
+    );
+    let star_button = std_button(
+        "Stars",
+        GuiMessage::TableViewBodyTypeSelected(BodyType::Star),
+        true,
+    );
+    Row::new()
+        .push(planet_button)
+        .push(star_button)
+        .align_items(Alignment::Center)
+        .spacing(PADDING)
+        .into()
 }
 
 fn table<T>(bodies: Vec<T>, table_col_data: &[TableColData<T>]) -> Element<'_, GuiMessage>

@@ -7,6 +7,7 @@ use super::{
     top_view::widget::TopViewUpdate,
 };
 use crate::error::ElenathError;
+use crate::model::part_of_celestial_system::BodyType;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::planets::derived_data::DerivedPlanetData;
 use astro_utils::planets::planet_data::PlanetData;
@@ -36,6 +37,7 @@ pub(crate) enum GuiMessage {
     PlanetSelected(String),
     SetDisplayNames(bool),
     SetDisplayConstellations(bool),
+    TableViewBodyTypeSelected(BodyType),
     DialogClosed,
     ErrorEncountered(ElenathError),
 }
@@ -166,6 +168,9 @@ impl Gui {
             }
             GuiMessage::SetDisplayConstellations(display_constellations) => {
                 self.display_constellations = display_constellations;
+            }
+            GuiMessage::TableViewBodyTypeSelected(body_type) => {
+                self.table_view_state.displayed_body_type = body_type;
             }
             GuiMessage::DialogClosed => {
                 self.dialog = None;

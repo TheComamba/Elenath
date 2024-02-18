@@ -53,7 +53,11 @@ impl Gui {
     }
 }
 
-fn std_button(text: &str, message: GuiMessage, is_enabled: bool) -> Button<'_, GuiMessage> {
+pub(crate) fn std_button(
+    text: &str,
+    message: GuiMessage,
+    is_enabled: bool,
+) -> Button<'_, GuiMessage> {
     let mut button = Button::new(
         Text::new(text)
             .horizontal_alignment(Horizontal::Center)
