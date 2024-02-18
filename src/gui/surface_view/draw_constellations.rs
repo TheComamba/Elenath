@@ -6,10 +6,7 @@ use crate::{
     },
     model::celestial_system::CelestialSystem,
 };
-use astro_utils::stars::{
-    constellation::constellation::{collect_constellations, Constellation},
-    star_data::StarData,
-};
+use astro_utils::stars::constellation::constellation::Constellation;
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{Frame, Path, Stroke, Style, Text},
@@ -24,15 +21,7 @@ impl SurfaceViewState {
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
     ) {
-        let stars: Vec<StarData> = celestial_system
-            .get_stars()
-            .iter()
-            .map(|s| s.get_data())
-            .filter_map(|s| s)
-            .cloned()
-            .collect();
-
-        for constellation in collect_constellations(&stars[..]) {
+        for constellation in celestial_system.get_constellations() {
             self.draw_constellation(frame, bounds, constellation, &viewport);
         }
     }
@@ -41,7 +30,7 @@ impl SurfaceViewState {
         &self,
         frame: &mut Frame,
         bounds: Rectangle,
-        constellation: Constellation,
+        constellation: &Constellation,
         viewport: &Viewport,
     ) {
         let appearances = constellation

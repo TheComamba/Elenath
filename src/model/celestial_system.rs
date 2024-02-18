@@ -3,7 +3,10 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
-        gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
+        constellation::constellation::{collect_constellations, Constellation},
+        gaia_data::star_is_already_known,
+        star_appearance::StarAppearance,
+        star_data::StarData,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -16,6 +19,7 @@ pub(crate) struct CelestialSystem {
     central_body: StarData,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
+    constellations: Vec<Constellation>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
@@ -32,6 +36,7 @@ impl CelestialSystem {
             central_body,
             planets: vec![],
             distant_stars: vec![],
+            constellations: vec![],
         }
     }
 
@@ -72,7 +77,7 @@ impl CelestialSystem {
         let index = self.distant_stars.len();
         self.distant_stars
             .push(Star::from_data(star_data, Some(index)));
-        self.sort_stars_by_brightness();
+        self.process_stars();
     }
 
     pub(crate) fn add_star_appearances_without_duplicates(
@@ -87,7 +92,7 @@ impl CelestialSystem {
                     .push(Star::from_appearance(star_appearance, Some(index)));
             }
         }
-        self.sort_stars_by_brightness();
+        self.process_stars();
     }
 
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
@@ -95,7 +100,12 @@ impl CelestialSystem {
             Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
             None => self.central_body = star_data,
         }
+        self.process_stars();
+    }
+
+    fn process_stars(&mut self) {
         self.sort_stars_by_brightness();
+        self.update_constellations();
     }
 
     fn sort_stars_by_brightness(&mut self) {
@@ -108,6 +118,17 @@ impl CelestialSystem {
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
             star.set_index(i);
         }
+    }
+
+    fn update_constellations(&mut self) {
+        let stars: Vec<StarData> = self
+            .get_stars()
+            .iter()
+            .map(|s| s.get_data())
+            .filter_map(|s| s)
+            .cloned()
+            .collect();
+        self.constellations = collect_constellations(&stars[..]);
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
@@ -181,6 +202,10 @@ impl CelestialSystem {
             Some(index) => self.distant_stars.get(index).and_then(|s| s.get_data()),
             None => Some(&self.central_body),
         }
+    }
+
+    pub(crate) fn get_constellations(&self) -> &Vec<Constellation> {
+        &self.constellations
     }
 }
 
