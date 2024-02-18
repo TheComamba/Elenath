@@ -1,100 +1,29 @@
-use super::{
-    star_canvas_appearance::StarCanvasAppearance,
-    surface_view_widget::SurfaceViewState,
-    viewport::{observer_normal, Viewport},
-};
+use super::{canvas_appearance::CanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
 use crate::{
-    gui::shared_canvas_functionality::{
-        contains_workaround, display_info_text, draw_background, draw_name,
-    },
+    gui::shared_canvas_functionality::{contains_workaround, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 use astro_utils::{
-    coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
-    },
-    stars::star_appearance::StarAppearance,
+    coordinates::cartesian::CartesianCoordinates, stars::star_appearance::StarAppearance,
 };
 use iced::{
-    widget::canvas::{self, Path},
+    widget::canvas::{self, Frame, Path},
     Color, Point, Rectangle,
 };
 use simple_si_units::base::{Distance, Time};
 
 impl SurfaceViewState {
-    fn observer_position(
+    pub(super) fn draw_bodies(
         &self,
-        selected_planet: &Planet,
-        observer_normal: &Direction,
-    ) -> CartesianCoordinates {
-        let body_radius = selected_planet.get_data().get_radius();
-        selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
-    }
-
-    pub(crate) fn canvas(
-        &self,
-        renderer: &iced::Renderer,
-        bounds: iced::Rectangle,
-        selected_planet: &Option<Planet>,
-        celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
-        display_names: bool,
-    ) -> Vec<canvas::Geometry> {
-        let background = self
-            .background_cache
-            .draw(renderer, bounds.size(), |frame| {
-                draw_background(bounds, frame);
-            });
-
-        let bodies = self.bodies_cache.draw(renderer, bounds.size(), |frame| {
-            if let Some(celestial_system) = celestial_system {
-                if let Some(selected_planet) = selected_planet {
-                    self.draw_bodies(
-                        frame,
-                        bounds,
-                        selected_planet,
-                        celestial_system,
-                        time_since_epoch,
-                        display_names,
-                    );
-                } else {
-                    display_info_text(frame, "Please select a planet.");
-                }
-            } else {
-                display_info_text(frame, "Please load or generate a celestial system.");
-            }
-        });
-
-        vec![background, bodies]
-    }
-
-    fn draw_bodies(
-        &self,
-        frame: &mut canvas::Frame,
+        frame: &mut Frame,
         bounds: Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
         time_since_epoch: Time<f64>,
         display_names: bool,
+        viewport: &Viewport,
+        observer_position: &CartesianCoordinates,
     ) {
-        let surface_position =
-            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude);
-        let observer_normal = observer_normal(
-            selected_planet.get_data(),
-            surface_position,
-            time_since_epoch,
-        );
-        let observer_position = self.observer_position(selected_planet, &observer_normal);
-        let observer_view_direction =
-            SphericalCoordinates::new(self.view_longitude, self.view_latitude);
-        let viewport = Viewport::calculate(
-            &observer_normal,
-            &observer_view_direction,
-            self.viewport_opening_angle,
-            selected_planet.get_data().get_rotation_axis(),
-            bounds,
-        );
-
         for distant_star in celestial_system.get_distant_star_appearances() {
             self.draw_star(
                 frame,
@@ -144,7 +73,7 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let canvas_appearance = StarCanvasAppearance::from_star_appearance(star, viewport);
+        let canvas_appearance = CanvasAppearance::from_star_appearance(star, viewport);
         self.draw_body(
             frame,
             bounds,
@@ -167,7 +96,7 @@ impl SurfaceViewState {
         display_names: bool,
     ) {
         let canvas_appearance =
-            StarCanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
+            CanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
         self.draw_body(
             frame,
             bounds,
@@ -190,12 +119,8 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         display_names: bool,
     ) {
-        let canvas_appearance = StarCanvasAppearance::from_planet(
-            celestial_system,
-            planet,
-            viewport,
-            observer_position,
-        );
+        let canvas_appearance =
+            CanvasAppearance::from_planet(celestial_system, planet, viewport, observer_position);
         self.draw_body(
             frame,
             bounds,
@@ -211,7 +136,7 @@ impl SurfaceViewState {
         &self,
         frame: &mut canvas::Frame,
         bounds: iced::Rectangle,
-        canvas_appearance: &Option<StarCanvasAppearance>,
+        canvas_appearance: &Option<CanvasAppearance>,
         radius: &Option<Distance<f64>>,
         pixel_per_viewport_width: f32,
         display_names: bool,
@@ -244,9 +169,9 @@ impl SurfaceViewState {
         }
     }
 
-    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &StarCanvasAppearance) {
+    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &CanvasAppearance) {
         // Radial gradients are not yet impelemented in iced.
-        let mut step_width = StarCanvasAppearance::MIN_RADIUS;
+        let mut step_width = CanvasAppearance::MIN_RADIUS;
         const MAX_STEPS: i32 = 100;
         let mut steps = (0.99 * canvas_appearance.radius / step_width).ceil() as i32;
         if steps > MAX_STEPS {

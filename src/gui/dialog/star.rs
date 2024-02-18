@@ -49,7 +49,8 @@ impl StarDialog {
         let mut dialog = StarDialog {
             star_dialog_type: StarDialogType::New,
             star: StarData::new(
-                "".to_string(),
+                String::new(),
+                None,
                 None,
                 None,
                 None,
@@ -197,6 +198,13 @@ impl StarDialog {
             StarDialogEvent::LatitudeChanged,
             &Some(self.star.get_pos().get_latitude()),
         );
+        let constellation = edit(
+            "Constellation",
+            &self.star.get_constellation().clone().unwrap_or_default(),
+            "",
+            StarDialogEvent::ConstellationChanged,
+            &self.star.get_constellation(),
+        );
 
         let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
 
@@ -209,7 +217,11 @@ impl StarDialog {
             .push(temperature)
             .push(age);
         if !self.is_central_body() {
-            col = col.push(distance).push(longitude).push(latitude);
+            col = col
+                .push(distance)
+                .push(longitude)
+                .push(latitude)
+                .push(constellation);
         }
         col.push(submit_button)
             .spacing(PADDING)
@@ -264,6 +276,7 @@ pub(crate) enum StarDialogEvent {
     DistanceChanged(String),
     LongitudeChanged(String),
     LatitudeChanged(String),
+    ConstellationChanged(String),
     Randomize,
     Submit,
 }
@@ -332,6 +345,13 @@ impl Component<GuiMessage, Renderer> for StarDialog {
                     self.star.set_pos(pos);
                 }
                 self.latitude_string = latitude_string;
+            }
+            StarDialogEvent::ConstellationChanged(constellation) => {
+                if constellation.is_empty() {
+                    self.star.set_constellation(None);
+                } else {
+                    self.star.set_constellation(Some(constellation));
+                }
             }
             StarDialogEvent::Randomize => {
                 let max_distance = Distance::from_lyr(2000.);

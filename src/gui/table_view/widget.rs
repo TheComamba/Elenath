@@ -1,4 +1,4 @@
-use super::table_col_data::TableColData;
+use super::col_data::TableColData;
 use crate::{
     gui::message::GuiMessage,
     model::{

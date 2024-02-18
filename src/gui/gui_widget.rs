@@ -1,8 +1,7 @@
 use super::{
     dialog::error::ErrorDialog, message::GuiMessage,
-    shared_widgets::surface_and_top_view_shared_control,
-    surface_view::surface_view_widget::SurfaceViewState,
-    table_view::table_view_widget::TableViewState, top_view::top_view_widget::TopViewState, Gui,
+    shared_widgets::surface_and_top_view_shared_control, surface_view::widget::SurfaceViewState,
+    table_view::widget::TableViewState, top_view::widget::TopViewState, Gui,
 };
 use iced::{
     widget::{canvas, Column, Container, Row, Text},
@@ -37,6 +36,7 @@ impl Sandbox for Gui {
             celestial_system: None,
             selected_planet_name: String::new(),
             display_names: true,
+            display_constellations: false,
             dialog: None,
         }
     }
@@ -84,6 +84,7 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 &self.celestial_system,
                 self.time_since_epoch,
                 self.display_names,
+                self.display_constellations,
             ),
             GuiViewMode::Top => self.top_view_state.canvas(
                 renderer,
@@ -120,6 +121,7 @@ impl Gui {
                         self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
+                        self.display_constellations,
                     ))
                     .push(self.surface_view_state.control_field());
                 col = col.push(control_row).push(
@@ -136,6 +138,7 @@ impl Gui {
                         self.get_planet_data(),
                         self.get_selected_planet_data(),
                         self.display_names,
+                        self.display_constellations,
                     ))
                     .push(self.top_view_state.control_field());
                 col = col.push(control_row).push(

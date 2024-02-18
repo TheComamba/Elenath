@@ -3,8 +3,8 @@ use super::dialog::star::StarDialog;
 use super::gui_widget::GuiViewMode;
 use super::Gui;
 use super::{
-    dialog::new_system::NewSystemDialog, surface_view::surface_view_widget::SurfaceViewUpdate,
-    top_view::top_view_widget::TopViewUpdate,
+    dialog::new_system::NewSystemDialog, surface_view::widget::SurfaceViewUpdate,
+    top_view::widget::TopViewUpdate,
 };
 use crate::error::ElenathError;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
@@ -34,7 +34,8 @@ pub(crate) enum GuiMessage {
     UpdateTime(Time<f64>),
     UpdateTimeStep(Time<f64>),
     PlanetSelected(String),
-    SetShowNames(bool),
+    SetDisplayNames(bool),
+    SetDisplayConstellations(bool),
     DialogClosed,
     ErrorEncountered(ElenathError),
 }
@@ -108,7 +109,7 @@ impl Gui {
                 self.celestial_system
                     .as_mut()
                     .ok_or(ElenathError::NoCelestialSystem)?
-                    .add_star_from_data(star);
+                    .add_stars_from_data(vec![star]);
                 self.dialog = None;
             }
             GuiMessage::StarEdited(index, star_data) => {
@@ -160,8 +161,11 @@ impl Gui {
             GuiMessage::PlanetSelected(name) => {
                 self.selected_planet_name = name;
             }
-            GuiMessage::SetShowNames(display_names) => {
+            GuiMessage::SetDisplayNames(display_names) => {
                 self.display_names = display_names;
+            }
+            GuiMessage::SetDisplayConstellations(display_constellations) => {
+                self.display_constellations = display_constellations;
             }
             GuiMessage::DialogClosed => {
                 self.dialog = None;

@@ -3,7 +3,10 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
-        gaia_data::star_is_already_known, star_appearance::StarAppearance, star_data::StarData,
+        constellation::constellation::{collect_constellations, Constellation},
+        gaia_data::star_is_already_known,
+        star_appearance::StarAppearance,
+        star_data::StarData,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -16,6 +19,7 @@ pub(crate) struct CelestialSystem {
     central_body: StarData,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
+    constellations: Vec<Constellation>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
@@ -32,6 +36,7 @@ impl CelestialSystem {
             central_body,
             planets: vec![],
             distant_stars: vec![],
+            constellations: vec![],
         }
     }
 
@@ -68,11 +73,12 @@ impl CelestialSystem {
         });
     }
 
-    pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
+    pub(crate) fn add_stars_from_data(&mut self, star_data: Vec<StarData>) {
         let index = self.distant_stars.len();
-        self.distant_stars
-            .push(Star::from_data(star_data, Some(index)));
-        self.sort_stars_by_brightness();
+        for data in star_data {
+            self.distant_stars.push(Star::from_data(data, Some(index)));
+        }
+        self.process_stars();
     }
 
     pub(crate) fn add_star_appearances_without_duplicates(
@@ -87,7 +93,7 @@ impl CelestialSystem {
                     .push(Star::from_appearance(star_appearance, Some(index)));
             }
         }
-        self.sort_stars_by_brightness();
+        self.process_stars();
     }
 
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
@@ -95,7 +101,12 @@ impl CelestialSystem {
             Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
             None => self.central_body = star_data,
         }
+        self.process_stars();
+    }
+
+    fn process_stars(&mut self) {
         self.sort_stars_by_brightness();
+        self.update_constellations();
     }
 
     fn sort_stars_by_brightness(&mut self) {
@@ -108,6 +119,17 @@ impl CelestialSystem {
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
             star.set_index(i);
         }
+    }
+
+    fn update_constellations(&mut self) {
+        let stars: Vec<StarData> = self
+            .get_stars()
+            .iter()
+            .map(|s| s.get_data())
+            .filter_map(|s| s)
+            .cloned()
+            .collect();
+        self.constellations = collect_constellations(&stars[..]);
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
@@ -182,6 +204,10 @@ impl CelestialSystem {
             None => Some(&self.central_body),
         }
     }
+
+    pub(crate) fn get_constellations(&self) -> &Vec<Constellation> {
+        &self.constellations
+    }
 }
 
 #[cfg(test)]
@@ -192,7 +218,7 @@ mod tests {
     use astro_utils::{
         real_data::{
             planets::*,
-            stars::{BRIGHTEST_STARS, SUN_DATA},
+            stars::{all::get_many_stars, SUN},
         },
         units::luminous_intensity::absolute_magnitude_to_luminous_intensity,
     };
@@ -200,7 +226,7 @@ mod tests {
 
     #[test]
     fn planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         system.add_planet_data(VENUS.to_planet_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(MARS.to_planet_data());
@@ -214,7 +240,7 @@ mod tests {
 
     #[test]
     fn edited_planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(EARTH.to_planet_data());
         system.overwrite_planet_data(0, JUPITER.to_planet_data());
@@ -225,7 +251,7 @@ mod tests {
 
     #[test]
     fn central_body_has_distance_none() {
-        for star in BRIGHTEST_STARS.iter() {
+        for star in get_many_stars().iter() {
             let system = CelestialSystem::new(SystemType::Real, star.to_star_data());
             assert!(system.get_central_body_data().get_distance().is_none());
         }
@@ -233,10 +259,13 @@ mod tests {
 
     #[test]
     fn stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
-        for star in BRIGHTEST_STARS.iter().rev() {
-            system.add_star_from_data(star.to_star_data());
-        }
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let reverse_stars = get_many_stars()
+            .iter()
+            .rev()
+            .map(|s| s.to_star_data())
+            .collect();
+        system.add_stars_from_data(reverse_stars);
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
@@ -248,11 +277,10 @@ mod tests {
 
     #[test]
     fn edited_stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
-        for star in BRIGHTEST_STARS.iter() {
-            system.add_star_from_data(star.to_star_data());
-        }
-        let mut bright_star = SUN_DATA.to_star_data();
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+        system.add_stars_from_data(stars);
+        let mut bright_star = SUN.to_star_data();
         bright_star.set_distance(Some(Distance::from_lyr(1.)));
         bright_star.set_luminous_intensity(Some(absolute_magnitude_to_luminous_intensity(-10.)));
         system.overwrite_star_data(Some(17), bright_star);
@@ -267,10 +295,13 @@ mod tests {
 
     #[test]
     fn star_index_is_correct_after_sorting() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN_DATA.to_star_data());
-        for star in BRIGHTEST_STARS.iter().rev() {
-            system.add_star_from_data(star.to_star_data());
-        }
+        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let reversed_stars = get_many_stars()
+            .iter()
+            .rev()
+            .map(|s| s.to_star_data())
+            .collect();
+        system.add_stars_from_data(reversed_stars);
         for (i, star) in system.get_stars().iter().enumerate() {
             if i == 0 {
                 assert_eq!(star.get_index(), None);

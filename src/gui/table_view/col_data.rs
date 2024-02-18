@@ -250,6 +250,13 @@ impl TableColData<Star> {
                     Some(latitude.astro_display())
                 }),
             },
+            TableColData {
+                header: "Const.",
+                content_closure: Box::new(|body| {
+                    let constellation = body.get_data()?.get_constellation().clone()?;
+                    Some(constellation.astro_display())
+                }),
+            },
         ]
     }
 }
