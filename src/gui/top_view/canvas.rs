@@ -7,7 +7,7 @@ use crate::{
 };
 use astro_utils::{
     astro_display::AstroDisplay,
-    color::sRGBColor,
+    color::srgb::sRGBColor,
     coordinates::{
         cartesian::CartesianCoordinates, direction::Direction,
         transformations::rotations::get_rotation_parameters,
@@ -102,6 +102,7 @@ impl TopViewState {
             &view_rotation_axis,
             offset,
             display_names,
+            time_since_epoch,
         );
 
         for planet in celestial_system
@@ -134,15 +135,12 @@ impl TopViewState {
         view_rotation_axis: &Direction,
         offset: iced::Vector,
         display_names: bool,
+        time_since_epoch: Time<f64>,
     ) {
-        //TODO: draw central body
         let data = celestial_system.get_central_body_data();
         let pos3d = CartesianCoordinates::ORIGIN;
-        let color = match data.get_temperature() {
-            Some(temperature) => sRGBColor::from_temperature(*temperature),
-            None => sRGBColor::from_sRGB(1., 1., 1.),
-        };
-        let radius = data.get_radius().unwrap_or(DISTANCE_ZERO);
+        let color = sRGBColor::from_temperature(data.get_temperature(time_since_epoch));
+        let radius = data.get_radius(time_since_epoch).unwrap_or(DISTANCE_ZERO);
         self.draw_body(
             frame,
             bounds,

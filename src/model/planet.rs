@@ -21,7 +21,7 @@ impl Planet {
         time: Time<f64>,
         index: Option<usize>,
     ) -> Self {
-        let central_body_mass = central_body.get_mass().unwrap();
+        let central_body_mass = central_body.get_mass(time).unwrap();
         let derived_data = DerivedPlanetData::new(&data, central_body, previous);
         let pos = data.get_orbital_parameters().calculate_position(
             data.get_mass(),

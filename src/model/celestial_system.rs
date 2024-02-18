@@ -8,6 +8,7 @@ use astro_utils::{
         star_appearance::StarAppearance,
         star_data::StarData,
     },
+    units::distance::DISTANCE_ZERO,
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
@@ -30,7 +31,7 @@ pub(crate) enum SystemType {
 
 impl CelestialSystem {
     pub(crate) fn new(system_type: SystemType, mut central_body: StarData) -> Self {
-        central_body.set_distance(None);
+        central_body.set_distance_at_epoch(DISTANCE_ZERO);
         CelestialSystem {
             system_type,
             central_body,
@@ -112,8 +113,8 @@ impl CelestialSystem {
     fn sort_stars_by_brightness(&mut self) {
         self.distant_stars.sort_by(|a, b| {
             b.get_appearance()
-                .get_illuminance()
-                .partial_cmp(&a.get_appearance().get_illuminance())
+                .get_illuminance_at_epoch()
+                .partial_cmp(&a.get_appearance().get_illuminance_at_epoch())
                 .unwrap()
         });
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
@@ -144,8 +145,8 @@ impl CelestialSystem {
         let relative_position = -observer_pos;
         let distance = relative_position.length();
         let pos = relative_position.to_ecliptic();
-        body.set_distance(Some(distance));
-        body.set_pos(pos);
+        body.set_distance_at_epoch(distance);
+        body.set_pos_at_epoch(pos);
         body.to_star_appearance()
     }
 
@@ -250,10 +251,10 @@ mod tests {
     }
 
     #[test]
-    fn central_body_has_distance_none() {
+    fn central_body_has_distance_zero() {
         for star in get_many_stars().iter() {
             let system = CelestialSystem::new(SystemType::Real, star.to_star_data());
-            assert!(system.get_central_body_data().get_distance().is_none());
+            assert!(system.get_central_body_data().get_distance_at_epoch() < &Distance::from_m(1.));
         }
     }
 
@@ -269,8 +270,8 @@ mod tests {
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
-                stars[i].get_appearance().get_illuminance()
-                    >= stars[i + 1].get_appearance().get_illuminance()
+                stars[i].get_appearance().get_illuminance_at_epoch()
+                    >= stars[i + 1].get_appearance().get_illuminance_at_epoch()
             );
         }
     }
@@ -281,14 +282,15 @@ mod tests {
         let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
         system.add_stars_from_data(stars);
         let mut bright_star = SUN.to_star_data();
-        bright_star.set_distance(Some(Distance::from_lyr(1.)));
-        bright_star.set_luminous_intensity(Some(absolute_magnitude_to_luminous_intensity(-10.)));
+        bright_star.set_distance_at_epoch(Distance::from_lyr(1.));
+        bright_star
+            .set_luminous_intensity_at_epoch(Some(absolute_magnitude_to_luminous_intensity(-10.)));
         system.overwrite_star_data(Some(17), bright_star);
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
-                stars[i].get_appearance().get_illuminance()
-                    >= stars[i + 1].get_appearance().get_illuminance()
+                stars[i].get_appearance().get_illuminance_at_epoch()
+                    >= stars[i + 1].get_appearance().get_illuminance_at_epoch()
             );
         }
     }

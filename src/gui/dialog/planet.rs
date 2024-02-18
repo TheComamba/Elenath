@@ -2,7 +2,7 @@ use super::Dialog;
 use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 use astro_utils::{
     astro_display::AstroDisplay,
-    color::sRGBColor,
+    color::srgb::sRGBColor,
     coordinates::direction::Direction,
     planets::{
         derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
