@@ -73,10 +73,11 @@ impl CelestialSystem {
         });
     }
 
-    pub(crate) fn add_star_from_data(&mut self, star_data: StarData) {
+    pub(crate) fn add_stars_from_data(&mut self, star_data: Vec<StarData>) {
         let index = self.distant_stars.len();
-        self.distant_stars
-            .push(Star::from_data(star_data, Some(index)));
+        for data in star_data {
+            self.distant_stars.push(Star::from_data(data, Some(index)));
+        }
         self.process_stars();
     }
 
@@ -259,9 +260,12 @@ mod tests {
     #[test]
     fn stars_are_sorted_by_brightness() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in get_many_stars().iter().rev() {
-            system.add_star_from_data(star.to_star_data());
-        }
+        let reverse_stars = get_many_stars()
+            .iter()
+            .rev()
+            .map(|s| s.to_star_data())
+            .collect();
+        system.add_stars_from_data(reverse_stars);
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
@@ -274,9 +278,8 @@ mod tests {
     #[test]
     fn edited_stars_are_sorted_by_brightness() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in get_many_stars().iter() {
-            system.add_star_from_data(star.to_star_data());
-        }
+        let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+        system.add_stars_from_data(stars);
         let mut bright_star = SUN.to_star_data();
         bright_star.set_distance(Some(Distance::from_lyr(1.)));
         bright_star.set_luminous_intensity(Some(absolute_magnitude_to_luminous_intensity(-10.)));
@@ -293,9 +296,12 @@ mod tests {
     #[test]
     fn star_index_is_correct_after_sorting() {
         let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
-        for star in get_many_stars().iter().rev() {
-            system.add_star_from_data(star.to_star_data());
-        }
+        let reversed_stars = get_many_stars()
+            .iter()
+            .rev()
+            .map(|s| s.to_star_data())
+            .collect();
+        system.add_stars_from_data(reversed_stars);
         for (i, star) in system.get_stars().iter().enumerate() {
             if i == 0 {
                 assert_eq!(star.get_index(), None);

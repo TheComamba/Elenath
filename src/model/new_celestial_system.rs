@@ -28,9 +28,8 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, Elen
     system.add_planet_data(NEPTUNE.to_planet_data());
     system.add_planet_data(PLUTO.to_planet_data());
 
-    for data in get_many_stars().iter() {
-        system.add_star_from_data(data.to_star_data());
-    }
+    let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+    system.add_stars_from_data(stars);
 
     if load_gaia_data {
         let stars = fetch_brightest_stars()?;
@@ -52,9 +51,7 @@ pub(crate) fn generated_system(
     let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
 
     let distant_stars = generate_random_stars(max_distance)?;
-    for star in distant_stars {
-        system.add_star_from_data(star);
-    }
+    system.add_stars_from_data(distant_stars);
 
     Ok(system)
 }

@@ -109,7 +109,7 @@ impl Gui {
                 self.celestial_system
                     .as_mut()
                     .ok_or(ElenathError::NoCelestialSystem)?
-                    .add_star_from_data(star);
+                    .add_stars_from_data(vec![star]);
                 self.dialog = None;
             }
             GuiMessage::StarEdited(index, star_data) => {
