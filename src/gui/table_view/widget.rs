@@ -17,7 +17,7 @@ use iced::{
 
 const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
-const MAX_ROWS: usize = 100;
+const MAX_ROWS: usize = 250;
 
 pub(crate) struct TableViewState {
     planet_col_data: Vec<TableColData<Planet>>,
@@ -38,7 +38,8 @@ impl TableViewState {
         stars: Vec<Star>,
         is_system_loaded: bool,
     ) -> Element<'_, GuiMessage> {
-        let planet_table_width = Length::Fixed(self.planet_col_data.len() as f32 * CELL_WIDTH);
+        let planet_table_width =
+            Length::Fixed(self.planet_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
         let planet_table = Scrollable::new(
             Column::new()
                 .push(table_header(
@@ -53,7 +54,8 @@ impl TableViewState {
         .width(Length::Fill)
         .height(Length::Fill);
 
-        let star_table_width = Length::Fixed(self.star_col_data.len() as f32 * CELL_WIDTH);
+        let star_table_width =
+            Length::Fixed(self.star_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
         let star_table = Scrollable::new(
             Column::new()
                 .push(table_header(
@@ -83,8 +85,8 @@ where
 {
     let mut col = Column::new();
     let length = bodies.len();
-    for body in bodies.into_iter().take(MAX_ROWS) {
-        col = col.push(table_row(body, table_col_data));
+    for (sorting_index, body) in bodies.into_iter().enumerate().take(MAX_ROWS) {
+        col = col.push(table_row(sorting_index, body, table_col_data));
     }
     if length > MAX_ROWS {
         col = col.push(Text::new(format!("... and {} more", length - MAX_ROWS)));
@@ -104,15 +106,20 @@ fn table_header<T>(
     if is_system_loaded {
         new_button = new_button.on_press(new_dialog_message);
     }
-    let mut row =
-        Row::new().push(Container::new(new_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)));
+    let mut row = Row::new()
+        .push(Container::new(new_button).width(Length::Fixed(BUTTON_CELL_WIDTH)))
+        .push(Container::new(Text::new("")).width(Length::Fixed(BUTTON_CELL_WIDTH)));
     for col in table_col_data {
         row = row.push(table_cell(Text::new(col.header).into()));
     }
     row.align_items(Alignment::Center)
 }
 
-fn table_row<T>(data: T, table_col_data: &[TableColData<T>]) -> Row<'_, GuiMessage>
+fn table_row<T>(
+    sorting_index: usize,
+    data: T,
+    table_col_data: &[TableColData<T>],
+) -> Row<'_, GuiMessage>
 where
     T: PartOfCelestialSystem,
 {
@@ -128,8 +135,12 @@ where
             edit_button = edit_button.on_press(GuiMessage::EditStarDialog(data.get_index()));
         }
     }
-    let edit_button = Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH));
-    let mut row = Row::new().push(edit_button);
+    let mut row = Row::new()
+        .push(Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)))
+        .push(
+            Container::new(Text::new(format!("{}", sorting_index + 1)))
+                .width(Length::Fixed(BUTTON_CELL_WIDTH)),
+        );
     for col in table_col_data.iter() {
         let content = (col.content_closure)(&data).unwrap_or("N/A".to_string());
         row = row.push(table_cell(Text::new(content).into()));
