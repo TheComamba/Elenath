@@ -251,38 +251,34 @@ impl StarDialog {
             Text::new("Color: ".to_string() + &appearance.get_color_at_epoch().astro_display());
 
         let mass_per_year = Text::new(
-            "Mass Change per Year: ".to_string()
-                + &self
-                    .star
-                    .get_evolution()
-                    .get_lifestage_mass_per_year()
+            "Mass Change per Millenium: ".to_string()
+                + &(self.star.get_evolution().get_lifestage_mass_per_year() * 1000.)
                     .astro_display(),
         );
 
         let radius_per_year: Text = Text::new(
-            "Radius Change per Year: ".to_string()
-                + &self
-                    .star
-                    .get_evolution()
-                    .get_lifestage_radius_per_year()
+            "Radius Change per Millenium: ".to_string()
+                + &(self.star.get_evolution().get_lifestage_radius_per_year() * 1000.)
                     .astro_display(),
         );
 
         let temperature_per_year: Text = Text::new(
-            "Temperature Change per Year: ".to_string()
-                + &self
+            "Temperature Change per Millenium: ".to_string()
+                + &(self
                     .star
                     .get_evolution()
                     .get_lifestage_temperature_per_year()
+                    * 1000.)
                     .astro_display(),
         );
 
         let luminous_intensity_per_year = Text::new(
-            "Luminous Intensity Change per Year: ".to_string()
-                + &self
+            "Luminous Intensity Change per Millenium: ".to_string()
+                + &(self
                     .star
                     .get_evolution()
                     .get_lifestage_luminous_intensity_per_year()
+                    * 1000.)
                     .astro_display(),
         );
 
