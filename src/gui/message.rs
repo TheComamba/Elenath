@@ -96,7 +96,7 @@ impl Gui {
                 self.dialog = None;
             }
             GuiMessage::NewStarDialog => {
-                self.dialog = Some(Box::new(StarDialog::new()));
+                self.dialog = Some(Box::new(StarDialog::new(self.time_since_epoch)));
             }
             GuiMessage::EditStarDialog(index) => {
                 let star = self
@@ -105,7 +105,11 @@ impl Gui {
                     .ok_or(ElenathError::NoCelestialSystem)?
                     .get_star_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
-                self.dialog = Some(Box::new(StarDialog::edit(star.clone(), index)));
+                self.dialog = Some(Box::new(StarDialog::edit(
+                    star.clone(),
+                    index,
+                    self.time_since_epoch,
+                )));
             }
             GuiMessage::NewStar(star) => {
                 self.celestial_system
