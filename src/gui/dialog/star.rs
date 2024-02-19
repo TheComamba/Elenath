@@ -2,7 +2,7 @@ use astro_utils::{
     astro_display::AstroDisplay,
     coordinates::ecliptic::EclipticCoordinates,
     stars::{
-        random_stars::generate_random_star, star_data::StarData,
+        random::random_stars::generate_random_star, star_data::StarData,
         star_data_evolution::StarDataEvolution,
     },
     units::{
@@ -250,6 +250,42 @@ impl StarDialog {
         let color =
             Text::new("Color: ".to_string() + &appearance.get_color_at_epoch().astro_display());
 
+        let mass_per_year = Text::new(
+            "Mass Change per Year: ".to_string()
+                + &self
+                    .star
+                    .get_evolution()
+                    .get_lifestage_mass_per_year()
+                    .astro_display(),
+        );
+
+        let radius_per_year: Text = Text::new(
+            "Radius Change per Year: ".to_string()
+                + &self
+                    .star
+                    .get_evolution()
+                    .get_lifestage_radius_per_year()
+                    .astro_display(),
+        );
+
+        let temperature_per_year: Text = Text::new(
+            "Temperature Change per Year: ".to_string()
+                + &self
+                    .star
+                    .get_evolution()
+                    .get_lifestage_temperature_per_year()
+                    .astro_display(),
+        );
+
+        let luminous_intensity_per_year = Text::new(
+            "Luminous Intensity Change per Year: ".to_string()
+                + &self
+                    .star
+                    .get_evolution()
+                    .get_lifestage_luminous_intensity_per_year()
+                    .astro_display(),
+        );
+
         let current_mass = Text::new(
             "Current Mass: ".to_string()
                 + &self.star.get_mass(self.time_since_epoch).astro_display(),
@@ -309,6 +345,10 @@ impl StarDialog {
         Column::new()
             .push(illuminance)
             .push(color)
+            .push(mass_per_year)
+            .push(radius_per_year)
+            .push(temperature_per_year)
+            .push(luminous_intensity_per_year)
             .push(current_mass)
             .push(current_radius)
             .push(current_temperature)

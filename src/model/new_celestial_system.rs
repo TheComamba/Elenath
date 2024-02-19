@@ -1,11 +1,11 @@
 use super::celestial_system::{CelestialSystem, SystemType};
 use crate::error::ElenathError;
 use astro_utils::{
-    real_data::{planets::*, stars::all::get_many_stars, stars::SUN},
-    stars::{
-        gaia_data::fetch_brightest_stars,
-        random_stars::{generate_random_star, generate_random_stars},
+    real_data::{
+        planets::*,
+        stars::{all::get_many_stars, SUN},
     },
+    stars::{gaia_data::fetch_brightest_stars, random::random_stars::*},
 };
 use simple_si_units::base::Distance;
 
