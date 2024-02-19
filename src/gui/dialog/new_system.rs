@@ -30,6 +30,7 @@ pub(crate) enum GenerationDistance {
     Fast,
     Decent,
     Realistic,
+    VeryFar,
 }
 
 impl NewSystemDialog {
@@ -58,6 +59,7 @@ fn max_generation_distance(distance: GenerationDistance) -> Distance<f64> {
         GenerationDistance::Fast => Distance::from_lyr(100.0),
         GenerationDistance::Decent => Distance::from_lyr(800.0),
         GenerationDistance::Realistic => Distance::from_parsec(1000.0),
+        GenerationDistance::VeryFar => Distance::from_lyr(25_000.0),
     }
 }
 
@@ -190,10 +192,21 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     NewSystemDialogEvent::MaxGenerationDistanceChanged,
                 )
                 .width(SMALL_COLUMN_WIDTH);
+                let very_far_distance_radio = Radio::new(
+                    format!(
+                        "Very Far\n{}",
+                        max_generation_distance(GenerationDistance::VeryFar).astro_display()
+                    ),
+                    GenerationDistance::VeryFar,
+                    Some(self.generation_distance),
+                    NewSystemDialogEvent::MaxGenerationDistanceChanged,
+                )
+                .width(SMALL_COLUMN_WIDTH);
                 let generation_distance_row = Row::new()
                     .push(fast_distance_radio)
                     .push(decent_distance_radio)
                     .push(realistic_distance_radio)
+                    .push(very_far_distance_radio)
                     .padding(PADDING)
                     .spacing(PADDING);
 
