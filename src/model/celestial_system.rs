@@ -87,7 +87,11 @@ impl CelestialSystem {
         star_appearances: Vec<StarAppearance>,
     ) {
         for star_appearance in star_appearances {
-            let known_stars = self.get_distant_star_appearances();
+            let known_stars: Vec<StarAppearance> = self
+                .get_distant_star_appearances()
+                .into_iter()
+                .cloned()
+                .collect();
             if !star_is_already_known(&star_appearance, &known_stars[..]) {
                 let index = self.distant_stars.len();
                 self.distant_stars

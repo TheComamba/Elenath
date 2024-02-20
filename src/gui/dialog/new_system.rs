@@ -27,7 +27,6 @@ pub(crate) struct NewSystemDialog {
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub(crate) enum GenerationDistance {
-    Fast,
     Decent,
     Realistic,
     VeryFar,
@@ -39,7 +38,7 @@ impl NewSystemDialog {
             system_type: SystemType::Real,
             load_gaia_data: false,
             generated_central_body: GeneratedCentralBody::Sun,
-            generation_distance: GenerationDistance::Fast,
+            generation_distance: GenerationDistance::Decent,
         }
     }
 
@@ -56,9 +55,8 @@ impl NewSystemDialog {
 
 fn max_generation_distance(distance: GenerationDistance) -> Distance<f64> {
     match distance {
-        GenerationDistance::Fast => Distance::from_lyr(100.0),
-        GenerationDistance::Decent => Distance::from_lyr(800.0),
-        GenerationDistance::Realistic => Distance::from_parsec(1000.0),
+        GenerationDistance::Decent => Distance::from_lyr(1000.0),
+        GenerationDistance::Realistic => Distance::from_lyr(5000.0),
         GenerationDistance::VeryFar => Distance::from_lyr(25_000.0),
     }
 }
@@ -162,16 +160,6 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                     .padding(PADDING)
                     .spacing(PADDING);
 
-                let fast_distance_radio = Radio::new(
-                    format!(
-                        "Fast\n{}",
-                        max_generation_distance(GenerationDistance::Fast).astro_display()
-                    ),
-                    GenerationDistance::Fast,
-                    Some(self.generation_distance),
-                    NewSystemDialogEvent::MaxGenerationDistanceChanged,
-                )
-                .width(SMALL_COLUMN_WIDTH);
                 let decent_distance_radio = Radio::new(
                     format!(
                         "Decent\n{}",
@@ -203,7 +191,6 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
                 )
                 .width(SMALL_COLUMN_WIDTH);
                 let generation_distance_row = Row::new()
-                    .push(fast_distance_radio)
                     .push(decent_distance_radio)
                     .push(realistic_distance_radio)
                     .push(very_far_distance_radio)
