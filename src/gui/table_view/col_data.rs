@@ -6,6 +6,12 @@ pub(super) struct TableColData<T> {
     pub(super) content_closure: Box<dyn Fn(&T) -> Option<String>>,
 }
 
+#[derive(Debug, Clone)]
+pub(crate) enum TableDataType {
+    Planet,
+    Star,
+}
+
 impl TableColData<Planet> {
     pub(super) fn default_planet_col_data() -> Vec<TableColData<Planet>> {
         vec![

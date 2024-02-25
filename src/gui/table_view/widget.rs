@@ -1,4 +1,4 @@
-use super::col_data::TableColData;
+use super::col_data::{TableColData, TableDataType};
 use crate::{
     gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button},
     model::{
@@ -20,13 +20,13 @@ const BUTTON_CELL_WIDTH: f32 = 50.;
 const MAX_ROWS: usize = 250;
 
 pub(crate) struct TableViewState {
-    pub(crate) displayed_body_type: BodyType,
+    pub(crate) displayed_body_type: TableDataType,
 }
 
 impl TableViewState {
     pub(crate) fn new() -> TableViewState {
         TableViewState {
-            displayed_body_type: BodyType::Planet,
+            displayed_body_type: TableDataType::Planet,
         }
     }
 
@@ -37,7 +37,7 @@ impl TableViewState {
         is_system_loaded: bool,
     ) -> Element<'_, GuiMessage> {
         let table = match self.displayed_body_type {
-            BodyType::Planet => {
+            TableDataType::Planet => {
                 let planet_col_data = TableColData::default_planet_col_data();
                 table(
                     planet_col_data,
@@ -46,7 +46,7 @@ impl TableViewState {
                     GuiMessage::NewPlanetDialog,
                 )
             }
-            BodyType::Star => {
+            TableDataType::Star => {
                 let star_col_data = TableColData::default_star_col_data();
                 table(
                     star_col_data,
@@ -96,12 +96,12 @@ fn table_width<T>(table_col_data: &[TableColData<T>]) -> Length {
 fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
     let planet_button = std_button(
         "Planets",
-        GuiMessage::TableViewBodyTypeSelected(BodyType::Planet),
+        GuiMessage::TableDataTypeSelected(TableDataType::Planet),
         true,
     );
     let star_button = std_button(
         "Stars",
-        GuiMessage::TableViewBodyTypeSelected(BodyType::Star),
+        GuiMessage::TableDataTypeSelected(TableDataType::Star),
         true,
     );
     Row::new()
