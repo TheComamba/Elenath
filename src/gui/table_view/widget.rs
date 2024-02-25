@@ -7,6 +7,7 @@ use crate::{
         star::Star,
     },
 };
+use astro_utils::{stars::fate::StarFate, units::time::TIME_ZERO};
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
@@ -55,10 +56,36 @@ impl TableViewState {
                     GuiMessage::NewStarDialog,
                 )
             }
+            TableDataType::Supernova => {
+                let supernova_col_data = TableColData::default_supernova_col_data();
+                let mut supernovae: Vec<Star> = stars
+                    .into_iter()
+                    .filter(|s| {
+                        if let Some(data) = s.get_data() {
+                            data.get_fate() == &StarFate::TypeIISupernova
+                        } else {
+                            false
+                        }
+                    })
+                    .collect();
+                supernovae.sort_by(|a, b| {
+                    a.get_data()
+                        .unwrap()
+                        .get_time_until_death(TIME_ZERO)
+                        .partial_cmp(&b.get_data().unwrap().get_time_until_death(TIME_ZERO))
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
+                table(
+                    supernova_col_data,
+                    is_system_loaded,
+                    supernovae,
+                    GuiMessage::NewStarDialog,
+                )
+            }
         };
 
         Column::new()
-            .push(body_type_selection_tabs())
+            .push(data_type_selection_tabs())
             .push(table)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)
@@ -93,7 +120,7 @@ fn table_width<T>(table_col_data: &[TableColData<T>]) -> Length {
     planet_table_width
 }
 
-fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
+fn data_type_selection_tabs() -> Element<'static, GuiMessage> {
     let planet_button = std_button(
         "Planets",
         GuiMessage::TableDataTypeSelected(TableDataType::Planet),
@@ -104,9 +131,15 @@ fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
         GuiMessage::TableDataTypeSelected(TableDataType::Star),
         true,
     );
+    let supernova_button = std_button(
+        "Supernovae",
+        GuiMessage::TableDataTypeSelected(TableDataType::Supernova),
+        true,
+    );
     Row::new()
         .push(planet_button)
         .push(star_button)
+        .push(supernova_button)
         .align_items(Alignment::Center)
         .spacing(PADDING)
         .padding(PADDING)

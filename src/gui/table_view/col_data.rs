@@ -1,5 +1,5 @@
 use crate::model::{planet::Planet, star::Star};
-use astro_utils::astro_display::AstroDisplay;
+use astro_utils::{astro_display::AstroDisplay, units::time::TIME_ZERO};
 
 pub(super) struct TableColData<T> {
     pub(super) header: &'static str,
@@ -10,6 +10,7 @@ pub(super) struct TableColData<T> {
 pub(crate) enum TableDataType {
     Planet,
     Star,
+    Supernova,
 }
 
 impl TableColData<Planet> {
@@ -273,6 +274,45 @@ impl TableColData<Star> {
                 content_closure: Box::new(|body| {
                     let fate = body.get_data()?.get_fate();
                     Some(fate.astro_display())
+                }),
+            },
+        ]
+    }
+
+    pub(super) fn default_supernova_col_data() -> Vec<TableColData<Star>> {
+        vec![
+            TableColData {
+                header: "Star Name",
+                content_closure: Box::new(|body| {
+                    let name = body.get_appearance().get_name();
+                    Some(name.to_string())
+                }),
+            },
+            TableColData {
+                header: "Time Until Death",
+                content_closure: Box::new(|body| {
+                    let time_until_death = body.get_data()?.get_time_until_death(TIME_ZERO)?;
+                    Some(time_until_death.astro_display())
+                }),
+            },
+            TableColData {
+                header: "Mass",
+                content_closure: Box::new(|body| {
+                    let mass = (*body.get_data()?.get_mass_at_epoch())?;
+                    Some(mass.astro_display())
+                }),
+            },
+            TableColData {
+                header: "Distance",
+                content_closure: Box::new(|body| {
+                    Some(body.get_data()?.get_distance_at_epoch().astro_display())
+                }),
+            },
+            TableColData {
+                header: "Vis. Mag.",
+                content_closure: Box::new(|body| {
+                    let illuminance = body.get_appearance().get_illuminance_at_epoch();
+                    Some(illuminance.astro_display())
                 }),
             },
         ]
