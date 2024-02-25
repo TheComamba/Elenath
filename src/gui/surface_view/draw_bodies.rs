@@ -1,16 +1,18 @@
-use super::{canvas_appearance::CanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
-use crate::{
-    gui::shared_canvas_functionality::{contains_workaround, draw_name},
-    model::{celestial_system::CelestialSystem, planet::Planet},
-};
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates, stars::star_appearance::StarAppearance,
+    coordinates::cartesian::CartesianCoordinates, stars::appearance::StarAppearance,
 };
 use iced::{
     widget::canvas::{self, Frame, Path},
     Color, Point, Rectangle,
 };
 use simple_si_units::base::{Distance, Time};
+
+use crate::{
+    gui::shared_canvas_functionality::{contains_workaround, draw_name},
+    model::{celestial_system::CelestialSystem, planet::Planet},
+};
+
+use super::{canvas_appearance::CanvasAppearance, viewport::Viewport, widget::SurfaceViewState};
 
 impl SurfaceViewState {
     pub(super) fn draw_bodies(

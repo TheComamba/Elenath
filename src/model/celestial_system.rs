@@ -3,10 +3,11 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
+        appearance::StarAppearance,
         constellation::constellation::{collect_constellations, Constellation},
+        data::StarData,
+        fate::StarFate,
         gaia_data::star_is_already_known,
-        star_appearance::StarAppearance,
-        star_data::StarData,
     },
     units::distance::DISTANCE_ZERO,
 };
@@ -212,6 +213,28 @@ impl CelestialSystem {
 
     pub(crate) fn get_constellations(&self) -> &Vec<Constellation> {
         &self.constellations
+    }
+
+    pub(crate) fn get_supernovae(&self, time_since_epoch: Time<f64>) -> Vec<Star> {
+        let mut supernovae: Vec<Star> = self
+            .get_stars()
+            .into_iter()
+            .filter(|s| {
+                if let Some(data) = s.get_data() {
+                    data.get_fate() == &StarFate::TypeIISupernova
+                } else {
+                    false
+                }
+            })
+            .collect();
+        supernovae.sort_by(|a, b| {
+            a.get_data()
+                .unwrap()
+                .get_time_until_death(time_since_epoch)
+                .partial_cmp(&b.get_data().unwrap().get_time_until_death(time_since_epoch))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        supernovae
     }
 }
 

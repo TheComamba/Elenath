@@ -2,8 +2,8 @@ use astro_utils::{
     astro_display::AstroDisplay,
     coordinates::ecliptic::EclipticCoordinates,
     stars::{
-        random::random_stars::generate_random_star, star_data::StarData,
-        star_data_evolution::StarDataEvolution,
+        data::StarData, data_evolution::StarDataEvolution,
+        random::random_stars::generate_random_star,
     },
     units::{
         distance::{distance_to_sun_radii, DISTANCE_ZERO, SOLAR_RADIUS},
@@ -60,7 +60,6 @@ impl StarDialog {
                 None,
                 None,
                 TEMPERATURE_ZERO,
-                None,
                 DISTANCE_ZERO,
                 EclipticCoordinates::Z_DIRECTION,
                 StarDataEvolution::NONE,

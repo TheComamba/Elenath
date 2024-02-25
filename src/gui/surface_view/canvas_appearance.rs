@@ -4,7 +4,7 @@ use super::viewport::Viewport;
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     coordinates::transformations::relative_direction::direction_relative_to_normal,
-    stars::star_appearance::StarAppearance,
+    stars::appearance::StarAppearance,
 };
 use iced::{Color, Vector};
 use simple_si_units::{base::Time, electromagnetic::Illuminance};
@@ -112,26 +112,23 @@ fn offset(
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        gui::surface_view::{canvas_appearance::CanvasAppearance, viewport::Viewport},
-        model::celestial_system::{CelestialSystem, SystemType},
-    };
     use astro_utils::{
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,
         coordinates::{direction::Direction, ecliptic::EclipticCoordinates},
         planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
         real_data::stars::SUN,
-        stars::{
-            star_appearance::StarAppearance, star_appearance_evolution::StarAppearanceEvolution,
-        },
+        stars::appearance_evolution::StarAppearanceEvolution,
         units::{
             angle::ANGLE_ZERO, distance::EARTH_RADIUS,
             illuminance::apparent_magnitude_to_illuminance, mass::EARTH_MASS, time::TIME_ZERO,
         },
     };
-    use iced::Vector;
-    use simple_si_units::{base::Distance, electromagnetic::Illuminance, geometry::Angle};
+    use simple_si_units::{base::Distance, geometry::Angle};
+
+    use crate::model::celestial_system::SystemType;
+
+    use super::*;
 
     const SOME_ILLUMINANCE: Illuminance<f64> = Illuminance { lux: 100. };
     const SOME_COLOR: sRGBColor = sRGBColor::from_sRGB(0., 1., 0.);

@@ -2,7 +2,7 @@ use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::{derived_data::DerivedPlanetData, planet_data::PlanetData},
-    stars::star_data::StarData,
+    stars::data::StarData,
 };
 use simple_si_units::base::Time;
 

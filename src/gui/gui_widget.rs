@@ -148,19 +148,10 @@ impl Gui {
                 )
             }
             GuiViewMode::Table => {
-                let (planets, stars) = match &self.celestial_system {
-                    Some(system) => {
-                        let planets = system.get_planets_at_time(self.time_since_epoch);
-                        let stars = system.get_stars().into_iter().collect();
-                        (planets, stars)
-                    }
-                    None => (Vec::new(), Vec::new()),
-                };
-                col = col.push(self.table_view_state.table_view(
-                    planets,
-                    stars,
-                    self.celestial_system.is_some(),
-                ));
+                col = col.push(
+                    self.table_view_state
+                        .table_view(&self.celestial_system, self.time_since_epoch),
+                );
             }
         }
 

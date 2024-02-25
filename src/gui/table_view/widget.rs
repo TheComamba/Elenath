@@ -1,10 +1,9 @@
-use super::col_data::TableColData;
+use super::col_data::{TableColData, TableDataType};
 use crate::{
     gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button},
     model::{
+        celestial_system::CelestialSystem,
         part_of_celestial_system::{BodyType, PartOfCelestialSystem},
-        planet::Planet,
-        star::Star,
     },
 };
 use iced::{
@@ -14,53 +13,52 @@ use iced::{
     },
     Alignment, Element, Length,
 };
+use simple_si_units::base::Time;
 
 const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
 const MAX_ROWS: usize = 250;
 
 pub(crate) struct TableViewState {
-    pub(crate) displayed_body_type: BodyType,
+    pub(crate) displayed_body_type: TableDataType,
 }
 
 impl TableViewState {
     pub(crate) fn new() -> TableViewState {
         TableViewState {
-            displayed_body_type: BodyType::Planet,
+            displayed_body_type: TableDataType::Planet,
         }
     }
 
     pub(crate) fn table_view(
         &self,
-        planets: Vec<Planet>,
-        stars: Vec<Star>,
-        is_system_loaded: bool,
+        system: &Option<CelestialSystem>,
+        time_since_epoch: Time<f64>,
     ) -> Element<'_, GuiMessage> {
-        let table = match self.displayed_body_type {
-            BodyType::Planet => {
-                let planet_col_data = TableColData::default_planet_col_data();
-                table(
-                    planet_col_data,
-                    is_system_loaded,
-                    planets,
-                    GuiMessage::NewPlanetDialog,
-                )
-            }
-            BodyType::Star => {
-                let star_col_data = TableColData::default_star_col_data();
-                table(
-                    star_col_data,
-                    is_system_loaded,
-                    stars,
-                    GuiMessage::NewStarDialog,
-                )
-            }
-        };
+        let mut col = Column::new().push(data_type_selection_tabs());
 
-        Column::new()
-            .push(body_type_selection_tabs())
-            .push(table)
-            .width(iced::Length::Fill)
+        if let Some(system) = system {
+            let table = match self.displayed_body_type {
+                TableDataType::Planet => {
+                    let planet_col_data = TableColData::default_planet_col_data();
+                    let planets = system.get_planets_at_time(time_since_epoch);
+                    table(planet_col_data, planets, GuiMessage::NewPlanetDialog)
+                }
+                TableDataType::Star => {
+                    let star_col_data = TableColData::default_star_col_data();
+                    let stars = system.get_stars();
+                    table(star_col_data, stars, GuiMessage::NewStarDialog)
+                }
+                TableDataType::Supernova => {
+                    let supernova_col_data = TableColData::default_supernova_col_data();
+                    let supernovae = system.get_supernovae(time_since_epoch);
+                    table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
+                }
+            };
+            col = col.push(table);
+        }
+
+        col.width(iced::Length::Fill)
             .height(iced::Length::Fill)
             .into()
     }
@@ -68,7 +66,6 @@ impl TableViewState {
 
 fn table<T>(
     col_data: Vec<TableColData<T>>,
-    is_system_loaded: bool,
     bodies: Vec<T>,
     new_message: GuiMessage,
 ) -> Scrollable<'static, GuiMessage>
@@ -78,7 +75,7 @@ where
     let width = table_width(&col_data);
     Scrollable::new(
         Column::new()
-            .push(table_header(new_message, &col_data, is_system_loaded))
+            .push(table_header(new_message, &col_data))
             .push(Container::new(Rule::horizontal(10)).width(width))
             .push(table_contents(bodies, col_data)),
     )
@@ -93,20 +90,26 @@ fn table_width<T>(table_col_data: &[TableColData<T>]) -> Length {
     planet_table_width
 }
 
-fn body_type_selection_tabs() -> Element<'static, GuiMessage> {
+fn data_type_selection_tabs() -> Element<'static, GuiMessage> {
     let planet_button = std_button(
         "Planets",
-        GuiMessage::TableViewBodyTypeSelected(BodyType::Planet),
+        GuiMessage::TableDataTypeSelected(TableDataType::Planet),
         true,
     );
     let star_button = std_button(
         "Stars",
-        GuiMessage::TableViewBodyTypeSelected(BodyType::Star),
+        GuiMessage::TableDataTypeSelected(TableDataType::Star),
+        true,
+    );
+    let supernova_button = std_button(
+        "Supernovae",
+        GuiMessage::TableDataTypeSelected(TableDataType::Supernova),
         true,
     );
     Row::new()
         .push(planet_button)
         .push(star_button)
+        .push(supernova_button)
         .align_items(Alignment::Center)
         .spacing(PADDING)
         .padding(PADDING)
@@ -137,12 +140,9 @@ where
 fn table_header<T>(
     new_dialog_message: GuiMessage,
     table_col_data: &Vec<TableColData<T>>,
-    is_system_loaded: bool,
 ) -> Row<'static, GuiMessage> {
-    let mut new_button = Button::new("New");
-    if is_system_loaded {
-        new_button = new_button.on_press(new_dialog_message);
-    }
+    let new_button = Button::new("New").on_press(new_dialog_message);
+
     let mut row = Row::new()
         .push(Container::new(new_button).width(Length::Fixed(BUTTON_CELL_WIDTH)))
         .push(Container::new(Text::new("")).width(Length::Fixed(BUTTON_CELL_WIDTH)));
