@@ -51,7 +51,7 @@ impl TableViewState {
                 }
                 TableDataType::Supernova => {
                     let supernova_col_data = TableColData::default_supernova_col_data();
-                    let supernovae = system.get_supernovae();
+                    let supernovae = system.get_supernovae(time_since_epoch);
                     table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
                 }
             };
