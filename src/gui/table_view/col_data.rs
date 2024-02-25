@@ -255,6 +255,20 @@ impl TableColData<Star> {
                     Some(constellation.astro_display())
                 }),
             },
+            TableColData {
+                header: "Lifetime",
+                content_closure: Box::new(|body| {
+                    let lifetime = body.get_data()?.get_lifetime();
+                    Some(lifetime.astro_display())
+                }),
+            },
+            TableColData {
+                header: "Fate",
+                content_closure: Box::new(|body| {
+                    let fate = body.get_data()?.get_fate();
+                    Some(fate.astro_display())
+                }),
+            },
         ]
     }
 }
