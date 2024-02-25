@@ -11,7 +11,7 @@ use crate::model::part_of_celestial_system::BodyType;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::planets::derived_data::DerivedPlanetData;
 use astro_utils::planets::planet_data::PlanetData;
-use astro_utils::stars::star_data::StarData;
+use astro_utils::stars::data::StarData;
 use simple_si_units::base::Time;
 
 #[derive(Debug, Clone)]

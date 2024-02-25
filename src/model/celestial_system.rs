@@ -3,10 +3,10 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
+        appearance::StarAppearance,
         constellation::constellation::{collect_constellations, Constellation},
+        data::StarData,
         gaia_data::star_is_already_known,
-        star_appearance::StarAppearance,
-        star_data::StarData,
     },
     units::distance::DISTANCE_ZERO,
 };

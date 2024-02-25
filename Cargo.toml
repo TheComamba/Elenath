@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="main" }
+astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="dev/star-fate" }
 iced = { version = "0.10.0", features=["canvas", "lazy"] }
 iced_aw = { version = "0.7.0", default-features = false, features = ["card", "modal"] }
 rfd = "0.13.0" # file dialogs

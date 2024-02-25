@@ -8,7 +8,7 @@ use astro_utils::{
         derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
         planet_data::PlanetData, random_planets::generate_random_planet,
     },
-    stars::star_data::StarData,
+    stars::data::StarData,
     units::{
         angle::ANGLE_ZERO,
         distance::{distance_to_earth_radii, DISTANCE_ZERO, EARTH_RADIUS},

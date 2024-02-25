@@ -1,4 +1,4 @@
-use astro_utils::stars::{star_appearance::StarAppearance, star_data::StarData};
+use astro_utils::stars::{appearance::StarAppearance, data::StarData};
 use serde::{Deserialize, Serialize};
 
 use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
