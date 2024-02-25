@@ -6,9 +6,10 @@ use astro_utils::{
         appearance::StarAppearance,
         constellation::constellation::{collect_constellations, Constellation},
         data::StarData,
+        fate::StarFate,
         gaia_data::star_is_already_known,
     },
-    units::distance::DISTANCE_ZERO,
+    units::{distance::DISTANCE_ZERO, time::TIME_ZERO},
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
@@ -212,6 +213,28 @@ impl CelestialSystem {
 
     pub(crate) fn get_constellations(&self) -> &Vec<Constellation> {
         &self.constellations
+    }
+
+    pub(crate) fn get_supernovae(&self) -> Vec<Star> {
+        let mut supernovae: Vec<Star> = self
+            .get_stars()
+            .into_iter()
+            .filter(|s| {
+                if let Some(data) = s.get_data() {
+                    data.get_fate() == &StarFate::TypeIISupernova
+                } else {
+                    false
+                }
+            })
+            .collect();
+        supernovae.sort_by(|a, b| {
+            a.get_data()
+                .unwrap()
+                .get_time_until_death(TIME_ZERO)
+                .partial_cmp(&b.get_data().unwrap().get_time_until_death(TIME_ZERO))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+        supernovae
     }
 }
 
