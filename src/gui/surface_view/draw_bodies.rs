@@ -50,7 +50,7 @@ impl SurfaceViewState {
             time_since_epoch,
         );
 
-        for planet in celestial_system.get_planets_at_time(time_since_epoch) {
+        for planet in celestial_system.get_planets() {
             if planet.get_data() == selected_planet.get_data() {
                 continue;
             }

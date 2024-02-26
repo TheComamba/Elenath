@@ -41,7 +41,7 @@ impl TableViewState {
             let table = match self.displayed_body_type {
                 TableDataType::Planet => {
                     let planet_col_data = TableColData::default_planet_col_data();
-                    let planets = system.get_planets_at_time(time_since_epoch);
+                    let planets = system.get_planets();
                     table(planet_col_data, planets, GuiMessage::NewPlanetDialog)
                 }
                 TableDataType::Star => {
@@ -51,7 +51,7 @@ impl TableViewState {
                 }
                 TableDataType::Supernova => {
                     let supernova_col_data = TableColData::default_supernova_col_data();
-                    let supernovae = system.get_supernovae(time_since_epoch);
+                    let supernovae = system.get_supernovae();
                     table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
                 }
             };

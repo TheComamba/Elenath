@@ -105,10 +105,7 @@ impl TopViewState {
             time_since_epoch,
         );
 
-        for planet in celestial_system
-            .get_planets_at_time(time_since_epoch)
-            .iter()
-        {
+        for planet in celestial_system.get_planets().iter() {
             let data = planet.get_data();
             self.draw_body(
                 frame,

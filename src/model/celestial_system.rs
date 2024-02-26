@@ -9,7 +9,7 @@ use astro_utils::{
         fate::StarFate,
         gaia_data::star_is_already_known,
     },
-    units::distance::DISTANCE_ZERO,
+    units::{distance::DISTANCE_ZERO, time::TIME_ZERO},
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
@@ -22,6 +22,7 @@ pub(crate) struct CelestialSystem {
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
     constellations: Vec<Constellation>,
+    time_since_epoch: Time<f64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,7 +40,16 @@ impl CelestialSystem {
             planets: vec![],
             distant_stars: vec![],
             constellations: vec![],
+            time_since_epoch: TIME_ZERO,
         }
+    }
+
+    pub(crate) fn set_time_since_epoch(&mut self, time_since_epoch: Time<f64>) {
+        self.time_since_epoch = time_since_epoch;
+        for star in &mut self.distant_stars {
+            star.recalculate_appearance_if_necessary(time_since_epoch);
+        }
+        self.update_constellations();
     }
 
     pub(crate) fn write_to_file(&self, path: PathBuf) -> Result<(), std::io::Error> {
@@ -78,7 +88,8 @@ impl CelestialSystem {
     pub(crate) fn add_stars_from_data(&mut self, star_data: Vec<StarData>) {
         let index = self.distant_stars.len();
         for data in star_data {
-            self.distant_stars.push(Star::from_data(data, Some(index)));
+            self.distant_stars
+                .push(Star::from_data(data, Some(index), self.time_since_epoch));
         }
         self.process_stars();
     }
@@ -104,7 +115,10 @@ impl CelestialSystem {
 
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
         match index {
-            Some(index) => self.distant_stars[index] = Star::from_data(star_data, Some(index)),
+            Some(index) => {
+                self.distant_stars[index] =
+                    Star::from_data(star_data, Some(index), self.time_since_epoch)
+            }
             None => self.central_body = star_data,
         }
         self.process_stars();
@@ -118,8 +132,8 @@ impl CelestialSystem {
     fn sort_stars_by_brightness(&mut self) {
         self.distant_stars.sort_by(|a, b| {
             b.get_appearance()
-                .get_illuminance_at_epoch()
-                .partial_cmp(&a.get_appearance().get_illuminance_at_epoch())
+                .get_illuminance()
+                .partial_cmp(&a.get_appearance().get_illuminance())
                 .unwrap()
         });
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
@@ -135,7 +149,7 @@ impl CelestialSystem {
             .filter_map(|s| s)
             .cloned()
             .collect();
-        self.constellations = collect_constellations(&stars[..]);
+        self.constellations = collect_constellations(&stars[..], self.time_since_epoch);
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
@@ -152,7 +166,7 @@ impl CelestialSystem {
         let pos = relative_position.to_ecliptic();
         body.set_distance_at_epoch(distance);
         body.set_pos_at_epoch(pos);
-        body.to_star_appearance()
+        body.to_star_appearance(self.time_since_epoch)
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {
@@ -167,7 +181,7 @@ impl CelestialSystem {
         self.planets.get(index)
     }
 
-    pub(crate) fn get_planets_at_time(&self, time: Time<f64>) -> Vec<Planet> {
+    pub(crate) fn get_planets(&self) -> Vec<Planet> {
         let mut bodies: Vec<Planet> = Vec::new();
         for (i, planet_data) in self.planets.iter().enumerate() {
             let previous = if i > 0 {
@@ -179,7 +193,7 @@ impl CelestialSystem {
                 planet_data.clone(),
                 &self.central_body,
                 previous,
-                time,
+                self.time_since_epoch,
                 Some(i),
             );
             bodies.push(planet);
@@ -189,7 +203,11 @@ impl CelestialSystem {
 
     pub(crate) fn get_stars(&self) -> Vec<Star> {
         let mut bodies = Vec::new();
-        bodies.push(Star::from_data(self.central_body.clone(), None));
+        bodies.push(Star::from_data(
+            self.central_body.clone(),
+            None,
+            self.time_since_epoch,
+        ));
         for star in &self.distant_stars {
             bodies.push(star.clone());
         }
@@ -215,7 +233,7 @@ impl CelestialSystem {
         &self.constellations
     }
 
-    pub(crate) fn get_supernovae(&self, time_since_epoch: Time<f64>) -> Vec<Star> {
+    pub(crate) fn get_supernovae(&self) -> Vec<Star> {
         let mut supernovae: Vec<Star> = self
             .get_stars()
             .into_iter()
@@ -230,8 +248,12 @@ impl CelestialSystem {
         supernovae.sort_by(|a, b| {
             a.get_data()
                 .unwrap()
-                .get_time_until_death(time_since_epoch)
-                .partial_cmp(&b.get_data().unwrap().get_time_until_death(time_since_epoch))
+                .get_time_until_death(self.time_since_epoch)
+                .partial_cmp(
+                    &b.get_data()
+                        .unwrap()
+                        .get_time_until_death(self.time_since_epoch),
+                )
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
         supernovae
@@ -297,8 +319,8 @@ mod tests {
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
-                stars[i].get_appearance().get_illuminance_at_epoch()
-                    >= stars[i + 1].get_appearance().get_illuminance_at_epoch()
+                stars[i].get_appearance().get_illuminance()
+                    >= stars[i + 1].get_appearance().get_illuminance()
             );
         }
     }
@@ -316,8 +338,8 @@ mod tests {
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {
             assert!(
-                stars[i].get_appearance().get_illuminance_at_epoch()
-                    >= stars[i + 1].get_appearance().get_illuminance_at_epoch()
+                stars[i].get_appearance().get_illuminance()
+                    >= stars[i + 1].get_appearance().get_illuminance()
             );
         }
     }
