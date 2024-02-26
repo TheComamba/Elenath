@@ -96,19 +96,24 @@ impl Gui {
                 self.dialog = None;
             }
             GuiMessage::NewStarDialog => {
-                self.dialog = Some(Box::new(StarDialog::new(self.time_since_epoch)));
-            }
-            GuiMessage::EditStarDialog(index) => {
-                let star = self
+                let system = self
                     .celestial_system
                     .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .ok_or(ElenathError::NoCelestialSystem)?;
+                self.dialog = Some(Box::new(StarDialog::new(system.get_time_since_epoch())));
+            }
+            GuiMessage::EditStarDialog(index) => {
+                let system = &self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let star = system
                     .get_star_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
                 self.dialog = Some(Box::new(StarDialog::edit(
                     star.clone(),
                     index,
-                    self.time_since_epoch,
+                    system.get_time_since_epoch(),
                 )));
             }
             GuiMessage::NewStar(star) => {
@@ -159,7 +164,11 @@ impl Gui {
                 self.mode = mode;
             }
             GuiMessage::UpdateTime(time) => {
-                self.time_since_epoch = time;
+                let system = self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?;
+                system.set_time_since_epoch(time);
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;

@@ -26,12 +26,11 @@ impl CanvasAppearance {
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
         viewport: &Viewport,
-        time_since_epoch: Time<f64>,
     ) -> Option<CanvasAppearance> {
-        let (color, radius) = Self::color_and_radius(appearance, time_since_epoch);
+        let (color, radius) = Self::color_and_radius(appearance);
         Some(Self {
             name: appearance.get_name().to_string(),
-            center_offset: offset(appearance, viewport, time_since_epoch)?,
+            center_offset: offset(appearance, viewport)?,
             radius,
             color,
         })
@@ -41,11 +40,10 @@ impl CanvasAppearance {
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
-        time_since_epoch: Time<f64>,
     ) -> Option<CanvasAppearance> {
         let central_body_appearance =
             celestial_system.get_central_body_appearance(observer_position);
-        CanvasAppearance::from_star_appearance(&central_body_appearance, viewport, time_since_epoch)
+        CanvasAppearance::from_star_appearance(&central_body_appearance, viewport)
     }
 
     pub(super) fn from_planet(
@@ -53,13 +51,12 @@ impl CanvasAppearance {
         planet: &Planet,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
-        time_since_epoch: Time<f64>,
     ) -> Option<CanvasAppearance> {
         let planet_appearance = planet.get_data().to_star_appearance(
             celestial_system.get_central_body_data(),
             planet.get_position(),
             observer_position,
-            time_since_epoch,
+            celestial_system.get_time_since_epoch(),
         );
         let planet_appearance = match planet_appearance {
             Ok(appearance) => appearance,
@@ -68,10 +65,10 @@ impl CanvasAppearance {
             }
         };
 
-        CanvasAppearance::from_star_appearance(&planet_appearance, viewport, time_since_epoch)
+        CanvasAppearance::from_star_appearance(&planet_appearance, viewport)
     }
 
-    fn color_and_radius(body: &StarAppearance, time_since_epoch: Time<f64>) -> (Color, f32) {
+    fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
         let (r, g, b) = body.get_color().maximized_sRGB_tuple();
         let illuminance = body.get_illuminance();
         let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
@@ -92,11 +89,7 @@ impl CanvasAppearance {
     }
 }
 
-fn offset(
-    appearance: &StarAppearance,
-    viewport: &Viewport,
-    time_since_epoch: Time<f64>,
-) -> Option<Vector> {
+fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     let direction = direction_relative_to_normal(
         &appearance.get_pos().to_direction(),
         &viewport.center_direction,
@@ -162,12 +155,9 @@ mod tests {
                         center_direction.to_ecliptic(),
                         TIME_ZERO,
                     );
-                    let canvas_appearance = CanvasAppearance::from_star_appearance(
-                        &star_appearance,
-                        &viewport,
-                        TIME_ZERO,
-                    )
-                    .unwrap();
+                    let canvas_appearance =
+                        CanvasAppearance::from_star_appearance(&star_appearance, &viewport)
+                            .unwrap();
                     assert!(vecs_equal(
                         canvas_appearance.center_offset,
                         Vector { x: 0., y: 0. }
@@ -250,22 +240,16 @@ mod tests {
                                     TIME_ZERO,
                                 );
 
-                                let top = CanvasAppearance::from_star_appearance(
-                                    &top, &viewport, TIME_ZERO,
-                                )
-                                .unwrap();
-                                let left = CanvasAppearance::from_star_appearance(
-                                    &left, &viewport, TIME_ZERO,
-                                )
-                                .unwrap();
-                                let bottom = CanvasAppearance::from_star_appearance(
-                                    &bottom, &viewport, TIME_ZERO,
-                                )
-                                .unwrap();
-                                let right = CanvasAppearance::from_star_appearance(
-                                    &right, &viewport, TIME_ZERO,
-                                )
-                                .unwrap();
+                                let top = CanvasAppearance::from_star_appearance(&top, &viewport)
+                                    .unwrap();
+                                let left = CanvasAppearance::from_star_appearance(&left, &viewport)
+                                    .unwrap();
+                                let bottom =
+                                    CanvasAppearance::from_star_appearance(&bottom, &viewport)
+                                        .unwrap();
+                                let right =
+                                    CanvasAppearance::from_star_appearance(&right, &viewport)
+                                        .unwrap();
 
                                 println!(
                                     "top: {:?}, left: {:?}, bottom: {:?}, right: {:?}",
@@ -329,8 +313,7 @@ mod tests {
                     star_direction.to_ecliptic(),
                     TIME_ZERO,
                 );
-                let appearance =
-                    CanvasAppearance::from_star_appearance(&star, &viewport, TIME_ZERO);
+                let appearance = CanvasAppearance::from_star_appearance(&star, &viewport);
                 let center_offset = appearance.unwrap().center_offset;
                 println!("center offset: {:?}", center_offset);
                 if x > 0. {
@@ -365,8 +348,7 @@ mod tests {
                     star_direction.to_ecliptic(),
                     TIME_ZERO,
                 );
-                let appearance =
-                    CanvasAppearance::from_star_appearance(&star, &viewport, TIME_ZERO);
+                let appearance = CanvasAppearance::from_star_appearance(&star, &viewport);
                 let center_offset = appearance.unwrap().center_offset;
                 println!("center offset: {:?}", center_offset);
                 if y > 0. {
@@ -398,7 +380,7 @@ mod tests {
             px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
-            CanvasAppearance::from_star_appearance(&star_appearance, &viewport, TIME_ZERO).unwrap();
+            CanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 0.);
         assert!(canvas_appearance.color.a > 0.);
@@ -420,7 +402,7 @@ mod tests {
             px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
-            CanvasAppearance::from_star_appearance(&star_appearance, &viewport, TIME_ZERO).unwrap();
+            CanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 1.);
         assert!(canvas_appearance.radius < 10.);
@@ -441,7 +423,7 @@ mod tests {
             px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
-            CanvasAppearance::from_star_appearance(&star_appearance, &viewport, TIME_ZERO).unwrap();
+            CanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 1.);
         assert!(canvas_appearance.radius < 10.);
@@ -462,7 +444,7 @@ mod tests {
             px_per_distance: SOME_FLOAT,
         };
         let canvas_appearance =
-            CanvasAppearance::from_star_appearance(&star_appearance, &viewport, TIME_ZERO).unwrap();
+            CanvasAppearance::from_star_appearance(&star_appearance, &viewport).unwrap();
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 500.);
     }
@@ -610,7 +592,7 @@ mod tests {
                 EclipticCoordinates::X_DIRECTION,
                 TIME_ZERO,
             );
-            let (color, radius) = CanvasAppearance::color_and_radius(&star_appearance, TIME_ZERO);
+            let (color, radius) = CanvasAppearance::color_and_radius(&star_appearance);
             let expected_radius = picture_star.diameter as f32 / 2. * CanvasAppearance::MIN_RADIUS
                 / PICTURE_MIN_RADIUS;
             let expected_alpha = picture_star.alpha;
@@ -681,7 +663,6 @@ mod tests {
             &celestial_system,
             &viewport_to_sun,
             &inner_observer,
-            TIME_ZERO,
         );
         assert!(sun_appearance.is_some());
         let sun_appearance = sun_appearance.unwrap();
@@ -692,7 +673,6 @@ mod tests {
             &planet,
             &viewport_away_from_sun,
             &inner_observer,
-            TIME_ZERO,
         );
         assert!(planet_appearance.is_some());
         let planet_appearance = planet_appearance.unwrap();
@@ -703,7 +683,6 @@ mod tests {
             &celestial_system,
             &viewport_to_sun,
             &outer_observer,
-            TIME_ZERO,
         );
         assert!(sun_appearance.is_some());
         let sun_appearance = sun_appearance.unwrap();
@@ -714,7 +693,6 @@ mod tests {
             &planet,
             &viewport_to_sun,
             &outer_observer,
-            TIME_ZERO,
         );
         assert!(planet_appearance.is_some());
         let planet_appearance = planet_appearance.unwrap();

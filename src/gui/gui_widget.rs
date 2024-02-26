@@ -31,7 +31,6 @@ impl Sandbox for Gui {
             surface_view_state: SurfaceViewState::new(),
             top_view_state: TopViewState::new(),
             table_view_state: TableViewState::new(),
-            time_since_epoch: Time::from_days(0.0),
             time_step: Time::from_days(1.0),
             celestial_system: None,
             selected_planet_name: String::new(),
@@ -82,7 +81,6 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 bounds,
                 &self.get_selected_planet(),
                 &self.celestial_system,
-                self.time_since_epoch,
                 self.display_names,
                 self.display_constellations,
             ),
@@ -91,7 +89,6 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
                 bounds,
                 &self.get_selected_planet(),
                 &self.celestial_system,
-                self.time_since_epoch,
                 self.display_names,
             ),
             _ => {

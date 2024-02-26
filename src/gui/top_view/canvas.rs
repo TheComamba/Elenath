@@ -43,7 +43,6 @@ impl TopViewState {
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
         display_names: bool,
     ) -> Vec<canvas::Geometry> {
         let background = self
@@ -57,7 +56,6 @@ impl TopViewState {
                 self.draw_bodies(
                     selected_planet,
                     celestial_system,
-                    time_since_epoch,
                     &bounds,
                     frame,
                     display_names,
@@ -78,7 +76,6 @@ impl TopViewState {
         &self,
         selected_planet: &Option<Planet>,
         celestial_system: &CelestialSystem,
-        time_since_epoch: Time<f64>,
         bounds: &iced::Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
@@ -102,7 +99,6 @@ impl TopViewState {
             &view_rotation_axis,
             offset,
             display_names,
-            time_since_epoch,
         );
 
         for planet in celestial_system.get_planets().iter() {
@@ -132,12 +128,12 @@ impl TopViewState {
         view_rotation_axis: &Direction,
         offset: iced::Vector,
         display_names: bool,
-        time_since_epoch: Time<f64>,
     ) {
+        let time = celestial_system.get_time_since_epoch();
         let data = celestial_system.get_central_body_data();
         let pos3d = CartesianCoordinates::ORIGIN;
-        let color = sRGBColor::from_temperature(data.get_temperature(time_since_epoch));
-        let radius = data.get_radius(time_since_epoch).unwrap_or(DISTANCE_ZERO);
+        let color = sRGBColor::from_temperature(data.get_temperature(time));
+        let radius = data.get_radius(time).unwrap_or(DISTANCE_ZERO);
         self.draw_body(
             frame,
             bounds,

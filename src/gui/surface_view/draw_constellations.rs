@@ -12,7 +12,6 @@ use iced::{
     widget::canvas::{Frame, Path, Stroke, Style, Text},
     Color, Rectangle, Vector,
 };
-use simple_si_units::base::Time;
 
 impl SurfaceViewState {
     pub(super) fn draw_constellations(
@@ -21,10 +20,9 @@ impl SurfaceViewState {
         bounds: Rectangle,
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
-        time_since_epoch: Time<f64>,
     ) {
         for constellation in celestial_system.get_constellations() {
-            self.draw_constellation(frame, bounds, constellation, &viewport, time_since_epoch);
+            self.draw_constellation(frame, bounds, constellation, &viewport);
         }
     }
 
@@ -34,12 +32,11 @@ impl SurfaceViewState {
         bounds: Rectangle,
         constellation: &Constellation,
         viewport: &Viewport,
-        time_since_epoch: Time<f64>,
     ) {
         let appearances = constellation
             .get_stars()
             .iter()
-            .map(|s| CanvasAppearance::from_star_appearance(&s, viewport, time_since_epoch))
+            .map(|s| CanvasAppearance::from_star_appearance(&s, viewport))
             .collect::<Vec<_>>();
 
         let color = Color {

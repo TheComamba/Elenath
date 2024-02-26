@@ -52,6 +52,10 @@ impl CelestialSystem {
         self.update_constellations();
     }
 
+    pub(crate) fn get_time_since_epoch(&self) -> Time<f64> {
+        self.time_since_epoch
+    }
+
     pub(crate) fn write_to_file(&self, path: PathBuf) -> Result<(), std::io::Error> {
         let file = std::fs::File::create(path)?;
         let writer = std::io::BufWriter::new(file);
