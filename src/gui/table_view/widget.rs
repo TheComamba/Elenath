@@ -13,7 +13,6 @@ use iced::{
     },
     Alignment, Element, Length,
 };
-use simple_si_units::base::Time;
 
 const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
@@ -30,18 +29,14 @@ impl TableViewState {
         }
     }
 
-    pub(crate) fn table_view(
-        &self,
-        system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
-    ) -> Element<'_, GuiMessage> {
+    pub(crate) fn table_view(&self, system: &Option<CelestialSystem>) -> Element<'_, GuiMessage> {
         let mut col = Column::new().push(data_type_selection_tabs());
 
         if let Some(system) = system {
             let table = match self.displayed_body_type {
                 TableDataType::Planet => {
                     let planet_col_data = TableColData::default_planet_col_data();
-                    let planets = system.get_planets_at_time(time_since_epoch);
+                    let planets = system.get_planets();
                     table(planet_col_data, planets, GuiMessage::NewPlanetDialog)
                 }
                 TableDataType::Star => {
@@ -51,7 +46,7 @@ impl TableViewState {
                 }
                 TableDataType::Supernova => {
                     let supernova_col_data = TableColData::default_supernova_col_data();
-                    let supernovae = system.get_supernovae(time_since_epoch);
+                    let supernovae = system.get_supernovae();
                     table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
                 }
             };

@@ -24,7 +24,6 @@ pub(crate) struct Gui {
     surface_view_state: SurfaceViewState,
     top_view_state: TopViewState,
     table_view_state: TableViewState,
-    time_since_epoch: Time<f64>,
     time_step: Time<f64>,
     celestial_system: Option<CelestialSystem>,
     selected_planet_name: String,
@@ -53,7 +52,7 @@ impl Gui {
                 (*data).clone(),
                 system.get_central_body_data(),
                 None,
-                self.time_since_epoch,
+                system.get_time_since_epoch(),
                 None,
             )
         })

@@ -5,7 +5,7 @@ use iced::{
     widget::canvas::{self, Frame, Path},
     Color, Point, Rectangle,
 };
-use simple_si_units::base::{Distance, Time};
+use simple_si_units::base::Distance;
 
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_name},
@@ -21,7 +21,6 @@ impl SurfaceViewState {
         bounds: Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
-        time_since_epoch: Time<f64>,
         display_names: bool,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
@@ -35,7 +34,6 @@ impl SurfaceViewState {
                 &observer_position,
                 viewport.px_per_distance,
                 display_names,
-                time_since_epoch,
             );
         }
 
@@ -47,10 +45,9 @@ impl SurfaceViewState {
             &observer_position,
             viewport.px_per_distance,
             display_names,
-            time_since_epoch,
         );
 
-        for planet in celestial_system.get_planets_at_time(time_since_epoch) {
+        for planet in celestial_system.get_planets() {
             if planet.get_data() == selected_planet.get_data() {
                 continue;
             }
@@ -63,7 +60,6 @@ impl SurfaceViewState {
                 &observer_position,
                 viewport.px_per_distance,
                 display_names,
-                time_since_epoch,
             );
         }
     }
@@ -77,10 +73,8 @@ impl SurfaceViewState {
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
         display_names: bool,
-        time_since_epoch: Time<f64>,
     ) {
-        let canvas_appearance =
-            CanvasAppearance::from_star_appearance(star, viewport, time_since_epoch);
+        let canvas_appearance = CanvasAppearance::from_star_appearance(star, viewport);
         self.draw_body(
             frame,
             bounds,
@@ -101,17 +95,12 @@ impl SurfaceViewState {
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
         display_names: bool,
-        time_since_epoch: Time<f64>,
     ) {
-        let canvas_appearance = CanvasAppearance::from_central_body(
-            celestial_system,
-            viewport,
-            observer_position,
-            time_since_epoch,
-        );
+        let canvas_appearance =
+            CanvasAppearance::from_central_body(celestial_system, viewport, observer_position);
         let central_body_radius = celestial_system
             .get_central_body_data()
-            .get_radius(time_since_epoch);
+            .get_radius(celestial_system.get_time_since_epoch());
         self.draw_body(
             frame,
             bounds,
@@ -133,15 +122,9 @@ impl SurfaceViewState {
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
         display_names: bool,
-        time_since_epoch: Time<f64>,
     ) {
-        let canvas_appearance = CanvasAppearance::from_planet(
-            celestial_system,
-            planet,
-            viewport,
-            observer_position,
-            time_since_epoch,
-        );
+        let canvas_appearance =
+            CanvasAppearance::from_planet(celestial_system, planet, viewport, observer_position);
         self.draw_body(
             frame,
             bounds,

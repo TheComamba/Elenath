@@ -10,7 +10,6 @@ use astro_utils::coordinates::{
     cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
 };
 use iced::widget::canvas::{self};
-use simple_si_units::base::Time;
 
 impl SurfaceViewState {
     pub(super) fn observer_position(
@@ -28,7 +27,6 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
         display_names: bool,
         display_constellations: bool,
     ) -> Vec<canvas::Geometry> {
@@ -46,7 +44,6 @@ impl SurfaceViewState {
                         bounds,
                         selected_planet,
                         celestial_system,
-                        time_since_epoch,
                         display_names,
                         display_constellations,
                     );
@@ -67,7 +64,6 @@ impl SurfaceViewState {
         bounds: iced::Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
-        time_since_epoch: Time<f64>,
         display_names: bool,
         display_constellations: bool,
     ) {
@@ -76,7 +72,7 @@ impl SurfaceViewState {
         let observer_normal = observer_normal(
             selected_planet.get_data(),
             surface_position,
-            time_since_epoch,
+            celestial_system.get_time_since_epoch(),
         );
         let observer_position = self.observer_position(selected_planet, &observer_normal);
         let observer_view_direction =
@@ -94,14 +90,13 @@ impl SurfaceViewState {
             bounds,
             selected_planet,
             celestial_system,
-            time_since_epoch,
             display_names,
             &viewport,
             &observer_position,
         );
 
         if display_constellations {
-            self.draw_constellations(frame, bounds, celestial_system, &viewport, time_since_epoch);
+            self.draw_constellations(frame, bounds, celestial_system, &viewport);
         }
     }
 }

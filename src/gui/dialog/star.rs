@@ -2,8 +2,7 @@ use astro_utils::{
     astro_display::AstroDisplay,
     coordinates::ecliptic::EclipticCoordinates,
     stars::{
-        data::StarData, data_evolution::StarDataEvolution,
-        random::random_stars::generate_random_star,
+        data::StarData, evolution::StarDataEvolution, random::random_stars::generate_random_star,
     },
     units::{
         distance::{distance_to_sun_radii, DISTANCE_ZERO, SOLAR_RADIUS},
@@ -240,14 +239,12 @@ impl StarDialog {
     }
 
     fn additional_info_column(&self) -> Element<'_, StarDialogEvent> {
-        let appearance = self.star.to_star_appearance();
+        let appearance = self.star.to_star_appearance(self.time_since_epoch);
 
-        let illuminance = Text::new(
-            "Illuminance: ".to_string() + &appearance.get_illuminance_at_epoch().astro_display(),
-        );
+        let illuminance =
+            Text::new("Illuminance: ".to_string() + &appearance.get_illuminance().astro_display());
 
-        let color =
-            Text::new("Color: ".to_string() + &appearance.get_color_at_epoch().astro_display());
+        let color = Text::new("Color: ".to_string() + &appearance.get_color().astro_display());
 
         let mass_per_year = Text::new(
             "Mass Change per Millenium: ".to_string()

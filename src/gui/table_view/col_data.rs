@@ -209,7 +209,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Color",
                 content_closure: Box::new(|body| {
-                    let color = body.get_appearance().get_color_at_epoch();
+                    let color = body.get_appearance().get_color();
                     Some(color.astro_display())
                 }),
             },
@@ -229,7 +229,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
-                    let illuminance = body.get_appearance().get_illuminance_at_epoch();
+                    let illuminance = body.get_appearance().get_illuminance();
                     Some(illuminance.astro_display())
                 }),
             },
@@ -238,7 +238,7 @@ impl TableColData<Star> {
                 content_closure: Box::new(|body| {
                     let longitude = body
                         .get_appearance()
-                        .get_pos_at_epoch()
+                        .get_pos()
                         .get_spherical()
                         .get_longitude();
                     Some(longitude.astro_display())
@@ -249,7 +249,7 @@ impl TableColData<Star> {
                 content_closure: Box::new(|body| {
                     let latitude = body
                         .get_appearance()
-                        .get_pos_at_epoch()
+                        .get_pos()
                         .get_spherical()
                         .get_latitude();
                     Some(latitude.astro_display())
@@ -311,7 +311,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Vis. Mag.",
                 content_closure: Box::new(|body| {
-                    let illuminance = body.get_appearance().get_illuminance_at_epoch();
+                    let illuminance = body.get_appearance().get_illuminance();
                     Some(illuminance.astro_display())
                 }),
             },
