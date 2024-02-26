@@ -164,11 +164,10 @@ impl Gui {
                 self.mode = mode;
             }
             GuiMessage::UpdateTime(time) => {
-                let system = self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
-                system.set_time_since_epoch(time);
+                self.celestial_system
+                    .as_mut()
+                    .ok_or(ElenathError::NoCelestialSystem)?
+                    .set_time_since_epoch(time);
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;

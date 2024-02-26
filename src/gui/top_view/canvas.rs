@@ -19,10 +19,7 @@ use iced::{
     widget::canvas::{self, Path, Style},
     Color, Point,
 };
-use simple_si_units::{
-    base::{Distance, Time},
-    geometry::Angle,
-};
+use simple_si_units::{base::Distance, geometry::Angle};
 
 impl TopViewState {
     fn canvas_position(

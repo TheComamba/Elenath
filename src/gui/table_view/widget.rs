@@ -13,7 +13,6 @@ use iced::{
     },
     Alignment, Element, Length,
 };
-use simple_si_units::base::Time;
 
 const CELL_WIDTH: f32 = 150.;
 const BUTTON_CELL_WIDTH: f32 = 50.;
@@ -30,11 +29,7 @@ impl TableViewState {
         }
     }
 
-    pub(crate) fn table_view(
-        &self,
-        system: &Option<CelestialSystem>,
-        time_since_epoch: Time<f64>,
-    ) -> Element<'_, GuiMessage> {
+    pub(crate) fn table_view(&self, system: &Option<CelestialSystem>) -> Element<'_, GuiMessage> {
         let mut col = Column::new().push(data_type_selection_tabs());
 
         if let Some(system) = system {

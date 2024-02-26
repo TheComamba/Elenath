@@ -5,7 +5,7 @@ use iced::{
     widget::canvas::{self, Frame, Path},
     Color, Point, Rectangle,
 };
-use simple_si_units::base::{Distance, Time};
+use simple_si_units::base::Distance;
 
 use crate::{
     gui::shared_canvas_functionality::{contains_workaround, draw_name},
@@ -34,7 +34,6 @@ impl SurfaceViewState {
                 &observer_position,
                 viewport.px_per_distance,
                 display_names,
-                celestial_system.get_time_since_epoch(),
             );
         }
 
@@ -74,7 +73,6 @@ impl SurfaceViewState {
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
         display_names: bool,
-        time_since_epoch: Time<f64>,
     ) {
         let canvas_appearance = CanvasAppearance::from_star_appearance(star, viewport);
         self.draw_body(

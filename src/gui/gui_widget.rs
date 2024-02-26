@@ -109,46 +109,45 @@ impl Gui {
             .spacing(PADDING);
         let mut col = Column::new().push(toprow);
 
-        match self.mode {
-            GuiViewMode::Surface => {
-                let control_row = Row::new()
-                    .push(surface_and_top_view_shared_control(
-                        &self.time_since_epoch,
-                        &self.time_step,
-                        self.get_planet_data(),
-                        self.get_selected_planet_data(),
-                        self.display_names,
-                        self.display_constellations,
-                    ))
-                    .push(self.surface_view_state.control_field());
-                col = col.push(control_row).push(
-                    canvas(self)
-                        .width(iced::Length::Fill)
-                        .height(iced::Length::Fill),
-                )
-            }
-            GuiViewMode::Top => {
-                let control_row = Row::new()
-                    .push(surface_and_top_view_shared_control(
-                        &self.time_since_epoch,
-                        &self.time_step,
-                        self.get_planet_data(),
-                        self.get_selected_planet_data(),
-                        self.display_names,
-                        self.display_constellations,
-                    ))
-                    .push(self.top_view_state.control_field());
-                col = col.push(control_row).push(
-                    canvas(self)
-                        .width(iced::Length::Fill)
-                        .height(iced::Length::Fill),
-                )
-            }
-            GuiViewMode::Table => {
-                col = col.push(
-                    self.table_view_state
-                        .table_view(&self.celestial_system, self.time_since_epoch),
-                );
+        if let Some(system) = self.celestial_system.as_ref() {
+            match self.mode {
+                GuiViewMode::Surface => {
+                    let control_row = Row::new()
+                        .push(surface_and_top_view_shared_control(
+                            system.get_time_since_epoch(),
+                            self.time_step,
+                            self.get_planet_data(),
+                            self.get_selected_planet_data(),
+                            self.display_names,
+                            self.display_constellations,
+                        ))
+                        .push(self.surface_view_state.control_field());
+                    col = col.push(control_row).push(
+                        canvas(self)
+                            .width(iced::Length::Fill)
+                            .height(iced::Length::Fill),
+                    )
+                }
+                GuiViewMode::Top => {
+                    let control_row = Row::new()
+                        .push(surface_and_top_view_shared_control(
+                            system.get_time_since_epoch(),
+                            self.time_step,
+                            self.get_planet_data(),
+                            self.get_selected_planet_data(),
+                            self.display_names,
+                            self.display_constellations,
+                        ))
+                        .push(self.top_view_state.control_field());
+                    col = col.push(control_row).push(
+                        canvas(self)
+                            .width(iced::Length::Fill)
+                            .height(iced::Length::Fill),
+                    )
+                }
+                GuiViewMode::Table => {
+                    col = col.push(self.table_view_state.table_view(&self.celestial_system));
+                }
             }
         }
 

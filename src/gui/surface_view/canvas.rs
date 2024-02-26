@@ -10,7 +10,6 @@ use astro_utils::coordinates::{
     cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
 };
 use iced::widget::canvas::{self};
-use simple_si_units::base::Time;
 
 impl SurfaceViewState {
     pub(super) fn observer_position(

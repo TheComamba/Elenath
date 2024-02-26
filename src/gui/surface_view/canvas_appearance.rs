@@ -7,7 +7,7 @@ use astro_utils::{
     stars::appearance::StarAppearance,
 };
 use iced::{Color, Vector};
-use simple_si_units::{base::Time, electromagnetic::Illuminance};
+use simple_si_units::electromagnetic::Illuminance;
 
 pub(super) struct CanvasAppearance {
     pub(super) name: String,

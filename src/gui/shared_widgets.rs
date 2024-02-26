@@ -100,8 +100,8 @@ pub(super) fn planet_picker<'a>(
 }
 
 pub(super) fn surface_and_top_view_shared_control<'a>(
-    time_since_epoch: &'a Time<f64>,
-    time_step: &'a Time<f64>,
+    time_since_epoch: Time<f64>,
+    time_step: Time<f64>,
     planets: Vec<&PlanetData>,
     selected_planet: Option<&PlanetData>,
     display_names: bool,
@@ -110,15 +110,15 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
     let time_control_field = control_field(
         "Time since Epoch:",
         time_since_epoch.astro_display(),
-        GuiMessage::UpdateTime(*time_since_epoch - *time_step),
-        GuiMessage::UpdateTime(*time_since_epoch + *time_step),
+        GuiMessage::UpdateTime(time_since_epoch - time_step),
+        GuiMessage::UpdateTime(time_since_epoch + time_step),
     );
 
     let time_step_control_field = control_field(
         "Time step:",
         time_step.astro_display(),
-        GuiMessage::UpdateTimeStep(*time_step / 2.),
-        GuiMessage::UpdateTimeStep(*time_step * 2.),
+        GuiMessage::UpdateTimeStep(time_step / 2.),
+        GuiMessage::UpdateTimeStep(time_step * 2.),
     );
 
     let planet_picker = planet_picker(planets, selected_planet);
