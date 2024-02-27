@@ -9,6 +9,7 @@ use crate::{
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
+        text::Shaping,
         Button, Column, Container, Row, Rule, Scrollable, Text,
     },
     Alignment, Element, Length,
@@ -173,7 +174,8 @@ where
         );
     for col in table_col_data.iter() {
         let content = (col.content_closure)(&data).unwrap_or("N/A".to_string());
-        row = row.push(table_cell(Text::new(content).into()));
+        let text = Text::new(content).shaping(Shaping::Advanced);
+        row = row.push(table_cell(text.into()));
     }
     row.align_items(Alignment::Center)
 }

@@ -6,7 +6,7 @@ use super::{
 use astro_utils::{astro_display::AstroDisplay, planets::planet_data::PlanetData};
 use iced::{
     alignment::{Horizontal, Vertical},
-    widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
+    widget::{text::Shaping, Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
     Alignment, Length,
 };
 use iced_aw::Element;
@@ -166,6 +166,7 @@ where
         .align_x(Horizontal::Center)
         .width(Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
     let value = Text::new(value)
+        .shaping(Shaping::Advanced)
         .width(Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
         .horizontal_alignment(Horizontal::Center);
     let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
@@ -203,12 +204,16 @@ where
     let data = TextInput::new("", data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
-    let units = Text::new(units).width(SMALL_COLUMN_WIDTH);
+    let units = Text::new(units)
+        .shaping(Shaping::Advanced)
+        .width(SMALL_COLUMN_WIDTH);
     let parsed_text = match actual_value {
         Some(value) => "Parsed value:\n".to_string() + &value.astro_display(),
         None => "Parsed value:\nNone".to_string(),
     };
-    let value = Text::new(parsed_text).width(SMALL_COLUMN_WIDTH);
+    let value = Text::new(parsed_text)
+        .shaping(Shaping::Advanced)
+        .width(SMALL_COLUMN_WIDTH);
     Row::new()
         .push(description)
         .push(data)

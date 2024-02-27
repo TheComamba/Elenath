@@ -14,7 +14,7 @@ use astro_utils::{
     },
 };
 use iced::{
-    widget::{component, Button, Column, Component, Row, Text},
+    widget::{component, text::Shaping, Button, Column, Component, Row, Text},
     Alignment, Element, Length,
 };
 use simple_si_units::{
@@ -242,21 +242,25 @@ impl StarDialog {
         let appearance = self.star.to_star_appearance(self.time_since_epoch);
 
         let illuminance =
-            Text::new("Illuminance: ".to_string() + &appearance.get_illuminance().astro_display());
+            Text::new("Illuminance: ".to_string() + &appearance.get_illuminance().astro_display())
+                .shaping(Shaping::Advanced);
 
-        let color = Text::new("Color: ".to_string() + &appearance.get_color().astro_display());
+        let color = Text::new("Color: ".to_string() + &appearance.get_color().astro_display())
+            .shaping(Shaping::Advanced);
 
         let mass_per_year = Text::new(
             "Mass Change per Millenium: ".to_string()
                 + &(self.star.get_evolution().get_lifestage_mass_per_year() * 1000.)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let radius_per_year: Text = Text::new(
             "Radius Change per Millenium: ".to_string()
                 + &(self.star.get_evolution().get_lifestage_radius_per_year() * 1000.)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let temperature_per_year: Text = Text::new(
             "Temperature Change per Millenium: ".to_string()
@@ -266,7 +270,8 @@ impl StarDialog {
                     .get_lifestage_temperature_per_year()
                     * 1000.)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let luminous_intensity_per_year = Text::new(
             "Luminous Intensity Change per Millenium: ".to_string()
@@ -276,17 +281,20 @@ impl StarDialog {
                     .get_lifestage_luminous_intensity_per_year()
                     * 1000.)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_mass = Text::new(
             "Current Mass: ".to_string()
                 + &self.star.get_mass(self.time_since_epoch).astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_radius = Text::new(
             "Current Radius: ".to_string()
                 + &self.star.get_radius(self.time_since_epoch).astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_temperature = Text::new(
             "Current Temperature: ".to_string()
@@ -294,7 +302,8 @@ impl StarDialog {
                     .star
                     .get_temperature(self.time_since_epoch)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_luminous_intensity = Text::new(
             "Current Luminous Intensity: ".to_string()
@@ -302,11 +311,13 @@ impl StarDialog {
                     .star
                     .get_luminous_intensity(self.time_since_epoch)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_age = Text::new(
             "Current Age: ".to_string() + &self.star.get_age(self.time_since_epoch).astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_distance = Text::new(
             "Current Distance: ".to_string()
@@ -314,7 +325,8 @@ impl StarDialog {
                     .star
                     .get_distance(self.time_since_epoch)
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_longitude = Text::new(
             "Current Longitude: ".to_string()
@@ -323,7 +335,8 @@ impl StarDialog {
                     .get_pos(self.time_since_epoch)
                     .get_longitude()
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let current_latitude = Text::new(
             "Current Latitude: ".to_string()
@@ -332,7 +345,8 @@ impl StarDialog {
                     .get_pos(self.time_since_epoch)
                     .get_latitude()
                     .astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         Column::new()
             .push(illuminance)
