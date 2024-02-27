@@ -15,7 +15,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
-    Alignment, Element,
+    Alignment, Element, Length,
 };
 use simple_si_units::{
     base::{Distance, Temperature, Time},
@@ -233,7 +233,7 @@ impl StarDialog {
         }
         col.push(submit_button)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
@@ -350,7 +350,7 @@ impl StarDialog {
             .push(current_longitude)
             .push(current_latitude)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }

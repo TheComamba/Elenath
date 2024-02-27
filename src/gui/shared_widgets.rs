@@ -7,13 +7,13 @@ use astro_utils::{astro_display::AstroDisplay, planets::planet_data::PlanetData}
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
-    Alignment,
+    Alignment, Length,
 };
 use iced_aw::Element;
 use simple_si_units::base::Time;
 
 impl Gui {
-    pub(super) fn gui_mode_tabs() -> iced::Element<'static, GuiMessage> {
+    pub(super) fn gui_mode_tabs() -> Element<'static, GuiMessage> {
         let local_view_button = std_button(
             "Local View",
             GuiMessage::ModeSelected(GuiViewMode::Surface),
@@ -35,7 +35,7 @@ impl Gui {
             .into()
     }
 
-    pub(super) fn file_buttons(has_system: bool) -> iced::Element<'static, GuiMessage> {
+    pub(super) fn file_buttons(has_system: bool) -> Element<'static, GuiMessage> {
         let new_button = std_button("New system", GuiMessage::NewSystemDialog, true);
         let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile, has_system);
         let save_to_new_file_button =
@@ -72,7 +72,7 @@ pub(crate) fn std_button(
 pub(super) fn planet_picker<'a>(
     planets: Vec<&PlanetData>,
     selected_planet: Option<&PlanetData>,
-) -> iced::Element<'a, GuiMessage> {
+) -> Element<'a, GuiMessage> {
     let text = Text::new("Focused body:")
         .width(SMALL_COLUMN_WIDTH)
         .horizontal_alignment(Horizontal::Right)
@@ -106,7 +106,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
     selected_planet: Option<&PlanetData>,
     display_names: bool,
     display_constellations: bool,
-) -> iced::Element<'a, GuiMessage> {
+) -> Element<'a, GuiMessage> {
     let time_control_field = control_field(
         "Time since Epoch:",
         time_since_epoch.astro_display(),
@@ -128,14 +128,14 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         display_names,
         GuiMessage::SetDisplayNames,
     ))
-    .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
+    .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
     let diplay_constellations_toggle = Container::new(Toggler::new(
         Some("Display Constellations".to_string()),
         display_constellations,
         GuiMessage::SetDisplayConstellations,
     ))
-    .width(iced::Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
+    .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
     Column::new()
         .push(time_control_field)
@@ -143,7 +143,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .push(planet_picker)
         .push(display_names_toggle)
         .push(diplay_constellations_toggle)
-        .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
+        .width(Length::Fixed(BIG_COLUMN_WIDTH))
         .align_items(Alignment::Center)
         .spacing(PADDING)
         .into()
@@ -161,16 +161,16 @@ where
     let label = Text::new(label)
         .vertical_alignment(Vertical::Center)
         .horizontal_alignment(Horizontal::Right)
-        .width(iced::Length::Fixed(SMALL_COLUMN_WIDTH));
+        .width(Length::Fixed(SMALL_COLUMN_WIDTH));
     let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
         .align_x(Horizontal::Center)
-        .width(iced::Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
+        .width(Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
     let value = Text::new(value)
-        .width(iced::Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
+        .width(Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
         .horizontal_alignment(Horizontal::Center);
     let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
         .align_x(Horizontal::Center)
-        .width(iced::Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
+        .width(Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
     Row::new()
         .push(label)
         .push(decrease_button)

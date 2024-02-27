@@ -18,7 +18,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
-    Alignment, Element,
+    Alignment, Element, Length,
 };
 use simple_si_units::{
     base::{Distance, Time},
@@ -260,7 +260,7 @@ impl PlanetDialog {
             .push(rotation_axis)
             .push(submit_button)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
@@ -314,7 +314,7 @@ impl PlanetDialog {
             .push(axial_tilt_text)
             .push(black_body_temperature_text)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
@@ -459,7 +459,7 @@ impl Component<GuiMessage> for PlanetDialog {
         None
     }
 
-    fn view(&self, _state: &Self::State) -> iced::Element<'_, Self::Event> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(self.edit_column())
             .push(self.additional_info_column())

@@ -9,7 +9,7 @@ use crate::{
 use astro_utils::coordinates::{
     cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
 };
-use iced::widget::canvas::{self};
+use iced::{widget::canvas, Rectangle, Renderer};
 
 impl SurfaceViewState {
     pub(super) fn observer_position(
@@ -23,8 +23,8 @@ impl SurfaceViewState {
 
     pub(crate) fn canvas(
         &self,
-        renderer: &iced::Renderer,
-        bounds: iced::Rectangle,
+        renderer: &Renderer,
+        bounds: Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
         display_names: bool,
@@ -61,7 +61,7 @@ impl SurfaceViewState {
     fn draw_surface_view(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         selected_planet: &Planet,
         celestial_system: &CelestialSystem,
         display_names: bool,

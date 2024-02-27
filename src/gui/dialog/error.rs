@@ -1,9 +1,8 @@
 use super::Dialog;
 use crate::error::ElenathError;
 use crate::gui::message::GuiMessage;
-use iced::widget::{component, Component};
 use iced::{
-    widget::{Button, Column, Text},
+    widget::{component, Button, Column, Component, Text},
     Element,
 };
 use iced_aw::style::CardStyles;

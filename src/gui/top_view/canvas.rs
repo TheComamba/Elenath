@@ -17,7 +17,7 @@ use astro_utils::{
 use iced::{
     alignment::Horizontal,
     widget::canvas::{self, Path, Style},
-    Color, Point,
+    Color, Point, Rectangle, Renderer, Vector,
 };
 use simple_si_units::{base::Distance, geometry::Angle};
 
@@ -27,17 +27,17 @@ impl TopViewState {
         pos: &CartesianCoordinates,
         view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
-    ) -> iced::Vector {
+    ) -> Vector {
         let rotated_position = pos.rotated(-view_angle, view_rotation_axis); //passive transformation
         let x = rotated_position.x() / self.length_per_pixel;
         let y = -rotated_position.y() / self.length_per_pixel; // y axis is inverted
-        iced::Vector::new(x as f32, y as f32)
+        Vector::new(x as f32, y as f32)
     }
 
     pub(crate) fn canvas(
         &self,
-        renderer: &iced::Renderer,
-        bounds: iced::Rectangle,
+        renderer: &Renderer,
+        bounds: Rectangle,
         selected_planet: &Option<Planet>,
         celestial_system: &Option<CelestialSystem>,
         display_names: bool,
@@ -73,7 +73,7 @@ impl TopViewState {
         &self,
         selected_planet: &Option<Planet>,
         celestial_system: &CelestialSystem,
-        bounds: &iced::Rectangle,
+        bounds: &Rectangle,
         frame: &mut canvas::Frame,
         display_names: bool,
     ) {
@@ -85,7 +85,7 @@ impl TopViewState {
             Some(focus) => {
                 self.canvas_position(focus.get_position(), view_angle, &view_rotation_axis)
             }
-            None => iced::Vector::new(0.0, 0.0),
+            None => Vector::new(0.0, 0.0),
         };
 
         self.draw_central_body(
@@ -120,10 +120,10 @@ impl TopViewState {
         &self,
         celestial_system: &CelestialSystem,
         frame: &mut canvas::Frame,
-        bounds: &iced::Rectangle,
+        bounds: &Rectangle,
         view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
-        offset: iced::Vector,
+        offset: Vector,
         display_names: bool,
     ) {
         let time = celestial_system.get_time_since_epoch();
@@ -149,7 +149,7 @@ impl TopViewState {
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
-        bounds: &iced::Rectangle,
+        bounds: &Rectangle,
         name: &str,
         pos3d: &CartesianCoordinates,
         color: &sRGBColor,
@@ -157,7 +157,7 @@ impl TopViewState {
         radius: Distance<f64>,
         view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
-        offset: iced::Vector,
+        offset: Vector,
         display_names: bool,
     ) {
         let radius = canvas_radius(&radius);
@@ -174,12 +174,12 @@ impl TopViewState {
         }
     }
 
-    fn draw_scale(&self, bounds: iced::Rectangle, frame: &mut canvas::Frame) {
+    fn draw_scale(&self, bounds: Rectangle, frame: &mut canvas::Frame) {
         const LENGTH_IN_PX: f32 = 200.0;
-        let start_pos = Point::ORIGIN + iced::Vector::new(50., bounds.height - 50.);
-        let middle_pos = start_pos + iced::Vector::new(LENGTH_IN_PX / 2., 0.0);
-        let end_pos = start_pos + iced::Vector::new(LENGTH_IN_PX, 0.0);
-        let delimitor_vec = iced::Vector::new(0.0, 5.);
+        let start_pos = Point::ORIGIN + Vector::new(50., bounds.height - 50.);
+        let middle_pos = start_pos + Vector::new(LENGTH_IN_PX / 2., 0.0);
+        let end_pos = start_pos + Vector::new(LENGTH_IN_PX, 0.0);
+        let delimitor_vec = Vector::new(0.0, 5.);
 
         let scale = Path::new(|path_builder| {
             path_builder.move_to(start_pos + delimitor_vec);

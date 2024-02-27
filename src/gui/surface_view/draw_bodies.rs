@@ -67,7 +67,7 @@ impl SurfaceViewState {
     fn draw_star(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         star: &StarAppearance,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
@@ -89,7 +89,7 @@ impl SurfaceViewState {
     fn draw_central_body(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
@@ -115,7 +115,7 @@ impl SurfaceViewState {
     fn draw_planet(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         celestial_system: &CelestialSystem,
         planet: &Planet,
         viewport: &Viewport,
@@ -139,7 +139,7 @@ impl SurfaceViewState {
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
-        bounds: iced::Rectangle,
+        bounds: Rectangle,
         canvas_appearance: &Option<CanvasAppearance>,
         radius: &Option<Distance<f64>>,
         pixel_per_viewport_width: f32,

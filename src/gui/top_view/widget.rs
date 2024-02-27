@@ -9,7 +9,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{canvas::Cache, Column},
-    Alignment,
+    Alignment, Element, Length,
 };
 use simple_si_units::{base::Distance, geometry::Angle};
 use std::f64::consts::PI;
@@ -71,7 +71,7 @@ impl TopViewState {
         self.scale_cache.clear();
     }
 
-    pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
+    pub(crate) fn control_field(&self) -> Element<'_, GuiMessage> {
         let length_scale_control_field = control_field(
             "Length per 100px:",
             (self.length_per_pixel * 100.).astro_display(),
@@ -99,7 +99,7 @@ impl TopViewState {
             .push(length_scale_control_field)
             .push(view_longitude_control_field)
             .push(view_latitude_control_field)
-            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
+            .width(Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()
