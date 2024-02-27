@@ -18,7 +18,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
-    Alignment, Element, Renderer,
+    Alignment, Element,
 };
 use simple_si_units::{
     base::{Distance, Time},
@@ -351,7 +351,7 @@ pub(crate) enum PlanetDialogEvent {
     Submit,
 }
 
-impl Component<GuiMessage, Renderer> for PlanetDialog {
+impl Component<GuiMessage> for PlanetDialog {
     type State = ();
 
     type Event = PlanetDialogEvent;

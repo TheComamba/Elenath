@@ -7,7 +7,7 @@ use astro_utils::{astro_display::AstroDisplay, planets::planet_data::PlanetData}
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::{Button, Column, Container, PickList, Row, Text, TextInput, Toggler},
-    Alignment, Renderer,
+    Alignment,
 };
 use iced_aw::Element;
 use simple_si_units::base::Time;
@@ -186,7 +186,7 @@ pub(crate) fn edit<'a, Fun, Mes, Val>(
     units: &'static str,
     message: Fun,
     actual_value: &Option<Val>,
-) -> Element<'a, Mes, Renderer>
+) -> Element<'a, Mes>
 where
     Fun: 'a + Fn(String) -> Mes,
     Mes: 'a + Clone,

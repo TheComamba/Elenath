@@ -15,7 +15,7 @@ use astro_utils::{
 };
 use iced::{
     widget::{component, Button, Column, Component, Row, Text},
-    Alignment, Element, Renderer,
+    Alignment, Element,
 };
 use simple_si_units::{
     base::{Distance, Temperature, Time},
@@ -389,7 +389,7 @@ pub(crate) enum StarDialogEvent {
     Submit,
 }
 
-impl Component<GuiMessage, Renderer> for StarDialog {
+impl Component<GuiMessage> for StarDialog {
     type State = ();
 
     type Event = StarDialogEvent;

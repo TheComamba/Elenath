@@ -1,7 +1,7 @@
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{self, Path},
-    Color, Point, Rectangle,
+    Color, Pixels, Point, Rectangle,
 };
 
 pub(super) fn draw_background(bounds: iced::Rectangle, frame: &mut canvas::Frame) {
@@ -33,7 +33,7 @@ pub(super) fn contains_workaround(bounds: &Rectangle, point: Point) -> bool {
 
 pub(crate) fn display_info_text(frame: &mut canvas::Frame, text: &str) {
     let name_widget = canvas::Text {
-        size: 30.0,
+        size: Pixels(30.0),
         color: Color::WHITE,
         content: text.to_string(),
         position: frame.center(),

@@ -4,7 +4,7 @@ use crate::gui::message::GuiMessage;
 use iced::widget::{component, Component};
 use iced::{
     widget::{Button, Column, Text},
-    Element, Renderer,
+    Element,
 };
 use iced_aw::style::CardStyles;
 
@@ -35,7 +35,7 @@ impl Dialog for ErrorDialog {
     }
 }
 
-impl Component<GuiMessage, Renderer> for ErrorDialog {
+impl Component<GuiMessage> for ErrorDialog {
     type State = ();
 
     type Event = ErrorDialogMes;
@@ -44,7 +44,7 @@ impl Component<GuiMessage, Renderer> for ErrorDialog {
         Some(GuiMessage::DialogClosed)
     }
 
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event, Renderer> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let text = Text::new(self.error_text.clone());
         let button = Button::new(Text::new("Ok")).on_press(ErrorDialogMes::Close);
         Column::new().push(text).push(button).into()

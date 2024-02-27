@@ -8,7 +8,10 @@ mod model;
 
 fn main() -> iced::Result {
     let window_settings = iced::window::Settings {
-        size: (1820, 980),
+        size: (iced::Size {
+            width: 1820.,
+            height: 980.,
+        }),
         ..Default::default()
     };
     let settings = iced::settings::Settings {
