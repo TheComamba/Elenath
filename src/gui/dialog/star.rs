@@ -8,6 +8,7 @@ use astro_utils::{
         distance::{distance_to_sun_radii, DISTANCE_ZERO, SOLAR_RADIUS},
         luminous_intensity::{
             absolute_magnitude_to_luminous_intensity, luminous_intensity_to_absolute_magnitude,
+            LUMINOSITY_ZERO,
         },
         mass::SOLAR_MASS,
         temperature::TEMPERATURE_ZERO,
@@ -57,7 +58,7 @@ impl StarDialog {
                 None,
                 None,
                 None,
-                None,
+                LUMINOSITY_ZERO,
                 TEMPERATURE_ZERO,
                 DISTANCE_ZERO,
                 EclipticCoordinates::Z_DIRECTION,
@@ -112,16 +113,10 @@ impl StarDialog {
             .get_radius_at_epoch()
             .map(|radius| format!("{:.2}", distance_to_sun_radii(&radius)))
             .unwrap_or_default();
-        self.luminosity_string = self
-            .star
-            .get_luminous_intensity_at_epoch()
-            .map(|luminosity| {
-                format!(
-                    "{:.2}",
-                    luminous_intensity_to_absolute_magnitude(luminosity)
-                )
-            })
-            .unwrap_or_default();
+        self.luminosity_string = format!(
+            "{:.2}",
+            luminous_intensity_to_absolute_magnitude(self.star.get_luminous_intensity_at_epoch())
+        );
         self.temperature_string = format!("{:.0}", self.star.get_temperature_at_epoch().to_K());
         self.age_string = self
             .star
@@ -155,21 +150,21 @@ impl StarDialog {
             &self.mass_string,
             "Solar Masses",
             StarDialogEvent::MassChanged,
-            self.star.get_mass_at_epoch(),
+            &self.star.get_mass_at_epoch(),
         );
         let radius = edit(
             "Radius at epoch",
             &self.radius_string,
             "Solar Radii",
             StarDialogEvent::RadiusChanged,
-            self.star.get_radius_at_epoch(),
+            &self.star.get_radius_at_epoch(),
         );
         let luminosity = edit(
             "Luminosity at epoch",
             &self.luminosity_string,
             "mag",
             StarDialogEvent::LuminosityChanged,
-            self.star.get_luminous_intensity_at_epoch(),
+            &Some(self.star.get_luminous_intensity_at_epoch()),
         );
         let temperature = edit(
             "Temperature at epoch",
@@ -183,7 +178,7 @@ impl StarDialog {
             &self.age_string,
             "Gyr",
             StarDialogEvent::AgeChanged,
-            self.star.get_age_at_epoch(),
+            &self.star.get_age_at_epoch(),
         );
         let distance = edit(
             "Distance at epoch",
@@ -427,9 +422,9 @@ impl Component<GuiMessage> for StarDialog {
             }
             StarDialogEvent::LuminosityChanged(luminosity_string) => {
                 if let Ok(luminosity) = luminosity_string.parse::<f64>() {
-                    self.star.set_luminous_intensity_at_epoch(Some(
+                    self.star.set_luminous_intensity_at_epoch(
                         absolute_magnitude_to_luminous_intensity(luminosity),
-                    ));
+                    );
                 }
                 self.luminosity_string = luminosity_string;
             }

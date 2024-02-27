@@ -160,7 +160,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#623ecc436d3e599b3fe370680d495fedecf49f97"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/supernovae#67470a6036692db31f8bceef7848acac6c6a457f"
 dependencies = [
  "directories",
  "flate2",

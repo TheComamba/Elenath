@@ -182,21 +182,21 @@ impl TableColData<Star> {
             TableColData {
                 header: "Mass",
                 content_closure: Box::new(|body| {
-                    let mass = (*body.get_data()?.get_mass_at_epoch())?;
+                    let mass = body.get_data()?.get_mass_at_epoch()?;
                     Some(mass.astro_display())
                 }),
             },
             TableColData {
                 header: "Radius",
                 content_closure: Box::new(|body| {
-                    let radius = (*body.get_data()?.get_radius_at_epoch())?;
+                    let radius = body.get_data()?.get_radius_at_epoch()?;
                     Some(radius.astro_display())
                 }),
             },
             TableColData {
                 header: "Luminous Intensity",
                 content_closure: Box::new(|body| {
-                    let luminous_intensity = (*body.get_data()?.get_luminous_intensity_at_epoch())?;
+                    let luminous_intensity = body.get_data()?.get_luminous_intensity_at_epoch();
                     Some(luminous_intensity.astro_display())
                 }),
             },
@@ -216,7 +216,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Age",
                 content_closure: Box::new(|body| {
-                    let age = (*body.get_data()?.get_age_at_epoch())?;
+                    let age = body.get_data()?.get_age_at_epoch()?;
                     Some(age.astro_display())
                 }),
             },
@@ -298,7 +298,7 @@ impl TableColData<Star> {
             TableColData {
                 header: "Mass",
                 content_closure: Box::new(|body| {
-                    let mass = (*body.get_data()?.get_mass_at_epoch())?;
+                    let mass = body.get_data()?.get_mass_at_epoch()?;
                     Some(mass.astro_display())
                 }),
             },
