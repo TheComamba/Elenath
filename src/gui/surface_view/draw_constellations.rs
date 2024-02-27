@@ -10,7 +10,7 @@ use astro_utils::stars::constellation::constellation::Constellation;
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{Frame, Path, Stroke, Style, Text},
-    Color, Rectangle, Vector,
+    Color, Pixels, Rectangle, Vector,
 };
 
 impl SurfaceViewState {
@@ -66,7 +66,7 @@ impl SurfaceViewState {
                 content: constellation.get_name().to_string(),
                 position,
                 color,
-                size: 20.,
+                size: Pixels(20.),
                 horizontal_alignment: Horizontal::Center,
                 vertical_alignment: Vertical::Center,
                 ..Default::default()

@@ -1,7 +1,7 @@
 use super::message::GuiMessage;
 use iced::{
     widget::{Container, Scrollable, Text},
-    Element, Renderer,
+    Element,
 };
 use iced_aw::{style::CardStyles, Card};
 
@@ -20,7 +20,7 @@ pub(crate) trait Dialog {
     fn body<'a>(&self) -> Element<'a, GuiMessage>;
 
     fn to_element<'a>(&self) -> Element<'a, GuiMessage> {
-        let header: Text<'a, Renderer> = Text::new(self.header());
+        let header: Text<'a> = Text::new(self.header());
         let body = self.body();
         let card =
             Card::new::<Element<'a, GuiMessage>, Element<'a, GuiMessage>>(header.into(), body)

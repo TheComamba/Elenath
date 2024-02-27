@@ -9,6 +9,7 @@ use crate::{
 use iced::{
     widget::{
         scrollable::{Direction, Properties},
+        text::Shaping,
         Button, Column, Container, Row, Rule, Scrollable, Text,
     },
     Alignment, Element, Length,
@@ -53,9 +54,7 @@ impl TableViewState {
             col = col.push(table);
         }
 
-        col.width(iced::Length::Fill)
-            .height(iced::Length::Fill)
-            .into()
+        col.width(Length::Fill).height(Length::Fill).into()
     }
 }
 
@@ -128,7 +127,7 @@ where
     }
     Scrollable::new(col)
         .direction(Direction::Vertical(Properties::default()))
-        .height(iced::Length::Fill)
+        .height(Length::Fill)
         .into()
 }
 
@@ -168,18 +167,19 @@ where
         }
     }
     let mut row = Row::new()
-        .push(Container::new(edit_button).width(iced::Length::Fixed(BUTTON_CELL_WIDTH)))
+        .push(Container::new(edit_button).width(Length::Fixed(BUTTON_CELL_WIDTH)))
         .push(
             Container::new(Text::new(format!("{}", sorting_index + 1)))
                 .width(Length::Fixed(BUTTON_CELL_WIDTH)),
         );
     for col in table_col_data.iter() {
         let content = (col.content_closure)(&data).unwrap_or("N/A".to_string());
-        row = row.push(table_cell(Text::new(content).into()));
+        let text = Text::new(content).shaping(Shaping::Advanced);
+        row = row.push(table_cell(text.into()));
     }
     row.align_items(Alignment::Center)
 }
 
 fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {
-    Container::new(content).width(iced::Length::Fixed(CELL_WIDTH))
+    Container::new(content).width(Length::Fixed(CELL_WIDTH))
 }

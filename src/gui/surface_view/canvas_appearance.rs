@@ -98,7 +98,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
     if direction.z() > 0.0 {
         let x = direction.y() as f32 * viewport.px_per_distance; // rotation_reference corresponds to the x axis while iced y corresponds to top.
         let y = -direction.x() as f32 * viewport.px_per_distance; // y axis is inverted
-        Some(iced::Vector::new(x as f32, y as f32))
+        Some(Vector::new(x as f32, y as f32))
     } else {
         None
     }

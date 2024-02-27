@@ -17,8 +17,8 @@ use astro_utils::{
     },
 };
 use iced::{
-    widget::{component, Button, Column, Component, Row, Text},
-    Alignment, Element, Renderer,
+    widget::{component, text::Shaping, Button, Column, Component, Row, Text},
+    Alignment, Element, Length,
 };
 use simple_si_units::{
     base::{Distance, Time},
@@ -260,7 +260,7 @@ impl PlanetDialog {
             .push(rotation_axis)
             .push(submit_button)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
@@ -273,36 +273,44 @@ impl PlanetDialog {
         );
 
         let density_text =
-            Text::new("Density: ".to_string() + &derived_data.get_density().astro_display());
+            Text::new("Density: ".to_string() + &derived_data.get_density().astro_display())
+                .shaping(Shaping::Advanced);
 
         let surface_gravity_text = Text::new(
             "Surface Gravity: ".to_string() + &derived_data.get_surface_gravity().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let escape_velocity_text = Text::new(
             "Escape Velocity: ".to_string() + &derived_data.get_escape_velocity().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let orbital_period_text = Text::new(
             "Orbital Period: ".to_string() + &derived_data.get_orbital_period().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let orbital_resonance_text = Text::new(
             "Orbital Resonance: ".to_string()
                 + &derived_data.get_orbital_resonance().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let synodic_period_text = Text::new(
             "Mean Synodic Day: ".to_string() + &derived_data.get_mean_synodic_day().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         let axial_tilt_text =
-            Text::new("Axial Tilt: ".to_string() + &derived_data.get_axial_tilt().astro_display());
+            Text::new("Axial Tilt: ".to_string() + &derived_data.get_axial_tilt().astro_display())
+                .shaping(Shaping::Advanced);
 
         let black_body_temperature_text = Text::new(
             "Black Body Temperature: ".to_string()
                 + &derived_data.get_black_body_temperature().astro_display(),
-        );
+        )
+        .shaping(Shaping::Advanced);
 
         Column::new()
             .push(density_text)
@@ -314,7 +322,7 @@ impl PlanetDialog {
             .push(axial_tilt_text)
             .push(black_body_temperature_text)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }
@@ -351,7 +359,7 @@ pub(crate) enum PlanetDialogEvent {
     Submit,
 }
 
-impl Component<GuiMessage, Renderer> for PlanetDialog {
+impl Component<GuiMessage> for PlanetDialog {
     type State = ();
 
     type Event = PlanetDialogEvent;
@@ -459,7 +467,7 @@ impl Component<GuiMessage, Renderer> for PlanetDialog {
         None
     }
 
-    fn view(&self, _state: &Self::State) -> iced::Element<'_, Self::Event> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         Row::new()
             .push(self.edit_column())
             .push(self.additional_info_column())

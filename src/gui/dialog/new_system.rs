@@ -13,7 +13,7 @@ use crate::{
 use astro_utils::astro_display::AstroDisplay;
 use iced::{
     widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
-    Alignment, Element, Renderer,
+    Alignment, Element, Length,
 };
 use simple_si_units::base::Distance;
 
@@ -80,7 +80,7 @@ pub(crate) enum NewSystemDialogEvent {
     Submit,
 }
 
-impl Component<GuiMessage, Renderer> for NewSystemDialog {
+impl Component<GuiMessage> for NewSystemDialog {
     type State = ();
 
     type Event = NewSystemDialogEvent;
@@ -106,7 +106,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
         None
     }
 
-    fn view(&self, _state: &Self::State) -> iced::Element<'_, Self::Event> {
+    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let real_system_type_radio = Radio::new(
             "Real",
             SystemType::Real,
@@ -208,7 +208,7 @@ impl Component<GuiMessage, Renderer> for NewSystemDialog {
         col.push(submit_button)
             .padding(PADDING)
             .spacing(PADDING)
-            .width(iced::Length::Fill)
+            .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()
     }

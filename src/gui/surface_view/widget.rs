@@ -8,11 +8,8 @@ use astro_utils::{
     units::angle::{normalized_angle, ANGLE_ZERO},
 };
 use iced::{
-    widget::{
-        canvas::{self},
-        Column,
-    },
-    Alignment,
+    widget::{canvas, Column},
+    Alignment, Element, Length,
 };
 use simple_si_units::geometry::{Angle, SolidAngle};
 use std::f64::consts::PI;
@@ -102,7 +99,7 @@ impl SurfaceViewState {
         self.bodies_cache.clear();
     }
 
-    pub(crate) fn control_field(&self) -> iced::Element<'_, GuiMessage> {
+    pub(crate) fn control_field(&self) -> Element<'_, GuiMessage> {
         let surface_long = self.surface_longitude;
         let surface_longitude_control_field = control_field(
             "Surface Longitude:",
@@ -148,7 +145,7 @@ impl SurfaceViewState {
             .push(view_longitude_control_field)
             .push(view_latitude_control_field)
             .push(viewport_angle_control_field)
-            .width(iced::Length::Fixed(BIG_COLUMN_WIDTH))
+            .width(Length::Fixed(BIG_COLUMN_WIDTH))
             .align_items(Alignment::Center)
             .spacing(PADDING)
             .into()

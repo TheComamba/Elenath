@@ -1,17 +1,20 @@
 use gui::Gui;
-use iced::Sandbox;
+use iced::{settings, window, Result, Sandbox, Size};
 
 mod error;
 mod file_dialog;
 mod gui;
 mod model;
 
-fn main() -> iced::Result {
-    let window_settings = iced::window::Settings {
-        size: (1820, 980),
+fn main() -> Result {
+    let window_settings = window::Settings {
+        size: (Size {
+            width: 1820.,
+            height: 980.,
+        }),
         ..Default::default()
     };
-    let settings = iced::settings::Settings {
+    let settings = settings::Settings {
         window: window_settings,
         antialiasing: true,
         ..Default::default()

@@ -4,8 +4,9 @@ use super::{
     table_view::widget::TableViewState, top_view::widget::TopViewState, Gui,
 };
 use iced::{
+    mouse::Cursor,
     widget::{canvas, Column, Container, Row, Text},
-    Element, Length, Sandbox,
+    Element, Length, Rectangle, Renderer, Sandbox, Theme,
 };
 use iced_aw::Modal;
 use simple_si_units::base::Time;
@@ -50,7 +51,7 @@ impl Sandbox for Gui {
         }
     }
 
-    fn view(&self) -> iced::Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         Modal::new(
             self.main_view(),
             self.dialog.as_ref().map(|d| d.to_element()),
@@ -59,8 +60,8 @@ impl Sandbox for Gui {
         .into()
     }
 
-    fn theme(&self) -> iced::Theme {
-        iced::Theme::Dark
+    fn theme(&self) -> Theme {
+        Theme::Dark
     }
 }
 
@@ -70,10 +71,10 @@ impl<GuiMessage> canvas::Program<GuiMessage> for Gui {
     fn draw(
         &self,
         _state: &Self::State,
-        renderer: &iced::Renderer,
-        _theme: &iced::theme::Theme,
-        bounds: iced::Rectangle,
-        _cursor: iced::mouse::Cursor,
+        renderer: &Renderer,
+        _theme: &Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
     ) -> Vec<canvas::Geometry> {
         match self.mode {
             GuiViewMode::Surface => self.surface_view_state.canvas(
@@ -122,11 +123,9 @@ impl Gui {
                             self.display_constellations,
                         ))
                         .push(self.surface_view_state.control_field());
-                    col = col.push(control_row).push(
-                        canvas(self)
-                            .width(iced::Length::Fill)
-                            .height(iced::Length::Fill),
-                    )
+                    col = col
+                        .push(control_row)
+                        .push(canvas(self).width(Length::Fill).height(Length::Fill))
                 }
                 GuiViewMode::Top => {
                     let control_row = Row::new()
@@ -139,11 +138,9 @@ impl Gui {
                             self.display_constellations,
                         ))
                         .push(self.top_view_state.control_field());
-                    col = col.push(control_row).push(
-                        canvas(self)
-                            .width(iced::Length::Fill)
-                            .height(iced::Length::Fill),
-                    )
+                    col = col
+                        .push(control_row)
+                        .push(canvas(self).width(Length::Fill).height(Length::Fill))
                 }
                 GuiViewMode::Table => {
                     col = col.push(self.table_view_state.table_view(&self.celestial_system));
@@ -151,8 +148,8 @@ impl Gui {
             }
         }
 
-        col.width(iced::Length::Fill)
-            .height(iced::Length::Fill)
+        col.width(Length::Fill)
+            .height(Length::Fill)
             .spacing(PADDING)
             .into()
     }
