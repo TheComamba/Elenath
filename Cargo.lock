@@ -160,7 +160,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/supernovae#67470a6036692db31f8bceef7848acac6c6a457f"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/supernovae#29556a11119870cf683c378e605ae232fd888df2"
 dependencies = [
  "directories",
  "flate2",
@@ -1763,9 +1763,9 @@ dependencies = [
 
 [[package]]
 name = "iced_widget"
-version = "0.12.2"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69c660b93702106bf3a477e6cec4776b7aaa09676bf35ffd794065476bf269f2"
+checksum = "7e01b2212adecf1cb80e2267f302c0e0c263e55f97812056949199ccf9f0b908"
 dependencies = [
  "iced_renderer",
  "iced_runtime",
@@ -2771,9 +2771,9 @@ checksum = "42a9830a0e1b9fb145ebb365b8bc4ccd75f290f98c0247deafbbe2c75cefb544"
 
 [[package]]
 name = "rayon"
-version = "1.8.1"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa7237101a77a10773db45d62004a272517633fbcc3df19d96455ede1122e051"
+checksum = "e4963ed1bc86e4f3ee217022bd855b297cef07fb9eac5dfa1f788b220b49b3bd"
 dependencies = [
  "either",
  "rayon-core",
