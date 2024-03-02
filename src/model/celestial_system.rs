@@ -307,7 +307,7 @@ mod tests {
     fn central_body_has_distance_zero() {
         for star in get_many_stars().iter() {
             let system = CelestialSystem::new(SystemType::Real, star.to_star_data());
-            assert!(system.get_central_body_data().get_distance_at_epoch() < &Distance::from_m(1.));
+            assert!(system.get_central_body_data().get_distance_at_epoch() < Distance::from_m(1.));
         }
     }
 
@@ -336,8 +336,7 @@ mod tests {
         system.add_stars_from_data(stars);
         let mut bright_star = SUN.to_star_data();
         bright_star.set_distance_at_epoch(Distance::from_lyr(1.));
-        bright_star
-            .set_luminous_intensity_at_epoch(Some(absolute_magnitude_to_luminous_intensity(-10.)));
+        bright_star.set_luminous_intensity_at_epoch(absolute_magnitude_to_luminous_intensity(-10.));
         system.overwrite_star_data(Some(17), bright_star);
         let stars = system.get_stars();
         for i in 1..stars.len() - 1 {

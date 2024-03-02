@@ -1,6 +1,9 @@
 use iced::{
     alignment::{Horizontal, Vertical},
-    widget::canvas::{self, Path},
+    widget::{
+        canvas::{self, Path},
+        text::Shaping,
+    },
     Color, Pixels, Point, Rectangle, Vector,
 };
 
@@ -18,6 +21,7 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
         color,
         content: name.to_string(),
         position: body_center + Vector::new(ORDINATE_OFFSET, ORDINATE_OFFSET),
+        shaping: Shaping::Advanced,
         ..Default::default()
     };
     frame.fill_text(name_widget);
