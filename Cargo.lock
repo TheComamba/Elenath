@@ -160,7 +160,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#4e9c0d7a4c5e53ad004e1965f81fd5884ea2ef9c"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=dev/star-forming-regions#ffc822db4f9cf2752ae8b56e922a286042d9d4fa"
 dependencies = [
  "directories",
  "flate2",

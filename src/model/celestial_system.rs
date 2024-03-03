@@ -166,10 +166,7 @@ impl CelestialSystem {
     ) -> StarAppearance {
         let mut body = self.central_body.clone();
         let relative_position = -observer_pos;
-        let distance = relative_position.length();
-        let pos = relative_position.to_ecliptic();
-        body.set_distance_at_epoch(distance);
-        body.set_pos_at_epoch(pos);
+        body.set_pos_at_epoch(relative_position);
         body.to_star_appearance(self.time_since_epoch)
     }
 

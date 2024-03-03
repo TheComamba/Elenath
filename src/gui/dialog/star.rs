@@ -1,6 +1,6 @@
 use astro_utils::{
     astro_display::AstroDisplay,
-    coordinates::ecliptic::EclipticCoordinates,
+    coordinates::cartesian::CartesianCoordinates,
     stars::{
         data::StarData, evolution::StarDataEvolution, random::random_stars::generate_random_star,
     },
@@ -60,8 +60,7 @@ impl StarDialog {
                 None,
                 LUMINOSITY_ZERO,
                 TEMPERATURE_ZERO,
-                DISTANCE_ZERO,
-                EclipticCoordinates::Z_DIRECTION,
+                CartesianCoordinates::ORIGIN,
                 StarDataEvolution::NONE,
             ),
             star_index: None,
@@ -126,11 +125,19 @@ impl StarDialog {
         self.distance_string = format!("{:.2}", self.star.get_distance_at_epoch().to_lyr());
         self.longitude_string = format!(
             "{:.2}",
-            self.star.get_pos_at_epoch().get_longitude().to_degrees()
+            self.star
+                .get_pos_at_epoch()
+                .to_ecliptic()
+                .get_longitude()
+                .to_degrees()
         );
         self.latitude_string = format!(
             "{:.2}",
-            self.star.get_pos_at_epoch().get_latitude().to_degrees()
+            self.star
+                .get_pos_at_epoch()
+                .to_ecliptic()
+                .get_latitude()
+                .to_degrees()
         );
     }
 
@@ -192,14 +199,14 @@ impl StarDialog {
             &self.longitude_string,
             "°",
             StarDialogEvent::LongitudeChanged,
-            &Some(self.star.get_pos_at_epoch().get_longitude()),
+            &Some(self.star.get_pos_at_epoch().to_ecliptic().get_longitude()),
         );
         let latitude = edit(
             "Latitude at epoch",
             &self.latitude_string,
             "°",
             StarDialogEvent::LatitudeChanged,
-            &Some(self.star.get_pos_at_epoch().get_latitude()),
+            &Some(self.star.get_pos_at_epoch().to_ecliptic().get_latitude()),
         );
         let constellation = edit(
             "Constellation",
@@ -328,6 +335,7 @@ impl StarDialog {
                 + &self
                     .star
                     .get_pos(self.time_since_epoch)
+                    .to_ecliptic()
                     .get_longitude()
                     .astro_display(),
         )
@@ -338,6 +346,7 @@ impl StarDialog {
                 + &self
                     .star
                     .get_pos(self.time_since_epoch)
+                    .to_ecliptic()
                     .get_latitude()
                     .astro_display(),
         )
@@ -450,16 +459,22 @@ impl Component<GuiMessage> for StarDialog {
             }
             StarDialogEvent::LongitudeChanged(longitude_string) => {
                 if let Ok(longitude) = longitude_string.parse::<f64>() {
-                    let mut pos = self.star.get_pos_at_epoch().clone();
+                    let mut pos = self.star.get_pos_at_epoch().to_ecliptic();
                     pos.set_longitude(Angle::from_degrees(longitude));
+                    let pos = pos
+                        .to_direction()
+                        .to_cartesian(self.star.get_distance_at_epoch());
                     self.star.set_pos_at_epoch(pos);
                 }
                 self.longitude_string = longitude_string;
             }
             StarDialogEvent::LatitudeChanged(latitude_string) => {
                 if let Ok(latitude) = latitude_string.parse::<f64>() {
-                    let mut pos = self.star.get_pos_at_epoch().clone();
+                    let mut pos = self.star.get_pos_at_epoch().to_ecliptic();
                     pos.set_latitude(Angle::from_degrees(latitude));
+                    let pos = pos
+                        .to_direction()
+                        .to_cartesian(self.star.get_distance_at_epoch());
                     self.star.set_pos_at_epoch(pos);
                 }
                 self.latitude_string = latitude_string;
