@@ -1,4 +1,4 @@
-use super::celestial_system::{CelestialSystem, SystemType};
+use super::celestial_system::CelestialSystem;
 use crate::error::ElenathError;
 use astro_utils::{
     real_data::{
@@ -16,7 +16,7 @@ pub(crate) enum GeneratedCentralBody {
 }
 
 pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, ElenathError> {
-    let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+    let mut system = CelestialSystem::new(SUN.to_star_data());
     system.add_planet_data(MERCURY.to_planet_data());
     system.add_planet_data(VENUS.to_planet_data());
     system.add_planet_data(EARTH.to_planet_data());
@@ -48,7 +48,7 @@ pub(crate) fn generated_system(
         GeneratedCentralBody::RandomStar => generate_random_star(None)?,
     };
 
-    let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
+    let mut system = CelestialSystem::new(central_body_data);
 
     let distant_stars = generate_random_stars(max_distance)?;
     system.add_stars_from_data(distant_stars);

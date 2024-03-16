@@ -6,7 +6,7 @@ use crate::{
         message::GuiMessage,
     },
     model::{
-        celestial_system::{CelestialSystem, SystemType},
+        celestial_system::CelestialSystem,
         new_celestial_system::{generated_system, solar_system, GeneratedCentralBody},
     },
 };
@@ -23,6 +23,12 @@ pub(crate) struct NewSystemDialog {
     load_gaia_data: bool,
     generated_central_body: GeneratedCentralBody,
     generation_distance: GenerationDistance,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub(crate) enum SystemType {
+    Real,
+    Generated,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]

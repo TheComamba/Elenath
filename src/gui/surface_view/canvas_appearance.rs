@@ -119,8 +119,6 @@ mod tests {
     };
     use simple_si_units::{base::Distance, geometry::Angle};
 
-    use crate::model::celestial_system::SystemType;
-
     use super::*;
 
     const SOME_ILLUMINANCE: Illuminance<f64> = Illuminance { lux: 100. };
@@ -621,7 +619,7 @@ mod tests {
     fn aligned_planet_sun_and_observer() {
         const CENTER: Vector = Vector { x: 0., y: 0. };
 
-        let mut celestial_system = CelestialSystem::new(SystemType::Generated, SUN.to_star_data());
+        let mut celestial_system = CelestialSystem::new(SUN.to_star_data());
         let orbit = OrbitParameters::new(
             Distance::from_au(1.),
             0.,
