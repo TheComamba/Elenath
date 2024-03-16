@@ -7,7 +7,7 @@ use astro_utils::{
         constellation::constellation::{collect_constellations, Constellation},
         data::StarData,
         fate::StarFate,
-        gaia_data::star_is_already_known,
+        gaia::gaia_source::star_is_already_known,
     },
     units::{distance::DISTANCE_ZERO, time::TIME_ZERO},
 };

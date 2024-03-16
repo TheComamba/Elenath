@@ -5,7 +5,7 @@ use astro_utils::{
         planets::*,
         stars::{all::get_many_stars, SUN},
     },
-    stars::{gaia_data::fetch_brightest_stars, random::random_stars::*},
+    stars::{gaia::gaia_source::fetch_brightest_stars, random::random_stars::*},
 };
 use simple_si_units::base::Distance;
 
