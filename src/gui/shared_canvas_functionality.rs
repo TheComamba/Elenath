@@ -14,7 +14,7 @@ pub(super) fn draw_background(bounds: Rectangle, frame: &mut canvas::Frame) {
 
 pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mut canvas::Frame) {
     const ORDINATE_OFFSET: f32 = 10.;
-    if name.is_empty() || name.starts_with("Gaia") {
+    if name.is_empty() || name.starts_with("Gaia") || name.chars().all(char::is_numeric) {
         return;
     }
     let name_widget = canvas::Text {

@@ -5,7 +5,13 @@ use astro_utils::{
         planets::*,
         stars::{all::get_many_stars, SUN},
     },
-    stars::{gaia::gaia_source::fetch_brightest_stars, random::random_stars::*},
+    stars::{
+        gaia::{
+            gaia_source::fetch_brightest_stars,
+            gaia_universe_simulation::fetch_brightest_stars_simulated_data,
+        },
+        random::random_stars::*,
+    },
 };
 use simple_si_units::base::Distance;
 
@@ -36,6 +42,13 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, Elen
         system.add_star_appearances_without_duplicates(stars);
     }
 
+    Ok(system)
+}
+
+pub(crate) fn gaia_universe_simulation() -> Result<CelestialSystem, ElenathError> {
+    let mut system = CelestialSystem::new(SUN.to_star_data());
+    let stars = fetch_brightest_stars_simulated_data()?;
+    system.add_stars_from_data(stars);
     Ok(system)
 }
 
