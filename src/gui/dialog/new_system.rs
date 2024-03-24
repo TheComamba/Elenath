@@ -6,8 +6,10 @@ use crate::{
         message::GuiMessage,
     },
     model::{
-        celestial_system::{CelestialSystem, SystemType},
-        new_celestial_system::{generated_system, solar_system, GeneratedCentralBody},
+        celestial_system::CelestialSystem,
+        new_celestial_system::{
+            gaia_universe_simulation, generated_system, solar_system, GeneratedCentralBody,
+        },
     },
 };
 use astro_utils::astro_display::AstroDisplay;
@@ -23,6 +25,13 @@ pub(crate) struct NewSystemDialog {
     load_gaia_data: bool,
     generated_central_body: GeneratedCentralBody,
     generation_distance: GenerationDistance,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub(crate) enum SystemType {
+    Real,
+    GaiaSimulation,
+    Generated,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -45,6 +54,7 @@ impl NewSystemDialog {
     fn celestial_system(&self) -> Result<CelestialSystem, ElenathError> {
         match self.system_type {
             SystemType::Real => solar_system(self.load_gaia_data),
+            SystemType::GaiaSimulation => gaia_universe_simulation(),
             SystemType::Generated => generated_system(
                 &self.generated_central_body,
                 max_generation_distance(self.generation_distance),
@@ -114,6 +124,13 @@ impl Component<GuiMessage> for NewSystemDialog {
             NewSystemDialogEvent::SystemTypeSelected,
         )
         .width(SMALL_COLUMN_WIDTH);
+        let gaia_simulation_system_type_radio = Radio::new(
+            "Gaia Simulation",
+            SystemType::GaiaSimulation,
+            Some(self.system_type),
+            NewSystemDialogEvent::SystemTypeSelected,
+        )
+        .width(SMALL_COLUMN_WIDTH);
         let generated_system_type_radio = Radio::new(
             "Generated",
             SystemType::Generated,
@@ -123,6 +140,7 @@ impl Component<GuiMessage> for NewSystemDialog {
         .width(SMALL_COLUMN_WIDTH);
         let type_row = Row::new()
             .push(real_system_type_radio)
+            .push(gaia_simulation_system_type_radio)
             .push(generated_system_type_radio)
             .padding(PADDING)
             .spacing(PADDING);
@@ -139,6 +157,7 @@ impl Component<GuiMessage> for NewSystemDialog {
                 .width(2. * SMALL_COLUMN_WIDTH);
                 col = col.push(load_gaia_data_toggler);
             }
+            SystemType::GaiaSimulation => {}
             SystemType::Generated => {
                 let sun_radio = Radio::new(
                     "Use the Sun as Central Body",

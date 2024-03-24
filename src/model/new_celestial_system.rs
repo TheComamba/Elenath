@@ -1,11 +1,17 @@
-use super::celestial_system::{CelestialSystem, SystemType};
+use super::celestial_system::CelestialSystem;
 use crate::error::ElenathError;
 use astro_utils::{
     real_data::{
         planets::*,
         stars::{all::get_many_stars, SUN},
     },
-    stars::{gaia_data::fetch_brightest_stars, random::random_stars::*},
+    stars::{
+        gaia::{
+            gaia_source::fetch_brightest_stars,
+            gaia_universe_simulation::fetch_brightest_stars_simulated_data,
+        },
+        random::random_stars::*,
+    },
 };
 use simple_si_units::base::Distance;
 
@@ -16,7 +22,7 @@ pub(crate) enum GeneratedCentralBody {
 }
 
 pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, ElenathError> {
-    let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+    let mut system = CelestialSystem::new(SUN.to_star_data());
     system.add_planet_data(MERCURY.to_planet_data());
     system.add_planet_data(VENUS.to_planet_data());
     system.add_planet_data(EARTH.to_planet_data());
@@ -39,6 +45,13 @@ pub(crate) fn solar_system(load_gaia_data: bool) -> Result<CelestialSystem, Elen
     Ok(system)
 }
 
+pub(crate) fn gaia_universe_simulation() -> Result<CelestialSystem, ElenathError> {
+    let mut system = CelestialSystem::new(SUN.to_star_data());
+    let stars = fetch_brightest_stars_simulated_data()?;
+    system.add_stars_from_data(stars);
+    Ok(system)
+}
+
 pub(crate) fn generated_system(
     central_body: &GeneratedCentralBody,
     max_distance: Distance<f64>,
@@ -48,7 +61,7 @@ pub(crate) fn generated_system(
         GeneratedCentralBody::RandomStar => generate_random_star(None)?,
     };
 
-    let mut system = CelestialSystem::new(SystemType::Generated, central_body_data);
+    let mut system = CelestialSystem::new(central_body_data);
 
     let distant_stars = generate_random_stars(max_distance)?;
     system.add_stars_from_data(distant_stars);

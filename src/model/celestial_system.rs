@@ -7,7 +7,7 @@ use astro_utils::{
         constellation::constellation::{collect_constellations, Constellation},
         data::StarData,
         fate::StarFate,
-        gaia_data::star_is_already_known,
+        gaia::gaia_source::star_is_already_known,
     },
     units::{distance::DISTANCE_ZERO, time::TIME_ZERO},
 };
@@ -17,7 +17,6 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct CelestialSystem {
-    system_type: SystemType,
     central_body: StarData,
     planets: Vec<PlanetData>,
     distant_stars: Vec<Star>,
@@ -25,17 +24,10 @@ pub(crate) struct CelestialSystem {
     time_since_epoch: Time<f64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SystemType {
-    Real,
-    Generated,
-}
-
 impl CelestialSystem {
-    pub(crate) fn new(system_type: SystemType, mut central_body: StarData) -> Self {
+    pub(crate) fn new(mut central_body: StarData) -> Self {
         central_body.set_distance_at_epoch(DISTANCE_ZERO);
         CelestialSystem {
-            system_type,
             central_body,
             planets: vec![],
             distant_stars: vec![],
@@ -277,7 +269,7 @@ mod tests {
 
     #[test]
     fn planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let mut system = CelestialSystem::new(SUN.to_star_data());
         system.add_planet_data(VENUS.to_planet_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(MARS.to_planet_data());
@@ -291,7 +283,7 @@ mod tests {
 
     #[test]
     fn edited_planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let mut system = CelestialSystem::new(SUN.to_star_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(EARTH.to_planet_data());
         system.overwrite_planet_data(0, JUPITER.to_planet_data());
@@ -303,14 +295,14 @@ mod tests {
     #[test]
     fn central_body_has_distance_zero() {
         for star in get_many_stars().iter() {
-            let system = CelestialSystem::new(SystemType::Real, star.to_star_data());
+            let system = CelestialSystem::new(star.to_star_data());
             assert!(system.get_central_body_data().get_distance_at_epoch() < Distance::from_m(1.));
         }
     }
 
     #[test]
     fn stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let mut system = CelestialSystem::new(SUN.to_star_data());
         let reverse_stars = get_many_stars()
             .iter()
             .rev()
@@ -328,7 +320,7 @@ mod tests {
 
     #[test]
     fn edited_stars_are_sorted_by_brightness() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let mut system = CelestialSystem::new(SUN.to_star_data());
         let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
         system.add_stars_from_data(stars);
         let mut bright_star = SUN.to_star_data();
@@ -346,7 +338,7 @@ mod tests {
 
     #[test]
     fn star_index_is_correct_after_sorting() {
-        let mut system = CelestialSystem::new(SystemType::Real, SUN.to_star_data());
+        let mut system = CelestialSystem::new(SUN.to_star_data());
         let reversed_stars = get_many_stars()
             .iter()
             .rev()
