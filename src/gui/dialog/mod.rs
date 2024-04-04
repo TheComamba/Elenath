@@ -20,9 +20,10 @@ pub(crate) enum DialogType {
     EditPlanet(usize),
     NewStar,
     EditStar(Option<usize>),
+    LoadRealPlanets,
     RandomizePlanets,
-    RandomizeStars,
     LoadGaiaData,
+    RandomizeStars,
 }
 
 pub(crate) trait Dialog {
