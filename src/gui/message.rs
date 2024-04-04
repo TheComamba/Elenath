@@ -1,4 +1,7 @@
+use super::dialog::load_gaia_data::LoadGaiaDataDialog;
 use super::dialog::planet::PlanetDialog;
+use super::dialog::randomize_planets::RandomizePlanetsDialog;
+use super::dialog::randomize_stars::RandomizeStarsDialog;
 use super::dialog::star::StarDialog;
 use super::dialog::DialogType;
 use super::gui_widget::GuiViewMode;
@@ -97,13 +100,13 @@ impl Gui {
                 )));
             }
             DialogType::RandomizePlanets => {
-                todo!();
+                self.dialog = Some(Box::new(RandomizePlanetsDialog::new()));
             }
             DialogType::RandomizeStars => {
-                todo!();
+                self.dialog = Some(Box::new(RandomizeStarsDialog::new()));
             }
             DialogType::LoadGaiaData => {
-                todo!();
+                self.dialog = Some(Box::new(LoadGaiaDataDialog::new()));
             }
         }
         Ok(())
