@@ -1,6 +1,8 @@
 use super::col_data::{TableColData, TableDataType};
 use crate::{
-    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button},
+    gui::{
+        dialog::DialogType, gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button,
+    },
     model::{
         celestial_system::CelestialSystem,
         part_of_celestial_system::{BodyType, PartOfCelestialSystem},
@@ -38,17 +40,29 @@ impl TableViewState {
                 TableDataType::Planet => {
                     let planet_col_data = TableColData::default_planet_col_data();
                     let planets = system.get_planets();
-                    table(planet_col_data, planets, GuiMessage::NewPlanetDialog)
+                    table(
+                        planet_col_data,
+                        planets,
+                        GuiMessage::OpenDialog(DialogType::NewPlanet),
+                    )
                 }
                 TableDataType::Star => {
                     let star_col_data = TableColData::default_star_col_data();
                     let stars = system.get_stars();
-                    table(star_col_data, stars, GuiMessage::NewStarDialog)
+                    table(
+                        star_col_data,
+                        stars,
+                        GuiMessage::OpenDialog(DialogType::NewStar),
+                    )
                 }
                 TableDataType::Supernova => {
                     let supernova_col_data = TableColData::default_supernova_col_data();
                     let supernovae = system.get_supernovae();
-                    table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
+                    table(
+                        supernova_col_data,
+                        supernovae,
+                        GuiMessage::OpenDialog(DialogType::NewStar),
+                    )
                 }
             };
             col = col.push(table);
@@ -159,11 +173,14 @@ where
     match data.get_body_type() {
         BodyType::Planet => {
             if let Some(index) = index {
-                edit_button = edit_button.on_press(GuiMessage::EditPlanetDialog(index));
+                edit_button =
+                    edit_button.on_press(GuiMessage::OpenDialog(DialogType::EditPlanet(index)));
             }
         }
         BodyType::Star => {
-            edit_button = edit_button.on_press(GuiMessage::EditStarDialog(data.get_index()));
+            edit_button = edit_button.on_press(GuiMessage::OpenDialog(DialogType::EditStar(
+                data.get_index(),
+            )));
         }
     }
     let mut row = Row::new()

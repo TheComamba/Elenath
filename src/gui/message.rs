@@ -1,5 +1,6 @@
 use super::dialog::planet::PlanetDialog;
 use super::dialog::star::StarDialog;
+use super::dialog::DialogType;
 use super::gui_widget::GuiViewMode;
 use super::table_view::col_data::TableDataType;
 use super::Gui;
@@ -18,18 +19,13 @@ use simple_si_units::base::Time;
 pub(crate) enum GuiMessage {
     UpdateSurfaceView(SurfaceViewUpdate),
     UpdateTopView(TopViewUpdate),
-    NewSystemDialog,
-    NewSystemDialogSubmit(Result<CelestialSystem, ElenathError>),
+    NewSystem(Result<CelestialSystem, ElenathError>),
     SaveToFile,
     SaveToNewFile,
     OpenFile,
     ModeSelected(GuiViewMode),
-    NewPlanetDialog,
-    EditPlanetDialog(usize),
     NewPlanet(PlanetData),
     PlanetEdited(usize, PlanetData),
-    NewStarDialog,
-    EditStarDialog(Option<usize>),
     NewStar(StarData),
     StarEdited(Option<usize>, StarData),
     UpdateTime(Time<f64>),
@@ -38,23 +34,21 @@ pub(crate) enum GuiMessage {
     SetDisplayNames(bool),
     SetDisplayConstellations(bool),
     TableDataTypeSelected(TableDataType),
+    RandomizePlanets,
+    RandomizeStars,
+    LoadGaiaData,
+    OpenDialog(DialogType),
     DialogClosed,
     ErrorEncountered(ElenathError),
 }
 
 impl Gui {
-    pub(crate) fn handle_message(&mut self, message: GuiMessage) -> Result<(), ElenathError> {
-        match message {
-            GuiMessage::UpdateSurfaceView(message) => {
-                self.surface_view_state.update(message);
-            }
-            GuiMessage::UpdateTopView(message) => {
-                self.top_view_state.update(message);
-            }
-            GuiMessage::NewSystemDialog => {
+    fn open_dialog(&mut self, dialog_type: DialogType) -> Result<(), ElenathError> {
+        match dialog_type {
+            DialogType::NewSystem => {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
-            GuiMessage::NewPlanetDialog => {
+            DialogType::NewPlanet => {
                 let celestial_system = &self
                     .celestial_system
                     .as_ref()
@@ -62,7 +56,7 @@ impl Gui {
                 let central_body = celestial_system.get_central_body_data().clone();
                 self.dialog = Some(Box::new(PlanetDialog::new(central_body)));
             }
-            GuiMessage::EditPlanetDialog(index) => {
+            DialogType::EditPlanet(index) => {
                 let celestial_system = &self
                     .celestial_system
                     .as_ref()
@@ -81,6 +75,48 @@ impl Gui {
                     central_body.clone(),
                 )));
             }
+            DialogType::NewStar => {
+                let system = self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?;
+                self.dialog = Some(Box::new(StarDialog::new(system.get_time_since_epoch())));
+            }
+            DialogType::EditStar(index) => {
+                let system = &self
+                    .celestial_system
+                    .as_ref()
+                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let star = system
+                    .get_star_data(index)
+                    .ok_or(ElenathError::BodyNotFound)?;
+                self.dialog = Some(Box::new(StarDialog::edit(
+                    star.clone(),
+                    index,
+                    system.get_time_since_epoch(),
+                )));
+            }
+            DialogType::RandomizePlanets => {
+                todo!();
+            }
+            DialogType::RandomizeStars => {
+                todo!();
+            }
+            DialogType::LoadGaiaData => {
+                todo!();
+            }
+        }
+        Ok(())
+    }
+
+    pub(crate) fn handle_message(&mut self, message: GuiMessage) -> Result<(), ElenathError> {
+        match message {
+            GuiMessage::UpdateSurfaceView(message) => {
+                self.surface_view_state.update(message);
+            }
+            GuiMessage::UpdateTopView(message) => {
+                self.top_view_state.update(message);
+            }
             GuiMessage::NewPlanet(planet) => {
                 self.celestial_system
                     .as_mut()
@@ -94,27 +130,6 @@ impl Gui {
                     .ok_or(ElenathError::NoCelestialSystem)?
                     .overwrite_planet_data(index, planet_data);
                 self.dialog = None;
-            }
-            GuiMessage::NewStarDialog => {
-                let system = self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
-                self.dialog = Some(Box::new(StarDialog::new(system.get_time_since_epoch())));
-            }
-            GuiMessage::EditStarDialog(index) => {
-                let system = &self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
-                let star = system
-                    .get_star_data(index)
-                    .ok_or(ElenathError::BodyNotFound)?;
-                self.dialog = Some(Box::new(StarDialog::edit(
-                    star.clone(),
-                    index,
-                    system.get_time_since_epoch(),
-                )));
             }
             GuiMessage::NewStar(star) => {
                 self.celestial_system
@@ -130,7 +145,7 @@ impl Gui {
                     .overwrite_star_data(index, star_data);
                 self.dialog = None;
             }
-            GuiMessage::NewSystemDialogSubmit(celestial_system) => {
+            GuiMessage::NewSystem(celestial_system) => {
                 self.celestial_system = Some(celestial_system?);
                 self.dialog = None;
             }
@@ -183,6 +198,18 @@ impl Gui {
             }
             GuiMessage::TableDataTypeSelected(body_type) => {
                 self.table_view_state.displayed_body_type = body_type;
+            }
+            GuiMessage::RandomizePlanets => {
+                todo!();
+            }
+            GuiMessage::RandomizeStars => {
+                todo!();
+            }
+            GuiMessage::LoadGaiaData => {
+                todo!();
+            }
+            GuiMessage::OpenDialog(dialog_type) => {
+                self.open_dialog(dialog_type)?;
             }
             GuiMessage::DialogClosed => {
                 self.dialog = None;

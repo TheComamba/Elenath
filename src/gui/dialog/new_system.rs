@@ -110,7 +110,7 @@ impl Component<GuiMessage> for NewSystemDialog {
                 self.generation_distance = generation_distance;
             }
             NewSystemDialogEvent::Submit => {
-                return Some(GuiMessage::NewSystemDialogSubmit(self.celestial_system()));
+                return Some(GuiMessage::NewSystem(self.celestial_system()));
             }
         }
         None

@@ -10,6 +10,18 @@ pub(crate) mod new_system;
 pub(crate) mod planet;
 pub(crate) mod star;
 
+#[derive(Debug, Clone)]
+pub(crate) enum DialogType {
+    NewSystem,
+    NewPlanet,
+    EditPlanet(usize),
+    NewStar,
+    EditStar(Option<usize>),
+    RandomizePlanets,
+    RandomizeStars,
+    LoadGaiaData,
+}
+
 pub(crate) trait Dialog {
     fn card_style(&self) -> CardStyles {
         CardStyles::Primary
