@@ -85,6 +85,8 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        let warning = Text::new("This will overwrite all stars in the current system.");
+
         let sun_radio = Radio::new(
             "Use the Sun as Central Body",
             GeneratedCentralBody::Sun,
@@ -144,6 +146,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
         let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
 
         Column::new()
+            .push(warning)
             .push(central_body_row)
             .push(Text::new("Maximum Generation Distance"))
             .push(generation_distance_row)

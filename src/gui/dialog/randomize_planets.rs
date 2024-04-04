@@ -43,8 +43,10 @@ impl Component<GuiMessage> for RandomizePlanetsDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        let warning = Text::new("This will overwrite all planets in the current system.");
         let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
         Column::new()
+            .push(warning)
             .push(submit_button)
             .padding(PADDING)
             .spacing(PADDING)

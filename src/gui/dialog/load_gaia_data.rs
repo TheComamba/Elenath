@@ -75,6 +75,8 @@ impl Component<GuiMessage> for LoadGaiaDataDialog {
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+        let warning = Text::new("This will overwrite all stars in the current system.");
+
         let measurement_radio = Radio::new(
             "Measurement",
             GaiaDataType::Measurement,
@@ -94,9 +96,11 @@ impl Component<GuiMessage> for LoadGaiaDataDialog {
             .push(simulation_radio)
             .padding(PADDING)
             .spacing(PADDING);
+
         let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
 
         Column::new()
+            .push(warning)
             .push(type_row)
             .push(submit_button)
             .padding(PADDING)
