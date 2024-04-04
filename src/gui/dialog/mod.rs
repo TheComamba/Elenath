@@ -6,8 +6,11 @@ use iced::{
 use iced_aw::{style::CardStyles, Card};
 
 pub(crate) mod error;
+pub(crate) mod load_gaia_data;
 pub(crate) mod new_system;
 pub(crate) mod planet;
+pub(crate) mod randomize_planets;
+pub(crate) mod randomize_stars;
 pub(crate) mod star;
 
 #[derive(Debug, Clone)]
