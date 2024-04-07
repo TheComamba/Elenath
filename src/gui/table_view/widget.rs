@@ -4,8 +4,8 @@ use crate::{
         dialog::DialogType, gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button,
     },
     model::{
+        celestial_system::part::{BodyType, PartOfCelestialSystem},
         celestial_system::CelestialSystem,
-        part_of_celestial_system::{BodyType, PartOfCelestialSystem},
     },
 };
 use iced::{
