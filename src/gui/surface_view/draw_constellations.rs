@@ -22,7 +22,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
     ) {
         for constellation in celestial_system.get_constellations() {
-            self.draw_constellation(frame, bounds, constellation, &viewport);
+            self.draw_constellation(frame, bounds, constellation, viewport);
         }
     }
 
@@ -36,7 +36,7 @@ impl SurfaceViewState {
         let appearances = constellation
             .get_stars()
             .iter()
-            .map(|s| CanvasAppearance::from_star_appearance(&s, viewport))
+            .map(|s| CanvasAppearance::from_star_appearance(s, viewport))
             .collect::<Vec<_>>();
 
         let color = Color {
