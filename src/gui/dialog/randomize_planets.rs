@@ -36,9 +36,7 @@ impl Component<GuiMessage> for RandomizePlanetsDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
         match event {
-            NewSystemDialogEvent::Submit => {
-                return Some(GuiMessage::RandomizePlanets);
-            }
+            NewSystemDialogEvent::Submit => Some(GuiMessage::RandomizePlanets),
         }
     }
 
