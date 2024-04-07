@@ -213,7 +213,7 @@ impl StarDialog {
             &self.star.get_constellation().clone().unwrap_or_default(),
             "",
             StarDialogEvent::ConstellationChanged,
-            &self.star.get_constellation(),
+            self.star.get_constellation(),
         );
 
         let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
@@ -374,7 +374,7 @@ impl StarDialog {
     }
 
     fn is_central_body(&self) -> bool {
-        self.star_dialog_type == StarDialogType::Edit && self.star_index == None
+        self.star_dialog_type == StarDialogType::Edit && self.star_index.is_none()
     }
 }
 
