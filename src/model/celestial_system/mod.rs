@@ -3,17 +3,14 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
-        constellation::constellation::Constellation, data::StarData, evolution::StarDataEvolution,
-        fate::StarFate,
+        constellation::Constellation, data::StarData, evolution::StarDataEvolution, fate::StarFate,
+        physical_parameters::StarPhysicalParameters,
     },
-    units::{
-        distance::DISTANCE_ZERO, luminous_intensity::LUMINOSITY_ZERO,
-        temperature::TEMPERATURE_ZERO, time::TIME_ZERO,
-    },
+    units::{luminous_intensity::LUMINOSITY_ZERO, temperature::TEMPERATURE_ZERO, time::TIME_ZERO},
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
-use std::path::PathBuf;
+use std::{cmp::Ordering, path::PathBuf};
 
 pub(crate) mod constellations;
 pub(crate) mod part;
@@ -32,7 +29,7 @@ pub(crate) struct CelestialSystem {
 impl CelestialSystem {
     #[cfg(test)]
     pub(crate) fn new(mut central_body: StarData) -> Self {
-        central_body.set_distance_at_epoch(DISTANCE_ZERO);
+        central_body.set_distance_at_epoch(astro_utils::units::distance::DISTANCE_ZERO);
         CelestialSystem {
             central_body,
             planets: vec![],
@@ -43,13 +40,12 @@ impl CelestialSystem {
     }
 
     pub(crate) fn empty() -> Self {
+        let central_body_params =
+            StarPhysicalParameters::new(None, None, LUMINOSITY_ZERO, TEMPERATURE_ZERO);
         let central_body = StarData::new(
             "".to_string(),
             None,
-            None,
-            None,
-            LUMINOSITY_ZERO,
-            TEMPERATURE_ZERO,
+            central_body_params,
             CartesianCoordinates::ORIGIN,
             StarDataEvolution::NONE,
         );
@@ -100,17 +96,19 @@ impl CelestialSystem {
                 }
             })
             .collect();
-        supernovae.sort_by(|a, b| {
-            a.get_data()
-                .unwrap()
-                .get_time_until_death(self.time_since_epoch)
-                .partial_cmp(
-                    &b.get_data()
-                        .unwrap()
-                        .get_time_until_death(self.time_since_epoch),
-                )
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        supernovae.sort_by(|a, b| self.ord_by_time_til_death(a, b));
         supernovae
+    }
+
+    fn ord_by_time_til_death(&self, a: &Star, b: &Star) -> std::cmp::Ordering {
+        let data_a = a.get_data();
+        let data_b = b.get_data();
+        if let (Some(data_a), Some(data_b)) = (data_a, data_b) {
+            let t_a = data_a.get_time_until_death(self.time_since_epoch);
+            let t_b = data_b.get_time_until_death(self.time_since_epoch);
+            t_a.partial_cmp(&t_b).unwrap_or(Ordering::Equal)
+        } else {
+            Ordering::Equal
+        }
     }
 }

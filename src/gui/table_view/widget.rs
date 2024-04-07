@@ -136,9 +136,7 @@ where
 }
 
 fn table_width<T>(table_col_data: &[TableColData<T>]) -> Length {
-    let planet_table_width =
-        Length::Fixed(table_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH);
-    planet_table_width
+    Length::Fixed(table_col_data.len() as f32 * CELL_WIDTH + 2. * BUTTON_CELL_WIDTH)
 }
 
 fn data_type_selection_tabs() -> Element<'static, GuiMessage> {
@@ -206,7 +204,7 @@ fn table_header<T>(
 fn table_row<T>(
     sorting_index: usize,
     data: T,
-    table_col_data: &Vec<TableColData<T>>,
+    table_col_data: &[TableColData<T>],
 ) -> Row<'static, GuiMessage>
 where
     T: PartOfCelestialSystem,

@@ -160,7 +160,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#755c2e0ad03db2a8363a6b5620b67041fe2bf710"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#70717cb3b65c49f5a727d5f69b38f319d5f164d4"
 dependencies = [
  "directories",
  "flate2",
@@ -520,9 +520,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.90"
+version = "1.0.91"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cd6604a82acf3039f1144f54b8eb34e91ffba622051189e71b781822d5ee1f5"
+checksum = "1fd97381a8cc6493395a5afc4c691c1084b3768db713b73aa215217aa245d153"
 dependencies = [
  "jobserver",
  "libc",

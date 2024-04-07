@@ -36,9 +36,7 @@ impl Component<GuiMessage> for NewSystemDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
         match event {
-            NewSystemDialogEvent::Submit => {
-                return Some(GuiMessage::NewSystem);
-            }
+            NewSystemDialogEvent::Submit => Some(GuiMessage::NewSystem),
         }
     }
 

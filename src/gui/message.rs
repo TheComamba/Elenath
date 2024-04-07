@@ -57,7 +57,7 @@ impl Gui {
             DialogType::NewPlanet => {
                 let celestial_system = &self.get_system()?;
                 let central_body = celestial_system.get_central_body_data().clone();
-                self.dialog = Some(Box::new(PlanetDialog::new(central_body)));
+                self.dialog = Some(Box::new(PlanetDialog::new(central_body)?));
             }
             DialogType::EditPlanet(index) => {
                 let celestial_system = &self.get_system()?;
@@ -65,15 +65,17 @@ impl Gui {
                 let planet = celestial_system
                     .get_planet_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
-                let previous_planet = celestial_system
-                    .get_planet_data(index - 1)
-                    .map(|p| DerivedPlanetData::new(p, central_body, None));
+                let previous_planet = celestial_system.get_planet_data(index - 1);
+                let previous_planet = match previous_planet {
+                    Some(p) => Some(DerivedPlanetData::new(p, central_body, None)?),
+                    None => None,
+                };
                 self.dialog = Some(Box::new(PlanetDialog::edit(
                     planet.clone(),
                     index,
                     previous_planet,
                     central_body.clone(),
-                )));
+                )?));
             }
             DialogType::NewStar => {
                 let system = self.get_system()?;

@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     real_data::stars::{all::get_many_stars, SUN},
@@ -66,12 +68,12 @@ impl CelestialSystem {
     }
 
     fn sort_stars_by_brightness(&mut self) {
-        self.distant_stars.sort_by(|a, b| {
-            b.get_appearance()
-                .get_illuminance()
-                .partial_cmp(&a.get_appearance().get_illuminance())
-                .unwrap()
-        });
+        fn illum(b: &Star) -> &simple_si_units::electromagnetic::Illuminance<f64> {
+            b.get_appearance().get_illuminance()
+        }
+
+        self.distant_stars
+            .sort_by(|a, b| illum(b).partial_cmp(illum(a)).unwrap_or(Ordering::Equal));
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
             star.set_index(i);
         }

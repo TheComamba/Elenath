@@ -110,7 +110,10 @@ mod tests {
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,
         coordinates::{direction::Direction, ecliptic::EclipticCoordinates},
-        planets::{orbit_parameters::OrbitParameters, planet_data::PlanetData},
+        planets::{
+            orbit_parameters::OrbitParameters, physical_parameters::PlanetPhysicalParameters,
+            planet_data::PlanetData,
+        },
         real_data::stars::SUN,
         units::{
             angle::ANGLE_ZERO, distance::EARTH_RADIUS,
@@ -627,16 +630,15 @@ mod tests {
             ANGLE_ZERO,
             ANGLE_ZERO,
         );
-        let planet_data = PlanetData::new(
-            "Inner".to_string(),
+        let planet_physical_params = PlanetPhysicalParameters::new(
             EARTH_MASS,
             EARTH_RADIUS,
             1.,
             sRGBColor::from_sRGB(1., 1., 1.),
             TIME_ZERO,
-            orbit,
             Direction::Z,
         );
+        let planet_data = PlanetData::new("Inner".to_string(), planet_physical_params, orbit);
         celestial_system.add_planet_data(planet_data);
         let planets = celestial_system.get_planets();
         let planet = planets.first().unwrap();

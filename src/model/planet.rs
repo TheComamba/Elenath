@@ -8,7 +8,7 @@ use simple_si_units::base::Time;
 
 pub(crate) struct Planet {
     data: PlanetData,
-    derived_data: DerivedPlanetData,
+    derived_data: Option<DerivedPlanetData>,
     pos: CartesianCoordinates,
     index: Option<usize>,
 }
@@ -21,13 +21,8 @@ impl Planet {
         time: Time<f64>,
         index: Option<usize>,
     ) -> Self {
-        let central_body_mass = central_body.get_mass(time).unwrap();
-        let derived_data = DerivedPlanetData::new(&data, central_body, previous);
-        let pos = data.get_orbital_parameters().calculate_position(
-            data.get_mass(),
-            central_body_mass,
-            time,
-        );
+        let derived_data = DerivedPlanetData::new(&data, central_body, previous).ok();
+        let pos = calc_pos(central_body, time, &data);
         Self {
             data,
             derived_data,
@@ -40,13 +35,23 @@ impl Planet {
         &self.data
     }
 
-    pub(crate) fn get_derived_data(&self) -> &DerivedPlanetData {
-        &self.derived_data
+    pub(crate) fn get_derived_data(&self) -> Option<&DerivedPlanetData> {
+        self.derived_data.as_ref()
     }
 
     pub(crate) fn get_position(&self) -> &CartesianCoordinates {
         &self.pos
     }
+}
+
+fn calc_pos(central_body: &StarData, time: Time<f64>, data: &PlanetData) -> CartesianCoordinates {
+    let pos = if let Some(central_body_mass) = central_body.get_mass(time) {
+        data.get_orbital_parameters()
+            .calculate_position(data.get_mass(), central_body_mass, time)
+    } else {
+        CartesianCoordinates::ORIGIN
+    };
+    pos
 }
 
 impl PartOfCelestialSystem for Planet {

@@ -1,3 +1,5 @@
+#![warn(clippy::unwrap_used)]
+
 use gui::Gui;
 use iced::{settings, window, Result, Sandbox, Size};
 

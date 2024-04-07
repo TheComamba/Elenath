@@ -1,12 +1,12 @@
 use super::{viewport::Viewport, widget::SurfaceViewState};
 use crate::{
     gui::{
-        shared_canvas_functionality::contains_workaround,
+        shared_canvas_functionality::canvas_contains,
         surface_view::canvas_appearance::CanvasAppearance,
     },
     model::celestial_system::CelestialSystem,
 };
-use astro_utils::stars::constellation::constellation::Constellation;
+use astro_utils::stars::constellation::Constellation;
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{Frame, Path, Stroke, Style, Text},
@@ -22,7 +22,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
     ) {
         for constellation in celestial_system.get_constellations() {
-            self.draw_constellation(frame, bounds, constellation, &viewport);
+            self.draw_constellation(frame, bounds, constellation, viewport);
         }
     }
 
@@ -36,7 +36,7 @@ impl SurfaceViewState {
         let appearances = constellation
             .get_stars()
             .iter()
-            .map(|s| CanvasAppearance::from_star_appearance(&s, viewport))
+            .map(|s| CanvasAppearance::from_star_appearance(s, viewport))
             .collect::<Vec<_>>();
 
         let color = Color {
@@ -61,7 +61,7 @@ impl SurfaceViewState {
 
         let center = weighted_average_position(&appearances);
         let position = frame.center() + center;
-        if contains_workaround(&bounds, position) {
+        if canvas_contains(&bounds, position) {
             let name_widget = Text {
                 content: constellation.get_name().to_string(),
                 position,
@@ -79,12 +79,10 @@ impl SurfaceViewState {
 fn weighted_average_position(stars: &[Option<CanvasAppearance>]) -> Vector {
     let mut sum = Vector::new(0., 0.);
     let mut total_weight = 0.;
-    for star in stars {
-        if let Some(star) = star {
-            let weight = star.radius.powi(2) * star.color.a;
-            sum = sum + star.center_offset * weight;
-            total_weight += weight;
-        }
+    for star in stars.iter().flatten() {
+        let weight = star.radius.powi(2) * star.color.a;
+        sum = sum + star.center_offset * weight;
+        total_weight += weight;
     }
     sum * (1. / total_weight)
 }
