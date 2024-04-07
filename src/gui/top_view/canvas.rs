@@ -1,7 +1,7 @@
 use super::widget::TopViewState;
 use crate::{
     gui::shared_canvas_functionality::{
-        contains_workaround, display_info_text, draw_background, draw_name,
+        canvas_contains, display_info_text, draw_background, draw_name,
     },
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
@@ -163,7 +163,7 @@ impl TopViewState {
         let radius = canvas_radius(&radius);
         let pos =
             frame.center() + self.canvas_position(pos3d, view_angle, view_rotation_axis) - offset;
-        if contains_workaround(bounds, pos) {
+        if canvas_contains(bounds, pos) {
             let circle = Path::circle(pos, radius);
             let color = canvas_color(color, albedo);
             frame.fill(&circle, color);

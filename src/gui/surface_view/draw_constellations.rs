@@ -1,7 +1,7 @@
 use super::{viewport::Viewport, widget::SurfaceViewState};
 use crate::{
     gui::{
-        shared_canvas_functionality::contains_workaround,
+        shared_canvas_functionality::canvas_contains,
         surface_view::canvas_appearance::CanvasAppearance,
     },
     model::celestial_system::CelestialSystem,
@@ -61,7 +61,7 @@ impl SurfaceViewState {
 
         let center = weighted_average_position(&appearances);
         let position = frame.center() + center;
-        if contains_workaround(&bounds, position) {
+        if canvas_contains(&bounds, position) {
             let name_widget = Text {
                 content: constellation.get_name().to_string(),
                 position,

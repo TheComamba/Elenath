@@ -8,7 +8,7 @@ use iced::{
 use simple_si_units::base::Distance;
 
 use crate::{
-    gui::shared_canvas_functionality::{contains_workaround, draw_name},
+    gui::shared_canvas_functionality::{canvas_contains, draw_name},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
 
@@ -151,7 +151,7 @@ impl SurfaceViewState {
             let color = canvas_appearance.color;
             self.draw_hue(frame, canvas_appearance);
 
-            if !contains_workaround(&bounds, pos) {
+            if !canvas_contains(&bounds, pos) {
                 return;
             }
 
