@@ -1,4 +1,5 @@
 use super::dialog::load_gaia_data::LoadGaiaDataDialog;
+use super::dialog::load_real_planets::LoadRealPlanetsDialog;
 use super::dialog::planet::PlanetDialog;
 use super::dialog::randomize_planets::RandomizePlanetsDialog;
 use super::dialog::randomize_stars::RandomizeStarsDialog;
@@ -38,6 +39,7 @@ pub(crate) enum GuiMessage {
     SetDisplayConstellations(bool),
     TableDataTypeSelected(TableDataType),
     RandomizePlanets,
+    LoadRealPlanets,
     RandomizeStars,
     LoadGaiaData,
     OpenDialog(DialogType),
@@ -101,6 +103,9 @@ impl Gui {
             }
             DialogType::RandomizePlanets => {
                 self.dialog = Some(Box::new(RandomizePlanetsDialog::new()));
+            }
+            DialogType::LoadRealPlanets => {
+                self.dialog = Some(Box::new(LoadRealPlanetsDialog::new()));
             }
             DialogType::RandomizeStars => {
                 self.dialog = Some(Box::new(RandomizeStarsDialog::new()));
@@ -203,6 +208,9 @@ impl Gui {
                 self.table_view_state.displayed_body_type = body_type;
             }
             GuiMessage::RandomizePlanets => {
+                todo!();
+            }
+            GuiMessage::LoadRealPlanets => {
                 todo!();
             }
             GuiMessage::RandomizeStars => {

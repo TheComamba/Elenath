@@ -7,6 +7,7 @@ use iced_aw::{style::CardStyles, Card};
 
 pub(crate) mod error;
 pub(crate) mod load_gaia_data;
+pub(crate) mod load_real_planets;
 pub(crate) mod new_system;
 pub(crate) mod planet;
 pub(crate) mod randomize_planets;
