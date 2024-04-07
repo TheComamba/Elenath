@@ -79,12 +79,10 @@ impl SurfaceViewState {
 fn weighted_average_position(stars: &[Option<CanvasAppearance>]) -> Vector {
     let mut sum = Vector::new(0., 0.);
     let mut total_weight = 0.;
-    for star in stars {
-        if let Some(star) = star {
-            let weight = star.radius.powi(2) * star.color.a;
-            sum = sum + star.center_offset * weight;
-            total_weight += weight;
-        }
+    for star in stars.iter().flatten() {
+        let weight = star.radius.powi(2) * star.color.a;
+        sum = sum + star.center_offset * weight;
+        total_weight += weight;
     }
     sum * (1. / total_weight)
 }
