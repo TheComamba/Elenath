@@ -23,13 +23,12 @@ impl Planet {
     ) -> Self {
         let derived_data = DerivedPlanetData::new(&data, central_body, previous).ok();
         let pos = calc_pos(central_body, time, &data);
-        let planet = Self {
+        Self {
             data,
             derived_data,
             pos,
             index,
-        };
-        planet
+        }
     }
 
     pub(crate) fn get_data(&self) -> &PlanetData {
@@ -47,11 +46,8 @@ impl Planet {
 
 fn calc_pos(central_body: &StarData, time: Time<f64>, data: &PlanetData) -> CartesianCoordinates {
     let pos = if let Some(central_body_mass) = central_body.get_mass(time) {
-        data.get_orbital_parameters().calculate_position(
-            data.get_mass(),
-            central_body_mass,
-            time,
-        )
+        data.get_orbital_parameters()
+            .calculate_position(data.get_mass(), central_body_mass, time)
     } else {
         CartesianCoordinates::ORIGIN
     };
