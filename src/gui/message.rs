@@ -55,18 +55,12 @@ impl Gui {
                 self.dialog = Some(Box::new(NewSystemDialog::new()));
             }
             DialogType::NewPlanet => {
-                let celestial_system = &self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let celestial_system = &self.get_system()?;
                 let central_body = celestial_system.get_central_body_data().clone();
                 self.dialog = Some(Box::new(PlanetDialog::new(central_body)));
             }
             DialogType::EditPlanet(index) => {
-                let celestial_system = &self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let celestial_system = &self.get_system()?;
                 let central_body = celestial_system.get_central_body_data();
                 let planet = celestial_system
                     .get_planet_data(index)
@@ -82,17 +76,11 @@ impl Gui {
                 )));
             }
             DialogType::NewStar => {
-                let system = self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let system = self.get_system()?;
                 self.dialog = Some(Box::new(StarDialog::new(system.get_time_since_epoch())));
             }
             DialogType::EditStar(index) => {
-                let system = &self
-                    .celestial_system
-                    .as_ref()
-                    .ok_or(ElenathError::NoCelestialSystem)?;
+                let system = &self.get_system()?;
                 let star = system
                     .get_star_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
@@ -127,31 +115,19 @@ impl Gui {
                 self.top_view_state.update(message);
             }
             GuiMessage::NewPlanet(planet) => {
-                self.celestial_system
-                    .as_mut()
-                    .ok_or(ElenathError::NoCelestialSystem)?
-                    .add_planet_data(planet);
+                self.get_system()?.add_planet_data(planet);
                 self.dialog = None;
             }
             GuiMessage::PlanetEdited(index, planet_data) => {
-                self.celestial_system
-                    .as_mut()
-                    .ok_or(ElenathError::NoCelestialSystem)?
-                    .overwrite_planet_data(index, planet_data);
+                self.get_system()?.overwrite_planet_data(index, planet_data);
                 self.dialog = None;
             }
             GuiMessage::NewStar(star) => {
-                self.celestial_system
-                    .as_mut()
-                    .ok_or(ElenathError::NoCelestialSystem)?
-                    .add_stars_from_data(vec![star]);
+                self.get_system()?.add_stars_from_data(vec![star]);
                 self.dialog = None;
             }
             GuiMessage::StarEdited(index, star_data) => {
-                self.celestial_system
-                    .as_mut()
-                    .ok_or(ElenathError::NoCelestialSystem)?
-                    .overwrite_star_data(index, star_data);
+                self.get_system()?.overwrite_star_data(index, star_data);
                 self.dialog = None;
             }
             GuiMessage::NewSystem(celestial_system) => {
@@ -163,19 +139,13 @@ impl Gui {
                     self.opened_file = file_dialog::new();
                 }
                 if let Some(path) = &self.opened_file {
-                    self.celestial_system
-                        .as_ref()
-                        .ok_or(ElenathError::NoCelestialSystem)?
-                        .write_to_file(path.clone())?;
+                    self.get_system_const()?.write_to_file(path.clone())?;
                 }
             }
             GuiMessage::SaveToNewFile => {
                 self.opened_file = file_dialog::new();
                 if let Some(path) = &self.opened_file {
-                    self.celestial_system
-                        .as_ref()
-                        .ok_or(ElenathError::NoCelestialSystem)?
-                        .write_to_file(path.clone())?;
+                    self.get_system_const()?.write_to_file(path.clone())?;
                 }
             }
             GuiMessage::OpenFile => {
@@ -188,10 +158,7 @@ impl Gui {
                 self.mode = mode;
             }
             GuiMessage::UpdateTime(time) => {
-                self.celestial_system
-                    .as_mut()
-                    .ok_or(ElenathError::NoCelestialSystem)?
-                    .set_time_since_epoch(time);
+                self.get_system()?.set_time_since_epoch(time);
             }
             GuiMessage::UpdateTimeStep(time_step) => {
                 self.time_step = time_step;
@@ -209,16 +176,21 @@ impl Gui {
                 self.table_view_state.displayed_body_type = body_type;
             }
             GuiMessage::RandomizePlanets => {
-                todo!();
+                self.get_system()?.randomize_planets();
+                self.dialog = None;
             }
             GuiMessage::LoadRealPlanets => {
-                todo!();
+                self.get_system()?.load_real_planets();
+                self.dialog = None;
             }
             GuiMessage::RandomizeStars(keep_central_body, max_distance) => {
-                todo!();
+                self.get_system()?
+                    .randomize_stars(keep_central_body, max_distance)?;
+                self.dialog = None;
             }
             GuiMessage::LoadStars(data_type) => {
-                todo!();
+                self.get_system()?.load_real_stars(data_type)?;
+                self.dialog = None;
             }
             GuiMessage::OpenDialog(dialog_type) => {
                 self.open_dialog(dialog_type)?;
@@ -232,5 +204,17 @@ impl Gui {
         }
         self.redraw();
         Ok(())
+    }
+
+    fn get_system(&mut self) -> Result<&mut CelestialSystem, ElenathError> {
+        self.celestial_system
+            .as_mut()
+            .ok_or(ElenathError::NoCelestialSystem)
+    }
+
+    fn get_system_const(&self) -> Result<&CelestialSystem, ElenathError> {
+        self.celestial_system
+            .as_ref()
+            .ok_or(ElenathError::NoCelestialSystem)
     }
 }
