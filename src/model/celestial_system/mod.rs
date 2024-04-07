@@ -1,8 +1,15 @@
 use super::star::Star;
 use astro_utils::{
+    coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
-    stars::{constellation::constellation::Constellation, data::StarData, fate::StarFate},
-    units::{distance::DISTANCE_ZERO, time::TIME_ZERO},
+    stars::{
+        constellation::constellation::Constellation, data::StarData, evolution::StarDataEvolution,
+        fate::StarFate,
+    },
+    units::{
+        distance::DISTANCE_ZERO, luminous_intensity::LUMINOSITY_ZERO,
+        temperature::TEMPERATURE_ZERO, time::TIME_ZERO,
+    },
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
@@ -25,6 +32,26 @@ pub(crate) struct CelestialSystem {
 impl CelestialSystem {
     pub(crate) fn new(mut central_body: StarData) -> Self {
         central_body.set_distance_at_epoch(DISTANCE_ZERO);
+        CelestialSystem {
+            central_body,
+            planets: vec![],
+            distant_stars: vec![],
+            constellations: vec![],
+            time_since_epoch: TIME_ZERO,
+        }
+    }
+
+    pub(crate) fn empty() -> Self {
+        let central_body = StarData::new(
+            "".to_string(),
+            None,
+            None,
+            None,
+            LUMINOSITY_ZERO,
+            TEMPERATURE_ZERO,
+            CartesianCoordinates::ORIGIN,
+            StarDataEvolution::NONE,
+        );
         CelestialSystem {
             central_body,
             planets: vec![],

@@ -24,7 +24,7 @@ use simple_si_units::base::{Distance, Time};
 pub(crate) enum GuiMessage {
     UpdateSurfaceView(SurfaceViewUpdate),
     UpdateTopView(TopViewUpdate),
-    NewSystem(Result<CelestialSystem, ElenathError>),
+    NewSystem,
     SaveToFile,
     SaveToNewFile,
     OpenFile,
@@ -130,8 +130,8 @@ impl Gui {
                 self.get_system()?.overwrite_star_data(index, star_data);
                 self.dialog = None;
             }
-            GuiMessage::NewSystem(celestial_system) => {
-                self.celestial_system = Some(celestial_system?);
+            GuiMessage::NewSystem => {
+                self.celestial_system = Some(CelestialSystem::empty());
                 self.dialog = None;
             }
             GuiMessage::SaveToFile => {
