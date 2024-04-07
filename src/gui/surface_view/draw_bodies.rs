@@ -30,8 +30,8 @@ impl SurfaceViewState {
                 frame,
                 bounds,
                 distant_star,
-                &viewport,
-                &observer_position,
+                viewport,
+                observer_position,
                 viewport.px_per_distance,
                 display_names,
             );
@@ -41,8 +41,8 @@ impl SurfaceViewState {
             frame,
             bounds,
             celestial_system,
-            &viewport,
-            &observer_position,
+            viewport,
+            observer_position,
             viewport.px_per_distance,
             display_names,
         );
@@ -56,8 +56,8 @@ impl SurfaceViewState {
                 bounds,
                 celestial_system,
                 &planet,
-                &viewport,
-                &observer_position,
+                viewport,
+                observer_position,
                 viewport.px_per_distance,
                 display_names,
             );
