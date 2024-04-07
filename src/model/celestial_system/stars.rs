@@ -69,7 +69,7 @@ impl CelestialSystem {
         self.distant_stars.sort_by(|a, b| {
             b.get_appearance()
                 .get_illuminance()
-                .partial_cmp(&a.get_appearance().get_illuminance())
+                .partial_cmp(a.get_appearance().get_illuminance())
                 .unwrap()
         });
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
