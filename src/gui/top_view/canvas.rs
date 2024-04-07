@@ -78,41 +78,37 @@ impl TopViewState {
         display_names: bool,
     ) {
         let view_direction = &self.view_ecliptic.get_spherical().to_direction();
-        let (view_angle, view_rotation_axis) =
-            get_rotation_parameters(&Direction::Z, view_direction);
+        let (angle, view_rotation_axis) = get_rotation_parameters(&Direction::Z, view_direction);
 
         let offset = match selected_planet {
-            Some(focus) => {
-                self.canvas_position(focus.get_position(), view_angle, &view_rotation_axis)
-            }
+            Some(focus) => self.canvas_position(focus.get_position(), angle, &view_rotation_axis),
             None => Vector::new(0.0, 0.0),
         };
 
-        self.draw_central_body(
-            celestial_system,
-            frame,
-            bounds,
-            view_angle,
-            &view_rotation_axis,
+        let central_body_view = ViewParams {
+            view_angle: angle,
+            rotation_axis: &view_rotation_axis,
             offset,
             display_names,
-        );
+        };
+        self.draw_central_body(celestial_system, frame, bounds, &central_body_view);
 
         for planet in celestial_system.get_planets().iter() {
             let data = planet.get_data();
-            self.draw_body(
-                frame,
-                bounds,
-                data.get_name(),
-                planet.get_position(),
-                data.get_color(),
-                Some(data.get_geometric_albedo()),
-                data.get_radius(),
-                view_angle,
-                &view_rotation_axis,
+            let body = BodyParams {
+                name: data.get_name(),
+                pos3d: planet.get_position(),
+                color: data.get_color(),
+                albedo: Some(data.get_geometric_albedo()),
+                radius: data.get_radius(),
+            };
+            let view = ViewParams {
+                view_angle: angle,
+                rotation_axis: &view_rotation_axis,
                 offset,
                 display_names,
-            );
+            };
+            self.draw_body(frame, bounds, &body, &view);
         }
     }
 
@@ -121,55 +117,42 @@ impl TopViewState {
         celestial_system: &CelestialSystem,
         frame: &mut canvas::Frame,
         bounds: &Rectangle,
-        view_angle: Angle<f64>,
-        view_rotation_axis: &Direction,
-        offset: Vector,
-        display_names: bool,
+        view: &ViewParams,
     ) {
         let time = celestial_system.get_time_since_epoch();
         let data = celestial_system.get_central_body_data();
         let pos3d = CartesianCoordinates::ORIGIN;
         let color = sRGBColor::from_temperature(data.get_temperature(time));
         let radius = data.get_radius(time).unwrap_or(DISTANCE_ZERO);
-        self.draw_body(
-            frame,
-            bounds,
-            data.get_name(),
-            &pos3d,
-            &color,
-            None,
+        let body = BodyParams {
+            name: data.get_name(),
+            pos3d: &pos3d,
+            color: &color,
+            albedo: None,
             radius,
-            view_angle,
-            view_rotation_axis,
-            offset,
-            display_names,
-        );
+        };
+
+        self.draw_body(frame, bounds, &body, view);
     }
 
     fn draw_body(
         &self,
         frame: &mut canvas::Frame,
         bounds: &Rectangle,
-        name: &str,
-        pos3d: &CartesianCoordinates,
-        color: &sRGBColor,
-        albedo: Option<f64>,
-        radius: Distance<f64>,
-        view_angle: Angle<f64>,
-        view_rotation_axis: &Direction,
-        offset: Vector,
-        display_names: bool,
+        body: &BodyParams,
+        view: &ViewParams,
     ) {
-        let radius = canvas_radius(&radius);
-        let pos =
-            frame.center() + self.canvas_position(pos3d, view_angle, view_rotation_axis) - offset;
+        let radius = canvas_radius(&body.radius);
+        let pos = frame.center()
+            + self.canvas_position(body.pos3d, view.view_angle, view.rotation_axis)
+            - view.offset;
         if canvas_contains(bounds, pos) {
             let circle = Path::circle(pos, radius);
-            let color = canvas_color(color, albedo);
+            let color = canvas_color(body.color, body.albedo);
             frame.fill(&circle, color);
 
-            if display_names {
-                draw_name(name, color, pos, frame);
+            if view.display_names {
+                draw_name(body.name, color, pos, frame);
             }
         }
     }
@@ -220,4 +203,19 @@ fn canvas_color(color: &sRGBColor, albedo: Option<f64>) -> Color {
         b: b as f32,
         a,
     }
+}
+
+struct BodyParams<'a> {
+    name: &'a str,
+    pos3d: &'a CartesianCoordinates,
+    color: &'a sRGBColor,
+    albedo: Option<f64>,
+    radius: Distance<f64>,
+}
+
+struct ViewParams<'a> {
+    view_angle: Angle<f64>,
+    rotation_axis: &'a Direction,
+    offset: Vector,
+    display_names: bool,
 }
