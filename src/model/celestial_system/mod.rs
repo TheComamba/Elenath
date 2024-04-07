@@ -3,8 +3,8 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
-        constellation::constellation::Constellation, data::StarData, evolution::StarDataEvolution,
-        fate::StarFate,
+        constellation::Constellation, data::StarData, evolution::StarDataEvolution, fate::StarFate,
+        physical_parameters::StarPhysicalParameters,
     },
     units::{luminous_intensity::LUMINOSITY_ZERO, temperature::TEMPERATURE_ZERO, time::TIME_ZERO},
 };
@@ -40,13 +40,12 @@ impl CelestialSystem {
     }
 
     pub(crate) fn empty() -> Self {
+        let central_body_params =
+            StarPhysicalParameters::new(None, None, LUMINOSITY_ZERO, TEMPERATURE_ZERO);
         let central_body = StarData::new(
             "".to_string(),
             None,
-            None,
-            None,
-            LUMINOSITY_ZERO,
-            TEMPERATURE_ZERO,
+            central_body_params,
             CartesianCoordinates::ORIGIN,
             StarDataEvolution::NONE,
         );

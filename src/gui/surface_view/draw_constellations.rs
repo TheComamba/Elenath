@@ -6,7 +6,7 @@ use crate::{
     },
     model::celestial_system::CelestialSystem,
 };
-use astro_utils::stars::constellation::constellation::Constellation;
+use astro_utils::stars::constellation::Constellation;
 use iced::{
     alignment::{Horizontal, Vertical},
     widget::canvas::{Frame, Path, Stroke, Style, Text},

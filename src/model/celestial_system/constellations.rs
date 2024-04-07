@@ -1,5 +1,5 @@
 use astro_utils::stars::{
-    constellation::constellation::{collect_constellations, Constellation},
+    constellation::{collect_constellations, Constellation},
     data::StarData,
 };
 
