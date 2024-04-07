@@ -57,7 +57,7 @@ impl Gui {
             DialogType::NewPlanet => {
                 let celestial_system = &self.get_system()?;
                 let central_body = celestial_system.get_central_body_data().clone();
-                self.dialog = Some(Box::new(PlanetDialog::new(central_body)));
+                self.dialog = Some(Box::new(PlanetDialog::new(central_body)?));
             }
             DialogType::EditPlanet(index) => {
                 let celestial_system = &self.get_system()?;
@@ -73,7 +73,7 @@ impl Gui {
                     index,
                     previous_planet,
                     central_body.clone(),
-                )));
+                )?));
             }
             DialogType::NewStar => {
                 let system = self.get_system()?;

@@ -1,5 +1,8 @@
 use super::Dialog;
-use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
+use crate::{
+    error::ElenathError,
+    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
+};
 use astro_utils::{
     astro_display::AstroDisplay,
     color::srgb::sRGBColor,
@@ -50,7 +53,7 @@ impl PlanetDialog {
         planet_index: usize,
         previous_planet: Option<DerivedPlanetData>,
         central_body: StarData,
-    ) -> Self {
+    ) -> Result<Self, ElenathError> {
         let mut dialog = PlanetDialog {
             planet: planet.clone(),
             planet_index: Some(planet_index),
@@ -68,11 +71,11 @@ impl PlanetDialog {
             siderial_rotation_period_string: String::new(),
             rotation_axis_string: String::new(),
         };
-        dialog.fill_string_members();
-        dialog
+        dialog.fill_string_members()?;
+        Ok(dialog)
     }
 
-    pub(crate) fn new(central_body: StarData) -> Self {
+    pub(crate) fn new(central_body: StarData) -> Result<Self, ElenathError> {
         let mut dialog = PlanetDialog {
             planet: PlanetData::new(
                 String::new(),
@@ -99,14 +102,16 @@ impl PlanetDialog {
             siderial_rotation_period_string: String::new(),
             rotation_axis_string: String::new(),
         };
-        dialog.fill_string_members();
-        dialog
+        dialog.fill_string_members()?;
+        Ok(dialog)
     }
 
-    fn fill_string_members(&mut self) {
+    fn fill_string_members(&mut self) -> Result<(), ElenathError> {
         self.mass_string = format!("{:.2}", self.planet.get_mass().to_earth_mass());
         self.radius_string = format!("{:.2}", distance_to_earth_radii(&self.planet.get_radius()));
-        self.color_string = serde_json::to_string(self.planet.get_color()).unwrap();
+        self.color_string = serde_json::to_string(self.planet.get_color()).map_err(|e| {
+            ElenathError::Generic(format!("Converting planet color to json failed: {:?}", e))
+        })?;
         self.geometric_albedo_string = format!("{:.2}", self.planet.get_geometric_albedo());
         self.semi_major_axis_string = format!(
             "{:.2}",
@@ -142,7 +147,14 @@ impl PlanetDialog {
         );
         self.siderial_rotation_period_string =
             format!("{:.4}", self.planet.get_sideral_rotation_period().to_days());
-        self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis()).unwrap();
+        self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis())
+            .map_err(|e| {
+                ElenathError::Generic(format!(
+                    "Converting planet rotation axis to json failed: {:?}",
+                    e
+                ))
+            })?;
+        Ok(())
     }
 
     fn edit_column(&self) -> Element<'_, PlanetDialogEvent> {
@@ -453,7 +465,9 @@ impl Component<GuiMessage> for PlanetDialog {
                 let name = self.planet.get_name().clone();
                 self.planet = generate_random_planet();
                 self.planet.set_name(name);
-                self.fill_string_members();
+                if let Err(e) = self.fill_string_members() {
+                    return Some(GuiMessage::ErrorEncountered(e));
+                };
             }
             PlanetDialogEvent::Submit => match self.planet_index {
                 Some(index) => {

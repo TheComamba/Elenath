@@ -6,10 +6,7 @@ use astro_utils::{
         constellation::constellation::Constellation, data::StarData, evolution::StarDataEvolution,
         fate::StarFate,
     },
-    units::{
-        distance::DISTANCE_ZERO, luminous_intensity::LUMINOSITY_ZERO,
-        temperature::TEMPERATURE_ZERO, time::TIME_ZERO,
-    },
+    units::{luminous_intensity::LUMINOSITY_ZERO, temperature::TEMPERATURE_ZERO, time::TIME_ZERO},
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
@@ -32,7 +29,7 @@ pub(crate) struct CelestialSystem {
 impl CelestialSystem {
     #[cfg(test)]
     pub(crate) fn new(mut central_body: StarData) -> Self {
-        central_body.set_distance_at_epoch(DISTANCE_ZERO);
+        central_body.set_distance_at_epoch(astro_utils::units::distance::DISTANCE_ZERO);
         CelestialSystem {
             central_body,
             planets: vec![],
