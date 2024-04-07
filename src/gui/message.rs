@@ -1,5 +1,5 @@
-use super::dialog::load_gaia_data::LoadGaiaDataDialog;
 use super::dialog::load_real_planets::LoadRealPlanetsDialog;
+use super::dialog::load_real_stars::LoadRealStarsDialog;
 use super::dialog::planet::PlanetDialog;
 use super::dialog::randomize_planets::RandomizePlanetsDialog;
 use super::dialog::randomize_stars::RandomizeStarsDialog;
@@ -13,11 +13,12 @@ use super::{
     top_view::widget::TopViewUpdate,
 };
 use crate::error::ElenathError;
+use crate::model::star::StarDataType;
 use crate::{file_dialog, model::celestial_system::CelestialSystem};
 use astro_utils::planets::derived_data::DerivedPlanetData;
 use astro_utils::planets::planet_data::PlanetData;
 use astro_utils::stars::data::StarData;
-use simple_si_units::base::Time;
+use simple_si_units::base::{Distance, Time};
 
 #[derive(Debug, Clone)]
 pub(crate) enum GuiMessage {
@@ -40,8 +41,8 @@ pub(crate) enum GuiMessage {
     TableDataTypeSelected(TableDataType),
     RandomizePlanets,
     LoadRealPlanets,
-    RandomizeStars,
-    LoadGaiaData,
+    RandomizeStars(bool, Distance<f64>),
+    LoadStars(StarDataType),
     OpenDialog(DialogType),
     DialogClosed,
     ErrorEncountered(ElenathError),
@@ -111,7 +112,7 @@ impl Gui {
                 self.dialog = Some(Box::new(RandomizeStarsDialog::new()));
             }
             DialogType::LoadGaiaData => {
-                self.dialog = Some(Box::new(LoadGaiaDataDialog::new()));
+                self.dialog = Some(Box::new(LoadRealStarsDialog::new()));
             }
         }
         Ok(())
@@ -213,10 +214,10 @@ impl Gui {
             GuiMessage::LoadRealPlanets => {
                 todo!();
             }
-            GuiMessage::RandomizeStars => {
+            GuiMessage::RandomizeStars(keep_central_body, max_distance) => {
                 todo!();
             }
-            GuiMessage::LoadGaiaData => {
+            GuiMessage::LoadStars(data_type) => {
                 todo!();
             }
             GuiMessage::OpenDialog(dialog_type) => {

@@ -64,3 +64,10 @@ impl PartOfCelestialSystem for Star {
         BodyType::Star
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub(crate) enum StarDataType {
+    Hardcoded,
+    GaiaMeasurement,
+    GaiaSimulation,
+}

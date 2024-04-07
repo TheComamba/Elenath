@@ -1,14 +1,10 @@
 use super::Dialog;
 use crate::{
-    error::ElenathError,
     gui::{
         gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
         message::GuiMessage,
     },
-    model::{
-        celestial_system::CelestialSystem,
-        new_celestial_system::{gaia_universe_simulation, solar_system},
-    },
+    model::star::StarDataType,
 };
 use iced::{
     widget::{component, Button, Column, Component, Radio, Row, Text},
@@ -16,34 +12,21 @@ use iced::{
 };
 
 #[derive(Debug, Clone)]
-pub(crate) struct LoadGaiaDataDialog {
-    data_type: GaiaDataType,
+pub(crate) struct LoadRealStarsDialog {
+    data_type: StarDataType,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Copy)]
-pub(crate) enum GaiaDataType {
-    Measurement,
-    Simulation,
-}
-
-impl LoadGaiaDataDialog {
+impl LoadRealStarsDialog {
     pub(crate) fn new() -> Self {
-        LoadGaiaDataDialog {
-            data_type: GaiaDataType::Measurement,
-        }
-    }
-
-    fn celestial_system(&self) -> Result<CelestialSystem, ElenathError> {
-        match self.data_type {
-            GaiaDataType::Measurement => solar_system(true),
-            GaiaDataType::Simulation => gaia_universe_simulation(),
+        LoadRealStarsDialog {
+            data_type: StarDataType::GaiaMeasurement,
         }
     }
 }
 
-impl Dialog for LoadGaiaDataDialog {
+impl Dialog for LoadRealStarsDialog {
     fn header(&self) -> String {
-        "Load Gaia Data".to_string()
+        "Load Real Stars".to_string()
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
@@ -53,11 +36,11 @@ impl Dialog for LoadGaiaDataDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewSystemDialogEvent {
-    DataTypeSelected(GaiaDataType),
+    DataTypeSelected(StarDataType),
     Submit,
 }
 
-impl Component<GuiMessage> for LoadGaiaDataDialog {
+impl Component<GuiMessage> for LoadRealStarsDialog {
     type State = ();
 
     type Event = NewSystemDialogEvent;
@@ -68,7 +51,7 @@ impl Component<GuiMessage> for LoadGaiaDataDialog {
                 self.data_type = data_type;
             }
             NewSystemDialogEvent::Submit => {
-                return Some(GuiMessage::NewSystem(self.celestial_system()));
+                return Some(GuiMessage::LoadStars(self.data_type));
             }
         }
         None
@@ -77,21 +60,29 @@ impl Component<GuiMessage> for LoadGaiaDataDialog {
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let warning = Text::new("This will overwrite all stars in the current system.");
 
+        let hardcoded_radio = Radio::new(
+            "Hardcoded",
+            StarDataType::Hardcoded,
+            Some(self.data_type),
+            NewSystemDialogEvent::DataTypeSelected,
+        )
+        .width(SMALL_COLUMN_WIDTH);
         let measurement_radio = Radio::new(
-            "Measurement",
-            GaiaDataType::Measurement,
+            "GaiaMeasurement",
+            StarDataType::GaiaMeasurement,
             Some(self.data_type),
             NewSystemDialogEvent::DataTypeSelected,
         )
         .width(SMALL_COLUMN_WIDTH);
         let simulation_radio = Radio::new(
-            "Simulation",
-            GaiaDataType::Simulation,
+            "GaiaSimulation",
+            StarDataType::GaiaSimulation,
             Some(self.data_type),
             NewSystemDialogEvent::DataTypeSelected,
         )
         .width(SMALL_COLUMN_WIDTH);
         let type_row = Row::new()
+            .push(hardcoded_radio)
             .push(measurement_radio)
             .push(simulation_radio)
             .padding(PADDING)

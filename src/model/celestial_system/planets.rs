@@ -1,4 +1,4 @@
-use astro_utils::planets::planet_data::PlanetData;
+use astro_utils::{planets::planet_data::PlanetData, real_data::planets::*};
 
 use crate::model::planet::Planet;
 
@@ -22,6 +22,25 @@ impl CelestialSystem {
                 .partial_cmp(&b.get_orbital_parameters().get_semi_major_axis())
                 .unwrap()
         });
+    }
+
+    pub(crate) fn randomize_planets(&mut self) {
+        todo!();
+        self.sort_planets_by_semimajor_axis();
+    }
+
+    pub(crate) fn load_real_planets(&mut self) {
+        self.planets.clear();
+        self.add_planet_data(MERCURY.to_planet_data());
+        self.add_planet_data(VENUS.to_planet_data());
+        self.add_planet_data(EARTH.to_planet_data());
+        self.add_planet_data(MARS.to_planet_data());
+        self.add_planet_data(CERES.to_planet_data());
+        self.add_planet_data(JUPITER.to_planet_data());
+        self.add_planet_data(SATURN.to_planet_data());
+        self.add_planet_data(URANUS.to_planet_data());
+        self.add_planet_data(NEPTUNE.to_planet_data());
+        self.add_planet_data(PLUTO.to_planet_data());
     }
 
     pub(crate) fn get_planets_data(&self) -> Vec<&PlanetData> {

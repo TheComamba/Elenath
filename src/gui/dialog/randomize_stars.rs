@@ -1,21 +1,18 @@
 use super::Dialog;
-use crate::{
-    gui::{
-        gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
-        message::GuiMessage,
-    },
-    model::new_celestial_system::{generated_system, GeneratedCentralBody},
+use crate::gui::{
+    gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
+    message::GuiMessage,
 };
 use astro_utils::astro_display::AstroDisplay;
 use iced::{
-    widget::{component, Button, Column, Component, Radio, Row, Text},
+    widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
     Alignment, Element, Length,
 };
 use simple_si_units::base::Distance;
 
 #[derive(Debug, Clone)]
 pub(crate) struct RandomizeStarsDialog {
-    generated_central_body: GeneratedCentralBody,
+    keep_central_body: bool,
     generation_distance: GenerationDistance,
 }
 
@@ -29,7 +26,7 @@ pub(crate) enum GenerationDistance {
 impl RandomizeStarsDialog {
     pub(crate) fn new() -> Self {
         RandomizeStarsDialog {
-            generated_central_body: GeneratedCentralBody::Sun,
+            keep_central_body: true,
             generation_distance: GenerationDistance::Decent,
         }
     }
@@ -55,7 +52,7 @@ impl Dialog for RandomizeStarsDialog {
 
 #[derive(Debug, Clone)]
 pub(crate) enum NewSystemDialogEvent {
-    GeneratedCentralBodySelected(GeneratedCentralBody),
+    KeepCentralBodySelected(bool),
     MaxGenerationDistanceChanged(GenerationDistance),
     Submit,
 }
@@ -67,18 +64,18 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
         match event {
-            NewSystemDialogEvent::GeneratedCentralBodySelected(generated_central_body) => {
-                self.generated_central_body = generated_central_body;
+            NewSystemDialogEvent::KeepCentralBodySelected(keep_central_body) => {
+                self.keep_central_body = keep_central_body;
             }
             NewSystemDialogEvent::MaxGenerationDistanceChanged(generation_distance) => {
                 self.generation_distance = generation_distance;
             }
             NewSystemDialogEvent::Submit => {
-                let system = generated_system(
-                    &self.generated_central_body,
-                    max_generation_distance(self.generation_distance),
-                );
-                return Some(GuiMessage::NewSystem(system));
+                let max_distance = max_generation_distance(self.generation_distance);
+                return Some(GuiMessage::RandomizeStars(
+                    self.keep_central_body,
+                    max_distance,
+                ));
             }
         }
         None
@@ -87,25 +84,12 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let warning = Text::new("This will overwrite all stars in the current system.");
 
-        let sun_radio = Radio::new(
-            "Use the Sun as Central Body",
-            GeneratedCentralBody::Sun,
-            Some(self.generated_central_body),
-            NewSystemDialogEvent::GeneratedCentralBodySelected,
+        let keep_central_body_toggler = Toggler::new(
+            Some("Keep Central Body".to_string()),
+            self.keep_central_body,
+            NewSystemDialogEvent::KeepCentralBodySelected,
         )
-        .width(SMALL_COLUMN_WIDTH);
-        let random_star_radio = Radio::new(
-            "Generate Random Central Body",
-            GeneratedCentralBody::RandomStar,
-            Some(self.generated_central_body),
-            NewSystemDialogEvent::GeneratedCentralBodySelected,
-        )
-        .width(SMALL_COLUMN_WIDTH);
-        let central_body_row = Row::new()
-            .push(sun_radio)
-            .push(random_star_radio)
-            .padding(PADDING)
-            .spacing(PADDING);
+        .width(2. * SMALL_COLUMN_WIDTH);
 
         let decent_distance_radio = Radio::new(
             format!(
@@ -147,7 +131,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
 
         Column::new()
             .push(warning)
-            .push(central_body_row)
+            .push(keep_central_body_toggler)
             .push(Text::new("Maximum Generation Distance"))
             .push(generation_distance_row)
             .push(submit_button)

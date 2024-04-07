@@ -1,9 +1,22 @@
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
-    stars::{appearance::StarAppearance, data::StarData, gaia::gaia_source::star_is_already_known},
+    real_data::stars::{all::get_many_stars, SUN},
+    stars::{
+        appearance::StarAppearance,
+        data::StarData,
+        gaia::{
+            gaia_source::{fetch_brightest_stars, star_is_already_known},
+            gaia_universe_simulation::fetch_brightest_stars_simulated_data,
+        },
+        random::random_stars::{generate_random_star, generate_random_stars},
+    },
 };
+use simple_si_units::base::Distance;
 
-use crate::model::star::Star;
+use crate::{
+    error::ElenathError,
+    model::star::{Star, StarDataType},
+};
 
 use super::CelestialSystem;
 
@@ -62,6 +75,42 @@ impl CelestialSystem {
         for (i, star) in self.distant_stars.iter_mut().enumerate() {
             star.set_index(i);
         }
+    }
+
+    pub(crate) fn randomize_stars(
+        &mut self,
+        keep_central_body: bool,
+        max_distance: Distance<f64>,
+    ) -> Result<(), ElenathError> {
+        if !keep_central_body {
+            self.central_body = generate_random_star(None)?
+        };
+        let stars = generate_random_stars(max_distance)?;
+        self.add_stars_from_data(stars);
+        Ok(())
+    }
+
+    pub(crate) fn load_real_stars(&mut self, data_type: StarDataType) -> Result<(), ElenathError> {
+        self.central_body = SUN.to_star_data();
+        self.distant_stars.clear();
+        match data_type {
+            StarDataType::Hardcoded => {
+                let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+                self.add_stars_from_data(stars);
+            }
+            StarDataType::GaiaMeasurement => {
+                let hardcoded_stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+                self.add_stars_from_data(hardcoded_stars);
+
+                let gaia_stars = fetch_brightest_stars()?;
+                self.add_star_appearances_without_duplicates(gaia_stars);
+            }
+            StarDataType::GaiaSimulation => {
+                let stars = fetch_brightest_stars_simulated_data()?;
+                self.add_stars_from_data(stars);
+            }
+        }
+        Ok(())
     }
 
     pub(crate) fn get_central_body_data(&self) -> &StarData {
