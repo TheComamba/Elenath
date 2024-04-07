@@ -10,8 +10,7 @@ impl CelestialSystem {
         let stars: Vec<StarData> = self
             .get_stars()
             .iter()
-            .map(|s| s.get_data())
-            .filter_map(|s| s)
+            .filter_map(|s| s.get_data())
             .cloned()
             .collect();
         self.constellations = collect_constellations(&stars[..], self.time_since_epoch);
