@@ -3,9 +3,9 @@ use crate::{
     gui::{
         dialog::DialogType, gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button,
     },
-    model::{
-        celestial_system::part::{BodyType, PartOfCelestialSystem},
-        celestial_system::CelestialSystem,
+    model::celestial_system::{
+        part::{BodyType, PartOfCelestialSystem},
+        CelestialSystem,
     },
 };
 use iced::{
@@ -36,7 +36,7 @@ impl TableViewState {
         let buttons = Row::new()
             .push(data_type_selection_tabs())
             .push(Container::new(Text::new("")).width(Length::Fill))
-            .push(generation_buttons());
+            .push(self.generation_buttons());
 
         let mut col = Column::new().push(buttons);
 
@@ -74,6 +74,44 @@ impl TableViewState {
         }
 
         col.width(Length::Fill).height(Length::Fill).into()
+    }
+
+    fn generation_buttons(&self) -> Element<'static, GuiMessage> {
+        let mut row = Row::new();
+        match self.displayed_body_type {
+            TableDataType::Planet => {
+                let randomize_planets = std_button(
+                    "Randomize Planets",
+                    GuiMessage::OpenDialog(DialogType::RandomizePlanets),
+                    true,
+                );
+                let load_real_planets = std_button(
+                    "Load Real Planets",
+                    GuiMessage::OpenDialog(DialogType::LoadRealPlanets),
+                    true,
+                );
+                row = row.push(randomize_planets).push(load_real_planets);
+            }
+            TableDataType::Star => {
+                let randomize_stars = std_button(
+                    "Randomize Stars",
+                    GuiMessage::OpenDialog(DialogType::RandomizeStars),
+                    true,
+                );
+                let load_real_stars = std_button(
+                    "Load Real Stars",
+                    GuiMessage::OpenDialog(DialogType::LoadGaiaData),
+                    true,
+                );
+                row = row.push(randomize_stars).push(load_real_stars);
+            }
+            TableDataType::Supernova => {}
+        }
+
+        row.align_items(Alignment::Center)
+            .spacing(PADDING)
+            .padding(PADDING)
+            .into()
     }
 }
 
@@ -123,33 +161,6 @@ fn data_type_selection_tabs() -> Element<'static, GuiMessage> {
         .push(planet_button)
         .push(star_button)
         .push(supernova_button)
-        .align_items(Alignment::Center)
-        .spacing(PADDING)
-        .padding(PADDING)
-        .into()
-}
-
-fn generation_buttons() -> Element<'static, GuiMessage> {
-    let randomize_planets = std_button(
-        "Randomize Planets",
-        GuiMessage::OpenDialog(DialogType::RandomizePlanets),
-        true,
-    );
-    let randomize_stars = std_button(
-        "Randomize Stars",
-        GuiMessage::OpenDialog(DialogType::RandomizeStars),
-        true,
-    );
-    let load_gaia = std_button(
-        "Load Gaia Data",
-        GuiMessage::OpenDialog(DialogType::LoadGaiaData),
-        true,
-    );
-
-    Row::new()
-        .push(randomize_planets)
-        .push(randomize_stars)
-        .push(load_gaia)
         .align_items(Alignment::Center)
         .spacing(PADDING)
         .padding(PADDING)
