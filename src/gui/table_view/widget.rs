@@ -206,7 +206,7 @@ fn table_header<T>(
 fn table_row<T>(
     sorting_index: usize,
     data: T,
-    table_col_data: &Vec<TableColData<T>>,
+    table_col_data: &[TableColData<T>],
 ) -> Row<'static, GuiMessage>
 where
     T: PartOfCelestialSystem,
