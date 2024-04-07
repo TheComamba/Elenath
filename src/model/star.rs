@@ -2,7 +2,7 @@ use astro_utils::stars::{appearance::StarAppearance, data::StarData};
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
 
-use super::part_of_celestial_system::{BodyType, PartOfCelestialSystem};
+use super::celestial_system::part::{BodyType, PartOfCelestialSystem};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct Star {
@@ -63,4 +63,11 @@ impl PartOfCelestialSystem for Star {
     fn get_body_type(&self) -> BodyType {
         BodyType::Star
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub(crate) enum StarDataType {
+    Hardcoded,
+    GaiaMeasurement,
+    GaiaSimulation,
 }

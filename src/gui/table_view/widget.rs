@@ -1,9 +1,11 @@
 use super::col_data::{TableColData, TableDataType};
 use crate::{
-    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button},
-    model::{
-        celestial_system::CelestialSystem,
-        part_of_celestial_system::{BodyType, PartOfCelestialSystem},
+    gui::{
+        dialog::DialogType, gui_widget::PADDING, message::GuiMessage, shared_widgets::std_button,
+    },
+    model::celestial_system::{
+        part::{BodyType, PartOfCelestialSystem},
+        CelestialSystem,
     },
 };
 use iced::{
@@ -31,30 +33,85 @@ impl TableViewState {
     }
 
     pub(crate) fn table_view(&self, system: &Option<CelestialSystem>) -> Element<'_, GuiMessage> {
-        let mut col = Column::new().push(data_type_selection_tabs());
+        let buttons = Row::new()
+            .push(data_type_selection_tabs())
+            .push(Container::new(Text::new("")).width(Length::Fill))
+            .push(self.generation_buttons());
+
+        let mut col = Column::new().push(buttons);
 
         if let Some(system) = system {
             let table = match self.displayed_body_type {
                 TableDataType::Planet => {
                     let planet_col_data = TableColData::default_planet_col_data();
                     let planets = system.get_planets();
-                    table(planet_col_data, planets, GuiMessage::NewPlanetDialog)
+                    table(
+                        planet_col_data,
+                        planets,
+                        GuiMessage::OpenDialog(DialogType::NewPlanet),
+                    )
                 }
                 TableDataType::Star => {
                     let star_col_data = TableColData::default_star_col_data();
                     let stars = system.get_stars();
-                    table(star_col_data, stars, GuiMessage::NewStarDialog)
+                    table(
+                        star_col_data,
+                        stars,
+                        GuiMessage::OpenDialog(DialogType::NewStar),
+                    )
                 }
                 TableDataType::Supernova => {
                     let supernova_col_data = TableColData::default_supernova_col_data();
                     let supernovae = system.get_supernovae();
-                    table(supernova_col_data, supernovae, GuiMessage::NewStarDialog)
+                    table(
+                        supernova_col_data,
+                        supernovae,
+                        GuiMessage::OpenDialog(DialogType::NewStar),
+                    )
                 }
             };
             col = col.push(table);
         }
 
         col.width(Length::Fill).height(Length::Fill).into()
+    }
+
+    fn generation_buttons(&self) -> Element<'static, GuiMessage> {
+        let mut row = Row::new();
+        match self.displayed_body_type {
+            TableDataType::Planet => {
+                let randomize_planets = std_button(
+                    "Randomize Planets",
+                    GuiMessage::OpenDialog(DialogType::RandomizePlanets),
+                    true,
+                );
+                let load_real_planets = std_button(
+                    "Load Real Planets",
+                    GuiMessage::OpenDialog(DialogType::LoadRealPlanets),
+                    true,
+                );
+                row = row.push(randomize_planets).push(load_real_planets);
+            }
+            TableDataType::Star => {
+                let randomize_stars = std_button(
+                    "Randomize Stars",
+                    GuiMessage::OpenDialog(DialogType::RandomizeStars),
+                    true,
+                );
+                let load_real_stars = std_button(
+                    "Load Real Stars",
+                    GuiMessage::OpenDialog(DialogType::LoadGaiaData),
+                    true,
+                );
+                row = row.push(randomize_stars).push(load_real_stars);
+            }
+            TableDataType::Supernova => {}
+        }
+
+        row.align_items(Alignment::Center)
+            .spacing(PADDING)
+            .padding(PADDING)
+            .into()
     }
 }
 
@@ -159,11 +216,14 @@ where
     match data.get_body_type() {
         BodyType::Planet => {
             if let Some(index) = index {
-                edit_button = edit_button.on_press(GuiMessage::EditPlanetDialog(index));
+                edit_button =
+                    edit_button.on_press(GuiMessage::OpenDialog(DialogType::EditPlanet(index)));
             }
         }
         BodyType::Star => {
-            edit_button = edit_button.on_press(GuiMessage::EditStarDialog(data.get_index()));
+            edit_button = edit_button.on_press(GuiMessage::OpenDialog(DialogType::EditStar(
+                data.get_index(),
+            )));
         }
     }
     let mut row = Row::new()

@@ -1,4 +1,5 @@
 use super::{
+    dialog::DialogType,
     gui_widget::{BIG_COLUMN_WIDTH, PADDING, SMALL_COLUMN_WIDTH},
     message::GuiMessage,
     Gui, GuiViewMode,
@@ -36,7 +37,11 @@ impl Gui {
     }
 
     pub(super) fn file_buttons(has_system: bool) -> Element<'static, GuiMessage> {
-        let new_button = std_button("New system", GuiMessage::NewSystemDialog, true);
+        let new_button = std_button(
+            "New system",
+            GuiMessage::OpenDialog(DialogType::NewSystem),
+            true,
+        );
         let save_to_file_button = std_button("Save to file", GuiMessage::SaveToFile, has_system);
         let save_to_new_file_button =
             std_button("Save to new file", GuiMessage::SaveToNewFile, has_system);

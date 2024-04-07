@@ -6,17 +6,17 @@ use iced::{
 };
 
 #[derive(Debug, Clone)]
-pub(crate) struct NewSystemDialog {}
+pub(crate) struct RandomizePlanetsDialog {}
 
-impl NewSystemDialog {
+impl RandomizePlanetsDialog {
     pub(crate) fn new() -> Self {
-        NewSystemDialog {}
+        RandomizePlanetsDialog {}
     }
 }
 
-impl Dialog for NewSystemDialog {
+impl Dialog for RandomizePlanetsDialog {
     fn header(&self) -> String {
-        "Create new Celestial System".to_string()
+        "Randomize Planets".to_string()
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
@@ -29,7 +29,7 @@ pub(crate) enum NewSystemDialogEvent {
     Submit,
 }
 
-impl Component<GuiMessage> for NewSystemDialog {
+impl Component<GuiMessage> for RandomizePlanetsDialog {
     type State = ();
 
     type Event = NewSystemDialogEvent;
@@ -37,13 +37,13 @@ impl Component<GuiMessage> for NewSystemDialog {
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
         match event {
             NewSystemDialogEvent::Submit => {
-                return Some(GuiMessage::NewSystem);
+                return Some(GuiMessage::RandomizePlanets);
             }
         }
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        let warning = Text::new("This will overwrite the current celestial system.");
+        let warning = Text::new("This will overwrite all planets in the current system.");
         let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
         Column::new()
             .push(warning)
