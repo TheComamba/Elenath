@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use astro_utils::{planets::planet_data::PlanetData, real_data::planets::*};
 
 use crate::model::planet::Planet;
@@ -16,12 +18,11 @@ impl CelestialSystem {
     }
 
     fn sort_planets_by_semimajor_axis(&mut self) {
-        self.planets.sort_by(|a, b| {
-            a.get_orbital_parameters()
-                .get_semi_major_axis()
-                .partial_cmp(&b.get_orbital_parameters().get_semi_major_axis())
-                .unwrap()
-        });
+        fn sma(a: &PlanetData) -> simple_si_units::base::Distance<f64> {
+            a.get_orbital_parameters().get_semi_major_axis()
+        }
+        self.planets
+            .sort_by(|a, b| sma(a).partial_cmp(&sma(b)).unwrap_or(Ordering::Equal));
     }
 
     pub(crate) fn randomize_planets(&mut self) {
