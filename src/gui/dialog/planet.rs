@@ -9,7 +9,8 @@ use astro_utils::{
     coordinates::direction::Direction,
     planets::{
         derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
-        planet_data::PlanetData, random_planets::generate_random_planet,
+        physical_parameters::PlanetPhysicalParameters, planet_data::PlanetData,
+        random_planets::generate_random_planet,
     },
     stars::data::StarData,
     units::{
@@ -76,17 +77,19 @@ impl PlanetDialog {
     }
 
     pub(crate) fn new(central_body: StarData) -> Result<Self, ElenathError> {
+        let physical_parameters = PlanetPhysicalParameters::new(
+            MASS_ZERO,
+            DISTANCE_ZERO,
+            0.0,
+            sRGBColor::from_sRGB(0., 0., 0.),
+            TIME_ZERO,
+            Direction::Z,
+        );
+        let orbital_parameters =
+            OrbitParameters::new(DISTANCE_ZERO, 0.0, ANGLE_ZERO, ANGLE_ZERO, ANGLE_ZERO);
+        let planet = PlanetData::new(String::new(), physical_parameters, orbital_parameters);
         let mut dialog = PlanetDialog {
-            planet: PlanetData::new(
-                String::new(),
-                MASS_ZERO,
-                DISTANCE_ZERO,
-                0.0,
-                sRGBColor::from_sRGB(0., 0., 0.),
-                TIME_ZERO,
-                OrbitParameters::new(DISTANCE_ZERO, 0.0, ANGLE_ZERO, ANGLE_ZERO, ANGLE_ZERO),
-                Direction::Z,
-            ),
+            planet,
             planet_index: None,
             previous_planet: None,
             central_body,
@@ -284,56 +287,71 @@ impl PlanetDialog {
             self.previous_planet.as_ref(),
         );
 
-        let density_text =
-            Text::new("Density: ".to_string() + &derived_data.get_density().astro_display())
+        let mut col = Column::new();
+        match derived_data {
+            Ok(derived_data) => {
+                let density_text = Text::new(
+                    "Density: ".to_string() + &derived_data.get_density().astro_display(),
+                )
                 .shaping(Shaping::Advanced);
 
-        let surface_gravity_text = Text::new(
-            "Surface Gravity: ".to_string() + &derived_data.get_surface_gravity().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
-
-        let escape_velocity_text = Text::new(
-            "Escape Velocity: ".to_string() + &derived_data.get_escape_velocity().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
-
-        let orbital_period_text = Text::new(
-            "Orbital Period: ".to_string() + &derived_data.get_orbital_period().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
-
-        let orbital_resonance_text = Text::new(
-            "Orbital Resonance: ".to_string()
-                + &derived_data.get_orbital_resonance().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
-
-        let synodic_period_text = Text::new(
-            "Mean Synodic Day: ".to_string() + &derived_data.get_mean_synodic_day().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
-
-        let axial_tilt_text =
-            Text::new("Axial Tilt: ".to_string() + &derived_data.get_axial_tilt().astro_display())
+                let surface_gravity_text = Text::new(
+                    "Surface Gravity: ".to_string()
+                        + &derived_data.get_surface_gravity().astro_display(),
+                )
                 .shaping(Shaping::Advanced);
 
-        let black_body_temperature_text = Text::new(
-            "Black Body Temperature: ".to_string()
-                + &derived_data.get_black_body_temperature().astro_display(),
-        )
-        .shaping(Shaping::Advanced);
+                let escape_velocity_text = Text::new(
+                    "Escape Velocity: ".to_string()
+                        + &derived_data.get_escape_velocity().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
 
-        Column::new()
-            .push(density_text)
-            .push(surface_gravity_text)
-            .push(escape_velocity_text)
-            .push(orbital_period_text)
-            .push(orbital_resonance_text)
-            .push(synodic_period_text)
-            .push(axial_tilt_text)
-            .push(black_body_temperature_text)
-            .spacing(PADDING)
+                let orbital_period_text = Text::new(
+                    "Orbital Period: ".to_string()
+                        + &derived_data.get_orbital_period().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
+
+                let orbital_resonance_text = Text::new(
+                    "Orbital Resonance: ".to_string()
+                        + &derived_data.get_orbital_resonance().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
+
+                let synodic_period_text = Text::new(
+                    "Mean Synodic Day: ".to_string()
+                        + &derived_data.get_mean_synodic_day().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
+
+                let axial_tilt_text = Text::new(
+                    "Axial Tilt: ".to_string() + &derived_data.get_axial_tilt().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
+
+                let black_body_temperature_text = Text::new(
+                    "Black Body Temperature: ".to_string()
+                        + &derived_data.get_black_body_temperature().astro_display(),
+                )
+                .shaping(Shaping::Advanced);
+                col = col
+                    .push(density_text)
+                    .push(surface_gravity_text)
+                    .push(escape_velocity_text)
+                    .push(orbital_period_text)
+                    .push(orbital_resonance_text)
+                    .push(synodic_period_text)
+                    .push(axial_tilt_text)
+                    .push(black_body_temperature_text);
+            }
+            Err(e) => {
+                let message = Text::new(format!("Error: {:?}", e));
+                col = col.push(message);
+            }
+        }
+
+        col.spacing(PADDING)
             .width(Length::Fill)
             .align_items(Alignment::Center)
             .into()

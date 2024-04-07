@@ -40,21 +40,21 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Density",
                 content_closure: Box::new(|body| {
-                    let density = body.get_derived_data().get_density();
+                    let density = body.get_derived_data()?.get_density();
                     Some(density.astro_display())
                 }),
             },
             TableColData {
                 header: "Surface Gravity",
                 content_closure: Box::new(|body| {
-                    let surface_gravity = body.get_derived_data().get_surface_gravity();
+                    let surface_gravity = body.get_derived_data()?.get_surface_gravity();
                     Some(surface_gravity.astro_display())
                 }),
             },
             TableColData {
                 header: "Escape Velocity",
                 content_closure: Box::new(|body| {
-                    let escape_velocity = body.get_derived_data().get_escape_velocity();
+                    let escape_velocity = body.get_derived_data()?.get_escape_velocity();
                     Some(escape_velocity.astro_display())
                 }),
             },
@@ -75,7 +75,7 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Black Body Temp.",
                 content_closure: Box::new(|body| {
-                    let temperature = body.get_derived_data().get_black_body_temperature();
+                    let temperature = body.get_derived_data()?.get_black_body_temperature();
                     Some(temperature.astro_display())
                 }),
             },
@@ -126,14 +126,14 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Orbital Period",
                 content_closure: Box::new(|body| {
-                    let orbital_period = body.get_derived_data().get_orbital_period();
+                    let orbital_period = body.get_derived_data()?.get_orbital_period();
                     Some(orbital_period.astro_display())
                 }),
             },
             TableColData {
                 header: "Orbital Resonance",
                 content_closure: Box::new(|body| {
-                    let orbital_resonance = body.get_derived_data().get_orbital_resonance()?;
+                    let orbital_resonance = body.get_derived_data()?.get_orbital_resonance()?;
                     Some(orbital_resonance.astro_display())
                 }),
             },
@@ -147,7 +147,7 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Synodic Day",
                 content_closure: Box::new(|body| {
-                    let synodic_day = body.get_derived_data().get_mean_synodic_day();
+                    let synodic_day = body.get_derived_data()?.get_mean_synodic_day();
                     Some(synodic_day.astro_display())
                 }),
             },
@@ -161,7 +161,7 @@ impl TableColData<Planet> {
             TableColData {
                 header: "Axial Tilt",
                 content_closure: Box::new(|body| {
-                    let axial_tilt = body.get_derived_data().get_axial_tilt();
+                    let axial_tilt = body.get_derived_data()?.get_axial_tilt();
                     Some(axial_tilt.astro_display())
                 }),
             },

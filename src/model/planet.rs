@@ -1,5 +1,3 @@
-use crate::error::ElenathError;
-
 use super::celestial_system::part::{BodyType, PartOfCelestialSystem};
 use astro_utils::{
     coordinates::cartesian::CartesianCoordinates,
@@ -10,7 +8,7 @@ use simple_si_units::base::Time;
 
 pub(crate) struct Planet {
     data: PlanetData,
-    derived_data: DerivedPlanetData,
+    derived_data: Option<DerivedPlanetData>,
     pos: CartesianCoordinates,
     index: Option<usize>,
 }
@@ -22,9 +20,9 @@ impl Planet {
         previous: Option<&DerivedPlanetData>,
         time: Time<f64>,
         index: Option<usize>,
-    ) -> Result<Self, ElenathError> {
+    ) -> Self {
         let central_body_mass = central_body.get_mass(time).unwrap();
-        let derived_data = DerivedPlanetData::new(&data, central_body, previous)?;
+        let derived_data = DerivedPlanetData::new(&data, central_body, previous).ok();
         let pos = data.get_orbital_parameters().calculate_position(
             data.get_mass(),
             central_body_mass,
@@ -36,15 +34,15 @@ impl Planet {
             pos,
             index,
         };
-        Ok(planet)
+        planet
     }
 
     pub(crate) fn get_data(&self) -> &PlanetData {
         &self.data
     }
 
-    pub(crate) fn get_derived_data(&self) -> &DerivedPlanetData {
-        &self.derived_data
+    pub(crate) fn get_derived_data(&self) -> Option<&DerivedPlanetData> {
+        self.derived_data.as_ref()
     }
 
     pub(crate) fn get_position(&self) -> &CartesianCoordinates {

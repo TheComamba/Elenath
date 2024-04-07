@@ -2,7 +2,8 @@ use astro_utils::{
     astro_display::AstroDisplay,
     coordinates::cartesian::CartesianCoordinates,
     stars::{
-        data::StarData, evolution::StarDataEvolution, random::random_stars::generate_random_star,
+        data::StarData, evolution::StarDataEvolution, physical_parameters::StarPhysicalParameters,
+        random::random_stars::generate_random_star,
     },
     units::{
         distance::{distance_to_sun_radii, DISTANCE_ZERO, SOLAR_RADIUS},
@@ -51,18 +52,17 @@ enum StarDialogType {
 
 impl StarDialog {
     pub(crate) fn new(time_since_epoch: Time<f64>) -> Self {
+        let params = StarPhysicalParameters::new(None, None, LUMINOSITY_ZERO, TEMPERATURE_ZERO);
+        let star = StarData::new(
+            String::new(),
+            None,
+            params,
+            CartesianCoordinates::ORIGIN,
+            StarDataEvolution::NONE,
+        );
         let mut dialog = StarDialog {
             star_dialog_type: StarDialogType::New,
-            star: StarData::new(
-                String::new(),
-                None,
-                None,
-                None,
-                LUMINOSITY_ZERO,
-                TEMPERATURE_ZERO,
-                CartesianCoordinates::ORIGIN,
-                StarDataEvolution::NONE,
-            ),
+            star,
             star_index: None,
             time_since_epoch,
             mass_string: String::new(),

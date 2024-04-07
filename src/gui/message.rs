@@ -65,9 +65,11 @@ impl Gui {
                 let planet = celestial_system
                     .get_planet_data(index)
                     .ok_or(ElenathError::BodyNotFound)?;
-                let previous_planet = celestial_system
-                    .get_planet_data(index - 1)
-                    .map(|p| DerivedPlanetData::new(p, central_body, None));
+                let previous_planet = celestial_system.get_planet_data(index - 1);
+                let previous_planet = match previous_planet {
+                    Some(p) => Some(DerivedPlanetData::new(p, central_body, None)?),
+                    None => None,
+                };
                 self.dialog = Some(Box::new(PlanetDialog::edit(
                     planet.clone(),
                     index,

@@ -1,6 +1,6 @@
 use astro_utils::{planets::planet_data::PlanetData, real_data::planets::*};
 
-use crate::{error::ElenathError, model::planet::Planet};
+use crate::model::planet::Planet;
 
 use super::CelestialSystem;
 
@@ -55,11 +55,11 @@ impl CelestialSystem {
         self.planets.get(index)
     }
 
-    pub(crate) fn get_planets(&self) -> Result<Vec<Planet>, ElenathError> {
+    pub(crate) fn get_planets(&self) -> Vec<Planet> {
         let mut bodies: Vec<Planet> = Vec::new();
         for (i, planet_data) in self.planets.iter().enumerate() {
             let previous = if i > 0 {
-                Some(bodies[i - 1].get_derived_data())
+                bodies[i - 1].get_derived_data()
             } else {
                 None
             };
@@ -70,9 +70,9 @@ impl CelestialSystem {
                 self.time_since_epoch,
                 Some(i),
             );
-            bodies.push(planet?);
+            bodies.push(planet);
         }
-        Ok(bodies)
+        bodies
     }
 }
 

@@ -47,15 +47,15 @@ impl Gui {
 
     pub(super) fn get_selected_planet(&self) -> Option<Planet> {
         let system = self.celestial_system.as_ref()?;
-        self.get_selected_planet_data().map(|data| {
-            Planet::new(
-                (*data).clone(),
-                system.get_central_body_data(),
-                None,
-                system.get_time_since_epoch(),
-                None,
-            )
-        })
+        let data = self.get_selected_planet_data()?;
+        let planet = Planet::new(
+            (*data).clone(),
+            system.get_central_body_data(),
+            None,
+            system.get_time_since_epoch(),
+            None,
+        );
+        Some(planet)
     }
 
     pub(super) fn get_selected_planet_data(&self) -> Option<&PlanetData> {
