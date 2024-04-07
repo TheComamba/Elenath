@@ -30,6 +30,7 @@ pub(crate) struct CelestialSystem {
 }
 
 impl CelestialSystem {
+    #[cfg(test)]
     pub(crate) fn new(mut central_body: StarData) -> Self {
         central_body.set_distance_at_epoch(DISTANCE_ZERO);
         CelestialSystem {

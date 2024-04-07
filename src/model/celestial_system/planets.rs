@@ -78,13 +78,13 @@ impl CelestialSystem {
 
 #[cfg(test)]
 mod tests {
-    use astro_utils::real_data::{planets::*, stars::SUN};
+    use astro_utils::real_data::planets::*;
 
     use crate::model::celestial_system::CelestialSystem;
 
     #[test]
     fn planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SUN.to_star_data());
+        let mut system = CelestialSystem::empty();
         system.add_planet_data(VENUS.to_planet_data());
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(MARS.to_planet_data());
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn edited_planets_are_sorted_by_semimajor_axis() {
-        let mut system = CelestialSystem::new(SUN.to_star_data());
+        let mut system = CelestialSystem::empty();
         system.add_planet_data(MERCURY.to_planet_data());
         system.add_planet_data(EARTH.to_planet_data());
         system.overwrite_planet_data(0, JUPITER.to_planet_data());
