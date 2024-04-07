@@ -10,7 +10,7 @@ use astro_utils::{
 };
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
-use std::path::PathBuf;
+use std::{cmp::Ordering, path::PathBuf};
 
 pub(crate) mod constellations;
 pub(crate) mod part;
@@ -96,17 +96,19 @@ impl CelestialSystem {
                 }
             })
             .collect();
-        supernovae.sort_by(|a, b| {
-            a.get_data()
-                .unwrap()
-                .get_time_until_death(self.time_since_epoch)
-                .partial_cmp(
-                    &b.get_data()
-                        .unwrap()
-                        .get_time_until_death(self.time_since_epoch),
-                )
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
+        supernovae.sort_by(|a, b| self.ord_by_time_til_death(a, b));
         supernovae
+    }
+
+    fn ord_by_time_til_death(&self, a: &Star, b: &Star) -> std::cmp::Ordering {
+        let data_a = a.get_data();
+        let data_b = b.get_data();
+        if let (Some(data_a), Some(data_b)) = (data_a, data_b) {
+            let t_a = data_a.get_time_until_death(self.time_since_epoch);
+            let t_b = data_b.get_time_until_death(self.time_since_epoch);
+            t_a.partial_cmp(&t_b).unwrap_or(Ordering::Equal)
+        } else {
+            Ordering::Equal
+        }
     }
 }
