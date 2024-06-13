@@ -57,16 +57,13 @@ impl CelestialSystem {
         for known_star in self.get_distant_star_appearances() {
             Self::remove_known_star_from_list(&mut star_appearances, known_star);
         }
-        println!("Removed known stars from list");
-        let length = star_appearances.len();
+        
         for star_appearance in star_appearances {
             let index = self.distant_stars.len();
             self.distant_stars
                 .push(Star::from_appearance(star_appearance, Some(index)));
         }
-        println!("Added {} stars", length);
         self.process_stars();
-        println!("Processed stars");
     }
 
     pub(crate) fn overwrite_star_data(&mut self, index: Option<usize>, star_data: StarData) {
@@ -122,7 +119,7 @@ impl CelestialSystem {
                 let hardcoded_stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
                 self.add_stars_from_data(hardcoded_stars);
 
-                let gaia_stars = fetch_brightest_stars(7.5)?;
+                let gaia_stars = fetch_brightest_stars(9.)?;
                 println!("Fetched {} stars from Gaia", gaia_stars.len());
                 self.add_star_appearances_without_duplicates(gaia_stars);
             }

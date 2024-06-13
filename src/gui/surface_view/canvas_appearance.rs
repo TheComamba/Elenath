@@ -17,11 +17,11 @@ pub(super) struct CanvasAppearance {
 }
 
 impl CanvasAppearance {
-    pub(super) const MIN_RADIUS: f32 = 1.;
+    pub(super) const MIN_RADIUS: f32 = 1.2;
     const MAX_RADIUS: f32 = 1e5;
-    const RADIUS_EXPONENT: f32 = 0.29;
-    const ALPHA_EXPONENT: f32 = 1.6;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-9 };
+    const RADIUS_EXPONENT: f32 = 0.5;
+    const ALPHA_EXPONENT: f32 = 0.4;
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 5e-7 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
