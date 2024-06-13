@@ -21,7 +21,7 @@ impl CanvasAppearance {
     const MAX_RADIUS: f32 = 1e5;
     const RADIUS_EXPONENT: f32 = 0.29;
     const ALPHA_EXPONENT: f32 = 1.6;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-7 };
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-9 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
