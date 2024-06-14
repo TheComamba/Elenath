@@ -2,8 +2,11 @@ use crate::model::{celestial_system::CelestialSystem, planet::Planet};
 
 use super::viewport::Viewport;
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates,
-    coordinates::transformations::relative_direction::direction_relative_to_normal,
+    color::srgb::sRGBColor,
+    coordinates::{
+        cartesian::CartesianCoordinates,
+        transformations::relative_direction::direction_relative_to_normal,
+    },
     stars::appearance::StarAppearance,
 };
 use iced::{Color, Vector};
@@ -20,8 +23,8 @@ impl CanvasAppearance {
     pub(super) const MIN_RADIUS: f32 = 1.2;
     const MAX_RADIUS: f32 = 1e5;
     const RADIUS_EXPONENT: f32 = 0.5;
-    const ALPHA_EXPONENT: f32 = 0.4;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 5e-7 };
+    const ALPHA_EXPONENT: f32 = 0.3;
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1e-7 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
@@ -69,7 +72,12 @@ impl CanvasAppearance {
     }
 
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
-        let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+        const WHITE: sRGBColor = sRGBColor::from_sRGB(1., 1., 1.);
+        let color = body.get_color();
+        let (r, g, b) = color.maximized_sRGB_tuple();
+        let color = &sRGBColor::from_sRGB(r, g, b) + &WHITE;
+        let (r, g, b) = color.maximized_sRGB_tuple();
+
         let illuminance = body.get_illuminance();
         let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
         if ratio < 1. {
