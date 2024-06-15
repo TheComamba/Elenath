@@ -606,7 +606,7 @@ mod tests {
                 / PICTURE_MIN_RADIUS;
             let expected_alpha = picture_star.alpha;
             if (radius / expected_radius - 1.).abs() > accuracy
-                || (color.a - expected_alpha ).abs() > accuracy
+                || (color.a - expected_alpha).abs() > accuracy
             {
                 failures += 1;
                 println!("\nname: {}", picture_star.name);

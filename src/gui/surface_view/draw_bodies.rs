@@ -2,7 +2,7 @@ use astro_utils::{
     coordinates::cartesian::CartesianCoordinates, stars::appearance::StarAppearance,
 };
 use iced::{
-    widget::canvas::{self, Frame, Path},
+    widget::canvas::{self, path::lyon_path::geom::Transform, Frame, Path},
     Color, Point, Rectangle,
 };
 use simple_si_units::base::Distance;
@@ -25,6 +25,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
     ) {
+        let smallest_circle = Path::circle(frame.center(), CanvasAppearance::MIN_RADIUS);
         for distant_star in celestial_system.get_distant_star_appearances() {
             self.draw_star(
                 frame,
@@ -33,6 +34,7 @@ impl SurfaceViewState {
                 viewport,
                 observer_position,
                 viewport.px_per_distance,
+                smallest_circle.clone(),
                 display_names,
             );
         }
@@ -44,6 +46,7 @@ impl SurfaceViewState {
             viewport,
             observer_position,
             viewport.px_per_distance,
+            smallest_circle.clone(),
             display_names,
         );
 
@@ -59,6 +62,7 @@ impl SurfaceViewState {
                 viewport,
                 observer_position,
                 viewport.px_per_distance,
+                smallest_circle.clone(),
                 display_names,
             );
         }
@@ -72,6 +76,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
+        smallest_circle: Path,
         display_names: bool,
     ) {
         let canvas_appearance = CanvasAppearance::from_star_appearance(star, viewport);
@@ -81,6 +86,7 @@ impl SurfaceViewState {
             &canvas_appearance,
             &None,
             pixel_per_viewport_width,
+            smallest_circle,
             display_names,
             observer_position,
         );
@@ -94,6 +100,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
+        smallest_circle: Path,
         display_names: bool,
     ) {
         let canvas_appearance =
@@ -107,6 +114,7 @@ impl SurfaceViewState {
             &canvas_appearance,
             &central_body_radius,
             pixel_per_viewport_width,
+            smallest_circle,
             display_names,
             observer_position,
         );
@@ -121,6 +129,7 @@ impl SurfaceViewState {
         viewport: &Viewport,
         observer_position: &CartesianCoordinates,
         pixel_per_viewport_width: f32,
+        smallest_circle: Path,
         display_names: bool,
     ) {
         let canvas_appearance =
@@ -131,6 +140,7 @@ impl SurfaceViewState {
             &canvas_appearance,
             &Some(planet.get_data().get_radius()),
             pixel_per_viewport_width,
+            smallest_circle,
             display_names,
             observer_position,
         );
@@ -143,13 +153,15 @@ impl SurfaceViewState {
         canvas_appearance: &Option<CanvasAppearance>,
         radius: &Option<Distance<f64>>,
         pixel_per_viewport_width: f32,
+        smallest_circle: Path,
         display_names: bool,
         observer_position: &CartesianCoordinates,
     ) {
         if let Some(canvas_appearance) = canvas_appearance {
             let pos = frame.center() + canvas_appearance.center_offset;
             let color = canvas_appearance.color;
-            self.draw_hue(frame, canvas_appearance);
+
+            self.draw_hue(frame, canvas_appearance, smallest_circle);
 
             if !canvas_contains(&bounds, pos) {
                 return;
@@ -173,9 +185,15 @@ impl SurfaceViewState {
         }
     }
 
-    fn draw_hue(&self, frame: &mut canvas::Frame, canvas_appearance: &CanvasAppearance) {
+    fn draw_hue(
+        &self,
+        frame: &mut canvas::Frame,
+        canvas_appearance: &CanvasAppearance,
+        smallest_circle: Path,
+    ) {
         // Radial gradients are not yet impelemented in iced.
         let mut step_width = CanvasAppearance::MIN_RADIUS;
+
         const MAX_STEPS: i32 = 100;
         let mut steps = (0.99 * canvas_appearance.radius / step_width).ceil() as i32;
         if steps > MAX_STEPS {
@@ -190,7 +208,13 @@ impl SurfaceViewState {
             if radius > canvas_appearance.radius {
                 radius = canvas_appearance.radius;
             }
-            let circle = Path::circle(pos, radius);
+            let circle = if radius > CanvasAppearance::MIN_RADIUS {
+                Path::circle(pos, radius)
+            } else {
+                let x = canvas_appearance.center_offset.x;
+                let y = canvas_appearance.center_offset.y;
+                smallest_circle.transform(&Transform::translation(x, y))
+            };
             frame.fill(&circle, color);
         }
     }
