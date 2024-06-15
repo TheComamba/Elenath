@@ -19,7 +19,7 @@ pub(crate) struct LoadRealStarsDialog {
 impl LoadRealStarsDialog {
     pub(crate) fn new() -> Self {
         LoadRealStarsDialog {
-            data_type: StarDataType::GaiaMeasurement,
+            data_type: StarDataType::GaiaMeasurementSmall,
         }
     }
 }
@@ -67,9 +67,16 @@ impl Component<GuiMessage> for LoadRealStarsDialog {
             NewSystemDialogEvent::DataTypeSelected,
         )
         .width(SMALL_COLUMN_WIDTH);
-        let measurement_radio = Radio::new(
-            "GaiaMeasurement",
-            StarDataType::GaiaMeasurement,
+        let measurement_small_radio = Radio::new(
+            "Gaia Measurement (only brightest)",
+            StarDataType::GaiaMeasurementSmall,
+            Some(self.data_type),
+            NewSystemDialogEvent::DataTypeSelected,
+        )
+        .width(SMALL_COLUMN_WIDTH);
+        let measurement_large_radio = Radio::new(
+            "Gaia Measurement (loads)",
+            StarDataType::GaiaMeasurementLarge,
             Some(self.data_type),
             NewSystemDialogEvent::DataTypeSelected,
         )
@@ -83,7 +90,8 @@ impl Component<GuiMessage> for LoadRealStarsDialog {
         .width(SMALL_COLUMN_WIDTH);
         let type_row = Row::new()
             .push(hardcoded_radio)
-            .push(measurement_radio)
+            .push(measurement_small_radio)
+            .push(measurement_large_radio)
             .push(simulation_radio)
             .padding(PADDING)
             .spacing(PADDING);
