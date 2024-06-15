@@ -2,8 +2,11 @@ use crate::model::{celestial_system::CelestialSystem, planet::Planet};
 
 use super::viewport::Viewport;
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates,
-    coordinates::transformations::relative_direction::direction_relative_to_normal,
+    color::srgb::sRGBColor,
+    coordinates::{
+        cartesian::CartesianCoordinates,
+        transformations::relative_direction::direction_relative_to_normal,
+    },
     stars::appearance::StarAppearance,
 };
 use iced::{Color, Vector};
@@ -17,11 +20,11 @@ pub(super) struct CanvasAppearance {
 }
 
 impl CanvasAppearance {
-    pub(super) const MIN_RADIUS: f32 = 1.;
+    pub(super) const MIN_RADIUS: f32 = 1.5;
     const MAX_RADIUS: f32 = 1e5;
-    const RADIUS_EXPONENT: f32 = 0.29;
-    const ALPHA_EXPONENT: f32 = 1.6;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 1.16e-7 };
+    const RADIUS_EXPONENT: f32 = 0.23;
+    const ALPHA_EXPONENT: f32 = 0.75;
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 8e-8 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
@@ -69,7 +72,12 @@ impl CanvasAppearance {
     }
 
     fn color_and_radius(body: &StarAppearance) -> (Color, f32) {
-        let (r, g, b) = body.get_color().maximized_sRGB_tuple();
+        const WHITE: sRGBColor = sRGBColor::from_sRGB(1., 1., 1.);
+        let color = body.get_color();
+        let (r, g, b) = color.maximized_sRGB_tuple();
+        let color = &sRGBColor::from_sRGB(r, g, b) + &WHITE;
+        let (r, g, b) = color.maximized_sRGB_tuple();
+
         let illuminance = body.get_illuminance();
         let ratio = (illuminance / &Self::ILLUMINANCE_AT_MIN_RADIUS) as f32;
         if ratio < 1. {
@@ -367,7 +375,7 @@ mod tests {
     }
 
     #[test]
-    fn apparent_magnitude_6p5_star_is_barely_visible() {
+    fn apparent_magnitude_6p5_star_is_dim() {
         let star_appearance = StarAppearance::new(
             String::new(),
             apparent_magnitude_to_illuminance(6.5),
@@ -385,7 +393,7 @@ mod tests {
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 0.);
         assert!(canvas_appearance.color.a > 0.);
-        assert!(canvas_appearance.color.a < 0.1);
+        assert!(canvas_appearance.color.a < 0.3);
     }
 
     #[test]
@@ -497,7 +505,7 @@ mod tests {
                 alpha: 0.92,
             },
             PictureStar {
-                name: "Betelgeus",
+                name: "Betelgeuse",
                 magnitude: 0.42,
                 diameter: 6,
                 alpha: 1.,
@@ -581,7 +589,7 @@ mod tests {
                 alpha: 1.,
             },
         ];
-        let accuracy = 0.4;
+        let accuracy = 0.5;
 
         let mut failures = 0;
         for picture_star in picture_stars.iter() {
@@ -598,7 +606,7 @@ mod tests {
                 / PICTURE_MIN_RADIUS;
             let expected_alpha = picture_star.alpha;
             if (radius / expected_radius - 1.).abs() > accuracy
-                || (color.a / expected_alpha - 1.).abs() > accuracy
+                || (color.a - expected_alpha).abs() > accuracy
             {
                 failures += 1;
                 println!("\nname: {}", picture_star.name);

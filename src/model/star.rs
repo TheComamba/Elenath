@@ -68,6 +68,7 @@ impl PartOfCelestialSystem for Star {
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub(crate) enum StarDataType {
     Hardcoded,
-    GaiaMeasurement,
+    GaiaMeasurementSmall,
+    GaiaMeasurementLarge,
     GaiaSimulation,
 }

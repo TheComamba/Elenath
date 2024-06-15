@@ -7,7 +7,7 @@ use astro_utils::{
         appearance::StarAppearance,
         data::StarData,
         gaia::{
-            gaia_source::{fetch_brightest_stars, star_is_already_known},
+            gaia_source::fetch_brightest_stars,
             gaia_universe_simulation::fetch_brightest_stars_simulated_data,
         },
         random::random_stars::{generate_random_star, generate_random_stars},
@@ -32,21 +32,36 @@ impl CelestialSystem {
         self.process_stars();
     }
 
+    fn remove_known_star_from_list(
+        star_appearances: &mut Vec<StarAppearance>,
+        known_star: &StarAppearance,
+    ) {
+        let mut index_to_remove = None;
+
+        for (index, star_appearance) in star_appearances.iter().enumerate() {
+            if star_appearance.apparently_the_same(known_star) {
+                index_to_remove = Some(index);
+                break;
+            }
+        }
+
+        if let Some(index) = index_to_remove {
+            star_appearances.remove(index);
+        }
+    }
+
     pub(crate) fn add_star_appearances_without_duplicates(
         &mut self,
-        star_appearances: Vec<StarAppearance>,
+        mut star_appearances: Vec<StarAppearance>,
     ) {
+        for known_star in self.get_distant_star_appearances() {
+            Self::remove_known_star_from_list(&mut star_appearances, known_star);
+        }
+
         for star_appearance in star_appearances {
-            let known_stars: Vec<StarAppearance> = self
-                .get_distant_star_appearances()
-                .into_iter()
-                .cloned()
-                .collect();
-            if !star_is_already_known(&star_appearance, &known_stars[..]) {
-                let index = self.distant_stars.len();
-                self.distant_stars
-                    .push(Star::from_appearance(star_appearance, Some(index)));
-            }
+            let index = self.distant_stars.len();
+            self.distant_stars
+                .push(Star::from_appearance(star_appearance, Some(index)));
         }
         self.process_stars();
     }
@@ -100,18 +115,26 @@ impl CelestialSystem {
                 let stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
                 self.add_stars_from_data(stars);
             }
-            StarDataType::GaiaMeasurement => {
-                let hardcoded_stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
-                self.add_stars_from_data(hardcoded_stars);
-
-                let gaia_stars = fetch_brightest_stars()?;
-                self.add_star_appearances_without_duplicates(gaia_stars);
+            StarDataType::GaiaMeasurementSmall => {
+                self.load_gaia_data(6.)?;
+            }
+            StarDataType::GaiaMeasurementLarge => {
+                self.load_gaia_data(11.0)?;
             }
             StarDataType::GaiaSimulation => {
                 let stars = fetch_brightest_stars_simulated_data()?;
                 self.add_stars_from_data(stars);
             }
         }
+        Ok(())
+    }
+
+    fn load_gaia_data(&mut self, magnitude_threshold: f64) -> Result<(), ElenathError> {
+        let hardcoded_stars = get_many_stars().iter().map(|s| s.to_star_data()).collect();
+        self.add_stars_from_data(hardcoded_stars);
+        let gaia_stars = fetch_brightest_stars(magnitude_threshold)?;
+        println!("Fetched {} stars from Gaia", gaia_stars.len());
+        self.add_star_appearances_without_duplicates(gaia_stars);
         Ok(())
     }
 
