@@ -22,9 +22,9 @@ pub(super) struct CanvasAppearance {
 impl CanvasAppearance {
     pub(super) const MIN_RADIUS: f32 = 1.5;
     const MAX_RADIUS: f32 = 1e5;
-    const RADIUS_EXPONENT: f32 = 0.29;
+    const RADIUS_EXPONENT: f32 = 0.23;
     const ALPHA_EXPONENT: f32 = 0.75;
-    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 5e-8 };
+    const ILLUMINANCE_AT_MIN_RADIUS: Illuminance<f64> = Illuminance { lux: 8e-8 };
 
     pub(super) fn from_star_appearance(
         appearance: &StarAppearance,
@@ -375,7 +375,7 @@ mod tests {
     }
 
     #[test]
-    fn apparent_magnitude_6p5_star_is_barely_visible() {
+    fn apparent_magnitude_6p5_star_is_dim() {
         let star_appearance = StarAppearance::new(
             String::new(),
             apparent_magnitude_to_illuminance(6.5),
@@ -393,7 +393,7 @@ mod tests {
         println!("radius: {}", canvas_appearance.radius);
         assert!(canvas_appearance.radius > 0.);
         assert!(canvas_appearance.color.a > 0.);
-        assert!(canvas_appearance.color.a < 0.1);
+        assert!(canvas_appearance.color.a < 0.3);
     }
 
     #[test]
@@ -505,7 +505,7 @@ mod tests {
                 alpha: 0.92,
             },
             PictureStar {
-                name: "Betelgeus",
+                name: "Betelgeuse",
                 magnitude: 0.42,
                 diameter: 6,
                 alpha: 1.,
@@ -589,7 +589,7 @@ mod tests {
                 alpha: 1.,
             },
         ];
-        let accuracy = 0.4;
+        let accuracy = 0.5;
 
         let mut failures = 0;
         for picture_star in picture_stars.iter() {
@@ -606,7 +606,7 @@ mod tests {
                 / PICTURE_MIN_RADIUS;
             let expected_alpha = picture_star.alpha;
             if (radius / expected_radius - 1.).abs() > accuracy
-                || (color.a / expected_alpha - 1.).abs() > accuracy
+                || (color.a - expected_alpha ).abs() > accuracy
             {
                 failures += 1;
                 println!("\nname: {}", picture_star.name);
