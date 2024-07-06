@@ -1,10 +1,6 @@
-use crate::gui::{
-    gui_widget::{BIG_COLUMN_WIDTH, PADDING},
-    message::GuiMessage,
-    shared_widgets::control_field,
-};
+use astro_coordinates::ecliptic::EclipticCoordinates;
 use astro_utils::{
-    astro_display::AstroDisplay, coordinates::ecliptic::EclipticCoordinates,
+    astro_display::AstroDisplay,
     units::angle::normalized_angle,
 };
 use iced::{
@@ -13,6 +9,12 @@ use iced::{
 };
 use simple_si_units::{base::Distance, geometry::Angle};
 use std::f64::consts::PI;
+
+use crate::gui::{
+    gui_widget::{BIG_COLUMN_WIDTH, PADDING},
+    message::GuiMessage,
+    shared_widgets::control_field,
+};
 
 pub(crate) struct TopViewState {
     pub(super) background_cache: Cache,

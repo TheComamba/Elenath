@@ -1,12 +1,7 @@
-use super::Dialog;
-use crate::{
-    error::ElenathError,
-    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
-};
+use astro_coordinates::direction::Direction;
 use astro_utils::{
     astro_display::AstroDisplay,
     color::srgb::sRGBColor,
-    coordinates::direction::Direction,
     planets::{
         derived_data::DerivedPlanetData, orbit_parameters::OrbitParameters,
         physical_parameters::PlanetPhysicalParameters, planet_data::PlanetData,
@@ -28,6 +23,13 @@ use simple_si_units::{
     base::{Distance, Time},
     geometry::Angle,
 };
+
+use crate::{
+    error::ElenathError,
+    gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
+};
+
+use super::Dialog;
 
 #[derive(Debug, Clone)]
 pub(crate) struct PlanetDialog {

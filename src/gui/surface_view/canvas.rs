@@ -1,15 +1,15 @@
-use super::{
-    viewport::{observer_normal, Viewport},
-    widget::SurfaceViewState,
-};
+use astro_coordinates::{cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates};
+use iced::{widget::canvas, Rectangle, Renderer};
+
 use crate::{
     gui::shared_canvas_functionality::{display_info_text, draw_background},
     model::{celestial_system::CelestialSystem, planet::Planet},
 };
-use astro_utils::coordinates::{
-    cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
+
+use super::{
+    viewport::{observer_normal, Viewport},
+    widget::SurfaceViewState,
 };
-use iced::{widget::canvas, Rectangle, Renderer};
 
 impl SurfaceViewState {
     pub(super) fn observer_position(

@@ -1,7 +1,5 @@
+use astro_coordinates::{direction::Direction, equatorial::EquatorialCoordinates, spherical::SphericalCoordinates};
 use astro_utils::{
-    coordinates::{
-        direction::Direction, equatorial::EquatorialCoordinates, spherical::SphericalCoordinates,
-    },
     planets::{planet_data::PlanetData, surface_normal::surface_normal_at_time},
 };
 use iced::Rectangle;
@@ -69,9 +67,9 @@ pub(super) fn observer_normal(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use astro_utils::coordinates::{direction::Direction, spherical::SphericalCoordinates};
     use astro_utils::units::solid_angle::SOLID_ANGLE_ZERO;
+    
+    use super::*;
 
     const TEST_ACCURACY: f64 = 1e-5;
     const SOME_SOLID_ANGLE: SolidAngle<f64> = SolidAngle { sr: 1.0 };

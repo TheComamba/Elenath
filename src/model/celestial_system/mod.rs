@@ -1,6 +1,5 @@
-use super::star::Star;
+use astro_coordinates::cartesian::CartesianCoordinates;
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates,
     planets::planet_data::PlanetData,
     stars::{
         constellation::Constellation, data::StarData, evolution::StarDataEvolution, fate::StarFate,
@@ -11,6 +10,8 @@ use astro_utils::{
 use serde::{Deserialize, Serialize};
 use simple_si_units::base::Time;
 use std::{cmp::Ordering, path::PathBuf};
+
+use super::star::Star;
 
 pub(crate) mod constellations;
 pub(crate) mod part;

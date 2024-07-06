@@ -1,17 +1,7 @@
-use super::widget::TopViewState;
-use crate::{
-    gui::shared_canvas_functionality::{
-        canvas_contains, display_info_text, draw_background, draw_name,
-    },
-    model::{celestial_system::CelestialSystem, planet::Planet},
-};
+use astro_coordinates::{cartesian::CartesianCoordinates, direction::Direction, transformations::rotations::get_rotation_parameters};
 use astro_utils::{
     astro_display::AstroDisplay,
     color::srgb::sRGBColor,
-    coordinates::{
-        cartesian::CartesianCoordinates, direction::Direction,
-        transformations::rotations::get_rotation_parameters,
-    },
     units::distance::DISTANCE_ZERO,
 };
 use iced::{
@@ -20,6 +10,15 @@ use iced::{
     Color, Point, Rectangle, Renderer, Vector,
 };
 use simple_si_units::{base::Distance, geometry::Angle};
+
+use crate::{
+    gui::shared_canvas_functionality::{
+        canvas_contains, display_info_text, draw_background, draw_name,
+    },
+    model::{celestial_system::CelestialSystem, planet::Planet},
+};
+
+use super::widget::TopViewState;
 
 impl TopViewState {
     fn canvas_position(

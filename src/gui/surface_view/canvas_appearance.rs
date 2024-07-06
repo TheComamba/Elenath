@@ -1,16 +1,14 @@
-use crate::model::{celestial_system::CelestialSystem, planet::Planet};
-
-use super::viewport::Viewport;
+use astro_coordinates::{cartesian::CartesianCoordinates, transformations::relative_direction::direction_relative_to_normal};
 use astro_utils::{
     color::srgb::sRGBColor,
-    coordinates::{
-        cartesian::CartesianCoordinates,
-        transformations::relative_direction::direction_relative_to_normal,
-    },
     stars::appearance::StarAppearance,
 };
 use iced::{Color, Vector};
 use simple_si_units::electromagnetic::Illuminance;
+
+use crate::model::{celestial_system::CelestialSystem, planet::Planet};
+
+use super::viewport::Viewport;
 
 pub(super) struct CanvasAppearance {
     pub(super) name: String,
@@ -114,10 +112,10 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 
 #[cfg(test)]
 mod tests {
+    use astro_coordinates::{direction::Direction, ecliptic::EclipticCoordinates};
     use astro_utils::{
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,
-        coordinates::{direction::Direction, ecliptic::EclipticCoordinates},
         planets::{
             orbit_parameters::OrbitParameters, physical_parameters::PlanetPhysicalParameters,
             planet_data::PlanetData,
