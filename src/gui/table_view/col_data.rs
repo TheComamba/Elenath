@@ -155,7 +155,7 @@ impl TableColData<Planet> {
                 header: "Rotation Axis",
                 content_closure: Box::new(|body| {
                     let rotation_axis = body.get_data().get_rotation_axis();
-                    Some(rotation_axis.astro_display())
+                    Some(format!("{}", rotation_axis))
                 }),
             },
             TableColData {

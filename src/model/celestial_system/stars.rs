@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
-
+use astro_coordinates::cartesian::CartesianCoordinates;
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates,
     real_data::stars::{all::get_many_stars, SUN},
     stars::{
         appearance::StarAppearance,

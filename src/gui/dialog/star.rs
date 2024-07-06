@@ -1,6 +1,6 @@
+use astro_coordinates::cartesian::CartesianCoordinates;
 use astro_utils::{
     astro_display::AstroDisplay,
-    coordinates::cartesian::CartesianCoordinates,
     stars::{
         data::StarData, evolution::StarDataEvolution, physical_parameters::StarPhysicalParameters,
         random::random_stars::generate_random_star,

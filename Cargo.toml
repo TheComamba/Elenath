@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+astro_coordinates = { git = "https://github.com/TheComamba/AstroCoordinates.git", branch="main" }
 astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="main" }
 iced = { version = "0.12.0", default-features = false, features=["canvas", "lazy"] }
 iced_aw = { version = "0.9.0", default-features = false, features = ["card", "modal"] }

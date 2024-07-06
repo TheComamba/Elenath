@@ -1,10 +1,11 @@
-use super::celestial_system::part::{BodyType, PartOfCelestialSystem};
+use astro_coordinates::cartesian::CartesianCoordinates;
 use astro_utils::{
-    coordinates::cartesian::CartesianCoordinates,
     planets::{derived_data::DerivedPlanetData, planet_data::PlanetData},
     stars::data::StarData,
 };
 use simple_si_units::base::Time;
+
+use super::celestial_system::part::{BodyType, PartOfCelestialSystem};
 
 pub(crate) struct Planet {
     data: PlanetData,
