@@ -1,4 +1,6 @@
-use astro_coords::cartesian::CartesianCoordinates;
+use astro_coords::{
+    cartesian::CartesianCoordinates, ecliptic::EclipticCoordinates, spherical::SphericalCoordinates,
+};
 use astro_utils::{
     astro_display::AstroDisplay,
     stars::{
@@ -49,6 +51,10 @@ enum StarDialogType {
     New,
     Edit,
 }
+
+const DEFAULT_ECLIPTIC: EclipticCoordinates = EclipticCoordinates {
+    spherical: SphericalCoordinates::new(Angle { rad: 0. }, Angle { rad: 0. }),
+};
 
 impl StarDialog {
     pub(crate) fn new(time_since_epoch: Time<f64>) -> Self {
@@ -128,7 +134,9 @@ impl StarDialog {
             self.star
                 .get_pos_at_epoch()
                 .to_ecliptic()
-                .get_longitude()
+                .unwrap_or(DEFAULT_ECLIPTIC)
+                .spherical
+                .longitude
                 .to_degrees()
         );
         self.latitude_string = format!(
@@ -136,7 +144,9 @@ impl StarDialog {
             self.star
                 .get_pos_at_epoch()
                 .to_ecliptic()
-                .get_latitude()
+                .unwrap_or(DEFAULT_ECLIPTIC)
+                .spherical
+                .latitude
                 .to_degrees()
         );
     }
@@ -199,14 +209,28 @@ impl StarDialog {
             &self.longitude_string,
             "°",
             StarDialogEvent::LongitudeChanged,
-            &Some(self.star.get_pos_at_epoch().to_ecliptic().get_longitude()),
+            &Some(
+                self.star
+                    .get_pos_at_epoch()
+                    .to_ecliptic()
+                    .unwrap_or(DEFAULT_ECLIPTIC)
+                    .spherical
+                    .longitude,
+            ),
         );
         let latitude = edit(
             "Latitude at epoch",
             &self.latitude_string,
             "°",
             StarDialogEvent::LatitudeChanged,
-            &Some(self.star.get_pos_at_epoch().to_ecliptic().get_latitude()),
+            &Some(
+                self.star
+                    .get_pos_at_epoch()
+                    .to_ecliptic()
+                    .unwrap_or(DEFAULT_ECLIPTIC)
+                    .spherical
+                    .latitude,
+            ),
         );
         let constellation = edit(
             "Constellation",
@@ -336,7 +360,9 @@ impl StarDialog {
                     .star
                     .get_pos(self.time_since_epoch)
                     .to_ecliptic()
-                    .get_longitude()
+                    .unwrap_or(DEFAULT_ECLIPTIC)
+                    .spherical
+                    .longitude
                     .astro_display(),
         )
         .shaping(Shaping::Advanced);
@@ -347,7 +373,9 @@ impl StarDialog {
                     .star
                     .get_pos(self.time_since_epoch)
                     .to_ecliptic()
-                    .get_latitude()
+                    .unwrap_or(DEFAULT_ECLIPTIC)
+                    .spherical
+                    .latitude
                     .astro_display(),
         )
         .shaping(Shaping::Advanced);
@@ -459,8 +487,12 @@ impl Component<GuiMessage> for StarDialog {
             }
             StarDialogEvent::LongitudeChanged(longitude_string) => {
                 if let Ok(longitude) = longitude_string.parse::<f64>() {
-                    let mut pos = self.star.get_pos_at_epoch().to_ecliptic();
-                    pos.set_longitude(Angle::from_degrees(longitude));
+                    let mut pos = self
+                        .star
+                        .get_pos_at_epoch()
+                        .to_ecliptic()
+                        .unwrap_or(DEFAULT_ECLIPTIC);
+                    pos.spherical.longitude = Angle::from_degrees(longitude);
                     let pos = pos
                         .to_direction()
                         .to_cartesian(self.star.get_distance_at_epoch());
@@ -470,8 +502,12 @@ impl Component<GuiMessage> for StarDialog {
             }
             StarDialogEvent::LatitudeChanged(latitude_string) => {
                 if let Ok(latitude) = latitude_string.parse::<f64>() {
-                    let mut pos = self.star.get_pos_at_epoch().to_ecliptic();
-                    pos.set_latitude(Angle::from_degrees(latitude));
+                    let mut pos = self
+                        .star
+                        .get_pos_at_epoch()
+                        .to_ecliptic()
+                        .unwrap_or(DEFAULT_ECLIPTIC);
+                    pos.spherical.latitude = Angle::from_degrees(latitude);
                     let pos = pos
                         .to_direction()
                         .to_cartesian(self.star.get_distance_at_epoch());

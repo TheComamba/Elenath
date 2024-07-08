@@ -29,8 +29,8 @@ impl TopViewState {
         view_rotation_axis: &Direction,
     ) -> Vector {
         let rotated_position = pos.rotated(-view_angle, view_rotation_axis); //passive transformation
-        let x = rotated_position.x() / self.length_per_pixel;
-        let y = -rotated_position.y() / self.length_per_pixel; // y axis is inverted
+        let x = rotated_position.x / self.length_per_pixel;
+        let y = -rotated_position.y / self.length_per_pixel; // y axis is inverted
         Vector::new(x as f32, y as f32)
     }
 
@@ -77,7 +77,7 @@ impl TopViewState {
         frame: &mut canvas::Frame,
         display_names: bool,
     ) {
-        let view_direction = &self.view_ecliptic.get_spherical().to_direction();
+        let view_direction = &self.view_ecliptic.spherical.to_direction();
         let (angle, view_rotation_axis) = get_rotation_parameters(&Direction::Z, view_direction);
 
         let offset = match selected_planet {

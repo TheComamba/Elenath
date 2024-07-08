@@ -236,22 +236,14 @@ impl TableColData<Star> {
             TableColData {
                 header: "Ecl. Lon.",
                 content_closure: Box::new(|body| {
-                    let longitude = body
-                        .get_appearance()
-                        .get_pos()
-                        .get_spherical()
-                        .get_longitude();
+                    let longitude = body.get_appearance().get_pos().spherical.longitude;
                     Some(longitude.astro_display())
                 }),
             },
             TableColData {
                 header: "Ecl. Lat.",
                 content_closure: Box::new(|body| {
-                    let latitude = body
-                        .get_appearance()
-                        .get_pos()
-                        .get_spherical()
-                        .get_latitude();
+                    let latitude = body.get_appearance().get_pos().spherical.latitude;
                     Some(latitude.astro_display())
                 }),
             },
