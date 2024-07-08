@@ -1,4 +1,4 @@
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::CartesianCoordinates;
 use astro_utils::stars::appearance::StarAppearance;
 use iced::{
     widget::canvas::{self, path::lyon_path::geom::Transform, Frame, Path},

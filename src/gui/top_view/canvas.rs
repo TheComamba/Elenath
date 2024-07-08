@@ -1,8 +1,9 @@
-use astro_coordinates::{cartesian::CartesianCoordinates, direction::Direction, transformations::rotations::get_rotation_parameters};
+use astro_coords::{
+    cartesian::CartesianCoordinates, direction::Direction,
+    transformations::rotations::get_rotation_parameters,
+};
 use astro_utils::{
-    astro_display::AstroDisplay,
-    color::srgb::sRGBColor,
-    units::distance::DISTANCE_ZERO,
+    astro_display::AstroDisplay, color::srgb::sRGBColor, units::distance::DISTANCE_ZERO,
 };
 use iced::{
     alignment::Horizontal,

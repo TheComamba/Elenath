@@ -1,4 +1,6 @@
-use astro_coordinates::{cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates};
+use astro_coords::{
+    cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
+};
 use iced::{widget::canvas, Rectangle, Renderer};
 
 use crate::{

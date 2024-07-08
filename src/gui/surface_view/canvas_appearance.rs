@@ -1,8 +1,8 @@
-use astro_coordinates::{cartesian::CartesianCoordinates, transformations::relative_direction::direction_relative_to_normal};
-use astro_utils::{
-    color::srgb::sRGBColor,
-    stars::appearance::StarAppearance,
+use astro_coords::{
+    cartesian::CartesianCoordinates,
+    transformations::relative_direction::direction_relative_to_normal,
 };
+use astro_utils::{color::srgb::sRGBColor, stars::appearance::StarAppearance};
 use iced::{Color, Vector};
 use simple_si_units::electromagnetic::Illuminance;
 
@@ -112,7 +112,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 
 #[cfg(test)]
 mod tests {
-    use astro_coordinates::{direction::Direction, ecliptic::EclipticCoordinates};
+    use astro_coords::{direction::Direction, ecliptic::EclipticCoordinates};
     use astro_utils::{
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,

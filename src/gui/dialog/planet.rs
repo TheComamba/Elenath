@@ -1,4 +1,4 @@
-use astro_coordinates::direction::Direction;
+use astro_coords::direction::Direction;
 use astro_utils::{
     astro_display::AstroDisplay,
     color::srgb::sRGBColor,

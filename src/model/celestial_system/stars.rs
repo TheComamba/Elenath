@@ -1,5 +1,4 @@
-use std::cmp::Ordering;
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::CartesianCoordinates;
 use astro_utils::{
     real_data::stars::{all::get_many_stars, SUN},
     stars::{
@@ -13,6 +12,7 @@ use astro_utils::{
     },
 };
 use simple_si_units::base::Distance;
+use std::cmp::Ordering;
 
 use crate::{
     error::ElenathError,

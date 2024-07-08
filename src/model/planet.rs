@@ -1,4 +1,4 @@
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::CartesianCoordinates;
 use astro_utils::{
     planets::{derived_data::DerivedPlanetData, planet_data::PlanetData},
     stars::data::StarData,
