@@ -80,37 +80,36 @@ mod tests {
         height: 100.,
     };
 
-    #[test]
-    fn view_direction_z_does_not_influence_center_direction_and_makes_rotation_axis_irrelevant() {
+    fn example_directions() -> Vec<Direction> {
         let ordinates = vec![-1., 0., 1., 12.];
+        let mut directions = Vec::new();
         for x1 in ordinates.clone().iter() {
             for y1 in ordinates.clone().iter() {
                 for z1 in ordinates.clone().iter() {
-                    for x2 in ordinates.clone().iter() {
-                        for y2 in ordinates.clone().iter() {
-                            for z2 in ordinates.clone().iter() {
-                                let view_direction = SphericalCoordinates::Z_DIRECTION;
-                                let observer_normal = Direction::new(*x1, *y1, *z1);
-                                let rotation_axis = Direction::new(*x2, *y2, *z2);
-                                if observer_normal.is_err() || rotation_axis.is_err() {
-                                    continue;
-                                }
-                                let observer_normal = observer_normal.unwrap();
-                                let rotation_axis = rotation_axis.unwrap();
-                                let viewport = Viewport::calculate(
-                                    &observer_normal,
-                                    &view_direction,
-                                    SOME_SOLID_ANGLE,
-                                    &rotation_axis,
-                                    SOME_SQUARE,
-                                );
-                                assert!(viewport
-                                    .center_direction
-                                    .eq_within(&observer_normal, TEST_ACCURACY));
-                            }
-                        }
+                    if let Ok(direction) = Direction::new(*x1, *y1, *z1) {
+                        directions.push(direction);
                     }
                 }
+            }
+        }
+        directions
+    }
+
+    #[test]
+    fn view_direction_z_does_not_influence_center_direction_and_makes_rotation_axis_irrelevant() {
+        for observer_normal in example_directions().iter() {
+            for rotation_axis in example_directions().iter() {
+                let view_direction = SphericalCoordinates::Z_DIRECTION;
+                let viewport = Viewport::calculate(
+                    &observer_normal,
+                    &view_direction,
+                    SOME_SOLID_ANGLE,
+                    &rotation_axis,
+                    SOME_SQUARE,
+                );
+                assert!(viewport
+                    .center_direction
+                    .eq_within(&observer_normal, TEST_ACCURACY));
             }
         }
     }
@@ -167,61 +166,33 @@ mod tests {
 
     #[test]
     fn top_direction_aligns_with_rotation_axis() {
-        let ordinates = vec![-1., 0., 1., 12.];
-        for x1 in ordinates.clone().iter() {
-            for y1 in ordinates.clone().iter() {
-                for z1 in ordinates.clone().iter() {
-                    for x2 in ordinates.clone().iter() {
-                        for y2 in ordinates.clone().iter() {
-                            for z2 in ordinates.clone().iter() {
-                                for x3 in ordinates.clone().iter() {
-                                    for y3 in ordinates.clone().iter() {
-                                        for z3 in ordinates.clone().iter() {
-                                            let observer_normal = Direction::new(*x1, *y1, *z1);
-                                            let rotation_axis = Direction::new(*x2, *y2, *z2);
-                                            let view_direction = Direction::new(*x3, *y3, *z3);
-                                            if observer_normal.is_err()
-                                                || rotation_axis.is_err()
-                                                || view_direction.is_err()
-                                            {
-                                                continue;
-                                            }
-                                            let observer_normal = observer_normal.unwrap();
-                                            let rotation_axis = rotation_axis.unwrap();
-                                            let view_direction =
-                                                view_direction.unwrap().to_spherical();
-                                            let viewport = Viewport::calculate(
-                                                &observer_normal,
-                                                &view_direction,
-                                                SOME_SOLID_ANGLE,
-                                                &rotation_axis,
-                                                SOME_SQUARE,
-                                            );
+        for observer_normal in example_directions().iter() {
+            for rotation_axis in example_directions().iter() {
+                for view_direction in example_directions().iter() {
+                    let view_direction = view_direction.to_spherical();
+                    let viewport = Viewport::calculate(
+                        &observer_normal,
+                        &view_direction,
+                        SOME_SOLID_ANGLE,
+                        &rotation_axis,
+                        SOME_SQUARE,
+                    );
 
-                                            let ortho = rotation_axis
-                                                .cross_product(&viewport.center_direction);
-                                            if ortho.is_err() {
-                                                continue;
-                                            }
-                                            let ortho = ortho.unwrap();
-                                            let overlap =
-                                                ortho.dot_product(&viewport.top_direction);
-
-                                            println!(
-                                                "center_direction: {}",
-                                                viewport.center_direction
-                                            );
-                                            println!("top_direction: {}", viewport.top_direction);
-                                            println!("rotation_axis: {}", rotation_axis);
-                                            println!("ortho: {}", ortho);
-                                            println!("overlap: {}", overlap);
-                                            assert!(overlap.abs() < TEST_ACCURACY);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    let ortho = rotation_axis.cross_product(&viewport.center_direction);
+                    if ortho.is_err() {
+                        continue;
                     }
+                    let ortho = ortho.unwrap();
+                    let overlap = ortho.dot_product(&viewport.top_direction);
+
+                    assert!(overlap.abs() < TEST_ACCURACY,
+                        "center_direction: {}\ntop_direction: {}\nrotation_axis: {}\northo: {}\noverlap: {}", 
+                        viewport.center_direction,
+                        viewport.top_direction,
+                        rotation_axis,
+                        ortho,
+                        overlap
+                    );
                 }
             }
         }
