@@ -29,7 +29,7 @@ pub(super) fn draw_name(name: &str, color: Color, body_center: Point, frame: &mu
 
 /*
  * Iced's bound.contains is a bit unintuitive:
- * https://github.com/TheComamba/IcedPlayground/blob/main/canvas_coordinates/src/main.rs
+ * https://github.com/TheComamba/IcedPlayground/blob/main/canvas_/src/main.rs
  */
 pub(super) fn canvas_contains(bounds: &Rectangle, point: Point) -> bool {
     point.x >= 0. && point.x <= bounds.width && point.y >= 0. && point.y <= bounds.height

@@ -1,4 +1,4 @@
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::Cartesian;
 use astro_utils::stars::appearance::StarAppearance;
 use iced::{
     widget::canvas::{self, path::lyon_path::geom::Transform, Frame, Path},
@@ -22,7 +22,7 @@ impl SurfaceViewState {
         celestial_system: &CelestialSystem,
         display_names: bool,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
     ) {
         let smallest_circle = Path::circle(frame.center(), CanvasAppearance::MIN_RADIUS);
         for distant_star in celestial_system.get_distant_star_appearances() {
@@ -73,7 +73,7 @@ impl SurfaceViewState {
         bounds: Rectangle,
         star: &StarAppearance,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
         pixel_per_viewport_width: f32,
         smallest_circle: Path,
         display_names: bool,
@@ -97,7 +97,7 @@ impl SurfaceViewState {
         bounds: Rectangle,
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
         pixel_per_viewport_width: f32,
         smallest_circle: Path,
         display_names: bool,
@@ -126,7 +126,7 @@ impl SurfaceViewState {
         celestial_system: &CelestialSystem,
         planet: &Planet,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
         pixel_per_viewport_width: f32,
         smallest_circle: Path,
         display_names: bool,
@@ -154,7 +154,7 @@ impl SurfaceViewState {
         pixel_per_viewport_width: f32,
         smallest_circle: Path,
         display_names: bool,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
     ) {
         if let Some(canvas_appearance) = canvas_appearance {
             let pos = frame.center() + canvas_appearance.center_offset;
@@ -223,7 +223,7 @@ impl SurfaceViewState {
         frame: &mut canvas::Frame,
         pos: Point,
         radius: &Distance<f64>,
-        relative_position: &CartesianCoordinates,
+        relative_position: &Cartesian,
         color: Color,
         pixel_per_viewport_width: f32,
     ) {
@@ -237,7 +237,7 @@ impl SurfaceViewState {
 
 fn canvas_apparent_radius(
     radius: &Distance<f64>,
-    relative_position: &CartesianCoordinates,
+    relative_position: &Cartesian,
     pixel_per_viewport_width: f32,
 ) -> f32 {
     (radius / &relative_position.length()) as f32 * pixel_per_viewport_width

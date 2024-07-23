@@ -1,8 +1,7 @@
-use astro_coordinates::{cartesian::CartesianCoordinates, transformations::relative_direction::direction_relative_to_normal};
-use astro_utils::{
-    color::srgb::sRGBColor,
-    stars::appearance::StarAppearance,
+use astro_coords::{
+    cartesian::Cartesian, transformations::relative_direction::direction_relative_to_normal,
 };
+use astro_utils::{color::srgb::sRGBColor, stars::appearance::StarAppearance};
 use iced::{Color, Vector};
 use simple_si_units::electromagnetic::Illuminance;
 
@@ -40,7 +39,7 @@ impl CanvasAppearance {
     pub(super) fn from_central_body(
         celestial_system: &CelestialSystem,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
     ) -> Option<CanvasAppearance> {
         let central_body_appearance =
             celestial_system.get_central_body_appearance(observer_position);
@@ -51,7 +50,7 @@ impl CanvasAppearance {
         celestial_system: &CelestialSystem,
         planet: &Planet,
         viewport: &Viewport,
-        observer_position: &CartesianCoordinates,
+        observer_position: &Cartesian,
     ) -> Option<CanvasAppearance> {
         let planet_appearance = planet.get_data().to_star_appearance(
             celestial_system.get_central_body_data(),
@@ -112,7 +111,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 
 #[cfg(test)]
 mod tests {
-    use astro_coordinates::{direction::Direction, ecliptic::EclipticCoordinates};
+    use astro_coords::{direction::Direction, ecliptic::Ecliptic};
     use astro_utils::{
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,
@@ -378,7 +377,7 @@ mod tests {
             String::new(),
             apparent_magnitude_to_illuminance(6.5),
             SOME_COLOR,
-            EclipticCoordinates::X_DIRECTION,
+            Ecliptic::X_DIRECTION,
             TIME_ZERO,
         );
         let viewport = Viewport {
@@ -400,7 +399,7 @@ mod tests {
             String::new(),
             apparent_magnitude_to_illuminance(0.),
             SOME_COLOR,
-            EclipticCoordinates::X_DIRECTION,
+            Ecliptic::X_DIRECTION,
             TIME_ZERO,
         );
         let viewport = Viewport {
@@ -421,7 +420,7 @@ mod tests {
             String::new(),
             apparent_magnitude_to_illuminance(-4.92),
             SOME_COLOR,
-            EclipticCoordinates::X_DIRECTION,
+            Ecliptic::X_DIRECTION,
             TIME_ZERO,
         );
         let viewport = Viewport {
@@ -442,7 +441,7 @@ mod tests {
             String::new(),
             apparent_magnitude_to_illuminance(-26.72),
             SOME_COLOR,
-            EclipticCoordinates::X_DIRECTION,
+            Ecliptic::X_DIRECTION,
             TIME_ZERO,
         );
         let viewport = Viewport {
@@ -596,7 +595,7 @@ mod tests {
                 picture_star.name.to_string(),
                 illuminance,
                 SOME_COLOR,
-                EclipticCoordinates::X_DIRECTION,
+                Ecliptic::X_DIRECTION,
                 TIME_ZERO,
             );
             let (color, radius) = CanvasAppearance::color_and_radius(&star_appearance);

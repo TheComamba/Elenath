@@ -1,5 +1,4 @@
-use std::cmp::Ordering;
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::Cartesian;
 use astro_utils::{
     real_data::stars::{all::get_many_stars, SUN},
     stars::{
@@ -13,6 +12,7 @@ use astro_utils::{
     },
 };
 use simple_si_units::base::Distance;
+use std::cmp::Ordering;
 
 use crate::{
     error::ElenathError,
@@ -141,10 +141,7 @@ impl CelestialSystem {
         &self.central_body
     }
 
-    pub(crate) fn get_central_body_appearance(
-        &self,
-        observer_pos: &CartesianCoordinates,
-    ) -> StarAppearance {
+    pub(crate) fn get_central_body_appearance(&self, observer_pos: &Cartesian) -> StarAppearance {
         let mut body = self.central_body.clone();
         let relative_position = -observer_pos;
         body.set_pos_at_epoch(relative_position);

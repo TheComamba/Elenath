@@ -1,8 +1,8 @@
-use astro_coordinates::{cartesian::CartesianCoordinates, direction::Direction, transformations::rotations::get_rotation_parameters};
+use astro_coords::{
+    cartesian::Cartesian, direction::Direction, transformations::rotations::get_rotation_parameters,
+};
 use astro_utils::{
-    astro_display::AstroDisplay,
-    color::srgb::sRGBColor,
-    units::distance::DISTANCE_ZERO,
+    astro_display::AstroDisplay, color::srgb::sRGBColor, units::distance::DISTANCE_ZERO,
 };
 use iced::{
     alignment::Horizontal,
@@ -23,13 +23,13 @@ use super::widget::TopViewState;
 impl TopViewState {
     fn canvas_position(
         &self,
-        pos: &CartesianCoordinates,
+        pos: &Cartesian,
         view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
     ) -> Vector {
         let rotated_position = pos.rotated(-view_angle, view_rotation_axis); //passive transformation
-        let x = rotated_position.x() / self.length_per_pixel;
-        let y = -rotated_position.y() / self.length_per_pixel; // y axis is inverted
+        let x = rotated_position.x / self.length_per_pixel;
+        let y = -rotated_position.y / self.length_per_pixel; // y axis is inverted
         Vector::new(x as f32, y as f32)
     }
 
@@ -76,7 +76,7 @@ impl TopViewState {
         frame: &mut canvas::Frame,
         display_names: bool,
     ) {
-        let view_direction = &self.view_ecliptic.get_spherical().to_direction();
+        let view_direction = &self.view_ecliptic.spherical.to_direction();
         let (angle, view_rotation_axis) = get_rotation_parameters(&Direction::Z, view_direction);
 
         let offset = match selected_planet {
@@ -120,7 +120,7 @@ impl TopViewState {
     ) {
         let time = celestial_system.get_time_since_epoch();
         let data = celestial_system.get_central_body_data();
-        let pos3d = CartesianCoordinates::ORIGIN;
+        let pos3d = Cartesian::ORIGIN;
         let color = sRGBColor::from_temperature(data.get_temperature(time));
         let radius = data.get_radius(time).unwrap_or(DISTANCE_ZERO);
         let body = BodyParams {
@@ -206,7 +206,7 @@ fn canvas_color(color: &sRGBColor, albedo: Option<f64>) -> Color {
 
 struct BodyParams<'a> {
     name: &'a str,
-    pos3d: &'a CartesianCoordinates,
+    pos3d: &'a Cartesian,
     color: &'a sRGBColor,
     albedo: Option<f64>,
     radius: Distance<f64>,

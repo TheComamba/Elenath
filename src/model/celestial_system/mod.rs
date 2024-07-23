@@ -1,4 +1,4 @@
-use astro_coordinates::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::Cartesian;
 use astro_utils::{
     planets::planet_data::PlanetData,
     stars::{
@@ -47,7 +47,7 @@ impl CelestialSystem {
             "".to_string(),
             None,
             central_body_params,
-            CartesianCoordinates::ORIGIN,
+            Cartesian::ORIGIN,
             StarDataEvolution::NONE,
         );
         CelestialSystem {

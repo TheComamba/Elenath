@@ -1,8 +1,5 @@
-use astro_coordinates::ecliptic::EclipticCoordinates;
-use astro_utils::{
-    astro_display::AstroDisplay,
-    units::angle::normalized_angle,
-};
+use astro_coords::ecliptic::Ecliptic;
+use astro_utils::{astro_display::AstroDisplay, units::angle::normalized_angle};
 use iced::{
     widget::{canvas::Cache, Column},
     Alignment, Element, Length,
@@ -21,7 +18,7 @@ pub(crate) struct TopViewState {
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
     pub(super) length_per_pixel: Distance<f64>,
-    pub(super) view_ecliptic: EclipticCoordinates,
+    pub(super) view_ecliptic: Ecliptic,
 }
 
 #[derive(Debug, Clone)]
@@ -44,7 +41,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             length_per_pixel: Distance::from_au(0.01),
-            view_ecliptic: EclipticCoordinates::Z_DIRECTION,
+            view_ecliptic: Ecliptic::Z_DIRECTION,
         }
     }
 
@@ -55,7 +52,7 @@ impl TopViewState {
             }
             TopViewUpdate::ViewLongitude(mut longitude) => {
                 longitude = normalized_angle(longitude);
-                self.view_ecliptic.set_longitude(longitude);
+                self.view_ecliptic.spherical.longitude = longitude;
             }
             TopViewUpdate::ViewLatitude(mut latitude) => {
                 if latitude.to_degrees() < -90. {
@@ -63,7 +60,7 @@ impl TopViewState {
                 } else if latitude.to_degrees() > 90. {
                     latitude = Angle::from_degrees(90.);
                 }
-                self.view_ecliptic.set_latitude(latitude);
+                self.view_ecliptic.spherical.latitude = latitude;
             }
         }
     }
@@ -83,14 +80,14 @@ impl TopViewState {
         const VIEW_ANGLE_STEP: Angle<f64> = Angle {
             rad: 10. * 2. * PI / 360.,
         };
-        let view_longitude = self.view_ecliptic.get_longitude();
+        let view_longitude = self.view_ecliptic.spherical.longitude;
         let view_longitude_control_field = control_field(
             "View longitude:",
             view_longitude.astro_display(),
             TopViewUpdate::ViewLongitude(view_longitude - VIEW_ANGLE_STEP),
             TopViewUpdate::ViewLongitude(view_longitude + VIEW_ANGLE_STEP),
         );
-        let view_latitude = self.view_ecliptic.get_latitude();
+        let view_latitude = self.view_ecliptic.spherical.latitude;
         let view_latitude_control_field = control_field(
             "View latitude:",
             view_latitude.astro_display(),
