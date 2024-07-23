@@ -151,7 +151,7 @@ dependencies = [
 [[package]]
 name = "astro_coords"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroCoords.git?branch=main#5ab356995b4e08690baf8a8b5ca5e339cbdc5df9"
+source = "git+https://github.com/TheComamba/AstroCoords.git?branch=main#735f2265281e2a2ce258f85f69e2b89a67da8bce"
 dependencies = [
  "serde",
  "simple-si-units",
