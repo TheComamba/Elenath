@@ -1,4 +1,4 @@
-use astro_coords::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::Cartesian;
 use astro_utils::{
     planets::{derived_data::DerivedPlanetData, planet_data::PlanetData},
     stars::data::StarData,
@@ -10,7 +10,7 @@ use super::celestial_system::part::{BodyType, PartOfCelestialSystem};
 pub(crate) struct Planet {
     data: PlanetData,
     derived_data: Option<DerivedPlanetData>,
-    pos: CartesianCoordinates,
+    pos: Cartesian,
     index: Option<usize>,
 }
 
@@ -40,17 +40,17 @@ impl Planet {
         self.derived_data.as_ref()
     }
 
-    pub(crate) fn get_position(&self) -> &CartesianCoordinates {
+    pub(crate) fn get_position(&self) -> &Cartesian {
         &self.pos
     }
 }
 
-fn calc_pos(central_body: &StarData, time: Time<f64>, data: &PlanetData) -> CartesianCoordinates {
+fn calc_pos(central_body: &StarData, time: Time<f64>, data: &PlanetData) -> Cartesian {
     let pos = if let Some(central_body_mass) = central_body.get_mass(time) {
         data.get_orbital_parameters()
             .calculate_position(data.get_mass(), central_body_mass, time)
     } else {
-        CartesianCoordinates::ORIGIN
+        Cartesian::ORIGIN
     };
     pos
 }

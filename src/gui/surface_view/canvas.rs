@@ -1,6 +1,4 @@
-use astro_coords::{
-    cartesian::CartesianCoordinates, direction::Direction, spherical::SphericalCoordinates,
-};
+use astro_coords::{cartesian::Cartesian, direction::Direction, spherical::Spherical};
 use iced::{widget::canvas, Rectangle, Renderer};
 
 use crate::{
@@ -18,7 +16,7 @@ impl SurfaceViewState {
         &self,
         selected_planet: &Planet,
         observer_normal: &Direction,
-    ) -> CartesianCoordinates {
+    ) -> Cartesian {
         let body_radius = selected_planet.get_data().get_radius();
         selected_planet.get_position().clone() + observer_normal.to_cartesian(body_radius)
     }
@@ -69,16 +67,14 @@ impl SurfaceViewState {
         display_names: bool,
         display_constellations: bool,
     ) {
-        let surface_position =
-            SphericalCoordinates::new(self.surface_longitude, self.surface_latitude);
+        let surface_position = Spherical::new(self.surface_longitude, self.surface_latitude);
         let observer_normal = observer_normal(
             selected_planet.get_data(),
             surface_position,
             celestial_system.get_time_since_epoch(),
         );
         let observer_position = self.observer_position(selected_planet, &observer_normal);
-        let observer_view_direction =
-            SphericalCoordinates::new(self.view_longitude, self.view_latitude);
+        let observer_view_direction = Spherical::new(self.view_longitude, self.view_latitude);
         let viewport = Viewport::calculate(
             &observer_normal,
             &observer_view_direction,

@@ -1,6 +1,4 @@
-use astro_coords::{
-    cartesian::CartesianCoordinates, ecliptic::EclipticCoordinates, spherical::SphericalCoordinates,
-};
+use astro_coords::{cartesian::Cartesian, ecliptic::Ecliptic, spherical::Spherical};
 use astro_utils::{
     astro_display::AstroDisplay,
     stars::{
@@ -52,8 +50,8 @@ enum StarDialogType {
     Edit,
 }
 
-const DEFAULT_ECLIPTIC: EclipticCoordinates = EclipticCoordinates {
-    spherical: SphericalCoordinates::new(Angle { rad: 0. }, Angle { rad: 0. }),
+const DEFAULT_ECLIPTIC: Ecliptic = Ecliptic {
+    spherical: Spherical::new(Angle { rad: 0. }, Angle { rad: 0. }),
 };
 
 impl StarDialog {
@@ -63,7 +61,7 @@ impl StarDialog {
             String::new(),
             None,
             params,
-            CartesianCoordinates::ORIGIN,
+            Cartesian::ORIGIN,
             StarDataEvolution::NONE,
         );
         let mut dialog = StarDialog {

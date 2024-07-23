@@ -1,6 +1,5 @@
 use astro_coords::{
-    cartesian::CartesianCoordinates, direction::Direction,
-    transformations::rotations::get_rotation_parameters,
+    cartesian::Cartesian, direction::Direction, transformations::rotations::get_rotation_parameters,
 };
 use astro_utils::{
     astro_display::AstroDisplay, color::srgb::sRGBColor, units::distance::DISTANCE_ZERO,
@@ -24,7 +23,7 @@ use super::widget::TopViewState;
 impl TopViewState {
     fn canvas_position(
         &self,
-        pos: &CartesianCoordinates,
+        pos: &Cartesian,
         view_angle: Angle<f64>,
         view_rotation_axis: &Direction,
     ) -> Vector {
@@ -121,7 +120,7 @@ impl TopViewState {
     ) {
         let time = celestial_system.get_time_since_epoch();
         let data = celestial_system.get_central_body_data();
-        let pos3d = CartesianCoordinates::ORIGIN;
+        let pos3d = Cartesian::ORIGIN;
         let color = sRGBColor::from_temperature(data.get_temperature(time));
         let radius = data.get_radius(time).unwrap_or(DISTANCE_ZERO);
         let body = BodyParams {
@@ -207,7 +206,7 @@ fn canvas_color(color: &sRGBColor, albedo: Option<f64>) -> Color {
 
 struct BodyParams<'a> {
     name: &'a str,
-    pos3d: &'a CartesianCoordinates,
+    pos3d: &'a Cartesian,
     color: &'a sRGBColor,
     albedo: Option<f64>,
     radius: Distance<f64>,

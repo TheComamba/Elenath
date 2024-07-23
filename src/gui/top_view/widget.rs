@@ -1,4 +1,4 @@
-use astro_coords::ecliptic::EclipticCoordinates;
+use astro_coords::ecliptic::Ecliptic;
 use astro_utils::{astro_display::AstroDisplay, units::angle::normalized_angle};
 use iced::{
     widget::{canvas::Cache, Column},
@@ -18,7 +18,7 @@ pub(crate) struct TopViewState {
     pub(super) bodies_cache: Cache,
     pub(super) scale_cache: Cache,
     pub(super) length_per_pixel: Distance<f64>,
-    pub(super) view_ecliptic: EclipticCoordinates,
+    pub(super) view_ecliptic: Ecliptic,
 }
 
 #[derive(Debug, Clone)]
@@ -41,7 +41,7 @@ impl TopViewState {
             bodies_cache: Cache::default(),
             scale_cache: Cache::default(),
             length_per_pixel: Distance::from_au(0.01),
-            view_ecliptic: EclipticCoordinates::Z_DIRECTION,
+            view_ecliptic: Ecliptic::Z_DIRECTION,
         }
     }
 

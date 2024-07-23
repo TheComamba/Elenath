@@ -1,4 +1,4 @@
-use astro_coords::cartesian::CartesianCoordinates;
+use astro_coords::cartesian::Cartesian;
 use astro_utils::{
     real_data::stars::{all::get_many_stars, SUN},
     stars::{
@@ -141,10 +141,7 @@ impl CelestialSystem {
         &self.central_body
     }
 
-    pub(crate) fn get_central_body_appearance(
-        &self,
-        observer_pos: &CartesianCoordinates,
-    ) -> StarAppearance {
+    pub(crate) fn get_central_body_appearance(&self, observer_pos: &Cartesian) -> StarAppearance {
         let mut body = self.central_body.clone();
         let relative_position = -observer_pos;
         body.set_pos_at_epoch(relative_position);
