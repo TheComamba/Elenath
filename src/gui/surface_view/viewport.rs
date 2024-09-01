@@ -1,4 +1,4 @@
-use astro_coords::{direction::Direction, equatorial::Equatorial, spherical::Spherical};
+use astro_coords::{direction::Direction, equatorial::Equatorial, spherical::Spherical, traits::*};
 use astro_utils::planets::{planet_data::PlanetData, surface_normal::surface_normal_at_time};
 use iced::Rectangle;
 use simple_si_units::{

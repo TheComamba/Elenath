@@ -111,7 +111,7 @@ fn offset(appearance: &StarAppearance, viewport: &Viewport) -> Option<Vector> {
 
 #[cfg(test)]
 mod tests {
-    use astro_coords::{direction::Direction, ecliptic::Ecliptic};
+    use astro_coords::{direction::Direction, ecliptic::Ecliptic, traits::*};
     use astro_utils::{
         astro_display::AstroDisplay,
         color::srgb::sRGBColor,

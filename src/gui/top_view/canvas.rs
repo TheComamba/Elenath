@@ -1,5 +1,6 @@
 use astro_coords::{
-    cartesian::Cartesian, direction::Direction, transformations::rotations::get_rotation_parameters,
+    cartesian::Cartesian, direction::Direction, traits::*,
+    transformations::rotations::get_rotation_parameters,
 };
 use astro_utils::{
     astro_display::AstroDisplay, color::srgb::sRGBColor, units::distance::DISTANCE_ZERO,
