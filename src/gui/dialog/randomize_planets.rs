@@ -49,7 +49,7 @@ impl Component<GuiMessage> for RandomizePlanetsDialog {
             .padding(PADDING)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 }

@@ -138,7 +138,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             .padding(PADDING)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 }

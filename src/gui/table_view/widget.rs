@@ -108,7 +108,7 @@ impl TableViewState {
             TableDataType::Supernova => {}
         }
 
-        row.align_items(Alignment::Center)
+        row.align_y(Alignment::Center)
             .spacing(PADDING)
             .padding(PADDING)
             .into()
@@ -159,7 +159,7 @@ fn data_type_selection_tabs() -> Element<'static, GuiMessage> {
         .push(planet_button)
         .push(star_button)
         .push(supernova_button)
-        .align_items(Alignment::Center)
+        .align_y(Alignment::Center)
         .spacing(PADDING)
         .padding(PADDING)
         .into()
@@ -198,7 +198,7 @@ fn table_header<T>(
     for col in table_col_data {
         row = row.push(table_cell(Text::new(col.header).into()));
     }
-    row.align_items(Alignment::Center)
+    row.align_y(Alignment::Center)
 }
 
 fn table_row<T>(
@@ -235,7 +235,7 @@ where
         let text = Text::new(content).shaping(Shaping::Advanced);
         row = row.push(table_cell(text.into()));
     }
-    row.align_items(Alignment::Center)
+    row.align_y(Alignment::Center)
 }
 
 fn table_cell(content: Element<'_, GuiMessage>) -> Container<'_, GuiMessage> {

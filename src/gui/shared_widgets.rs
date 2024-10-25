@@ -31,7 +31,7 @@ impl Gui {
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
@@ -52,7 +52,7 @@ impl Gui {
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
@@ -100,7 +100,7 @@ pub(super) fn planet_picker<'a>(
         .push(text)
         .push(pick_list)
         .spacing(PADDING)
-        .align_items(Alignment::Center)
+        .align_x(Alignment::Center)
         .into()
 }
 
@@ -149,7 +149,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .push(display_names_toggle)
         .push(diplay_constellations_toggle)
         .width(Length::Fixed(BIG_COLUMN_WIDTH))
-        .align_items(Alignment::Center)
+        .align_x(Alignment::Center)
         .spacing(PADDING)
         .into()
 }
@@ -183,7 +183,7 @@ where
         .push(value)
         .push(increase_button)
         .spacing(PADDING)
-        .align_items(Alignment::Center)
+        .align_x(Alignment::Center)
 }
 
 pub(crate) fn edit<'a, Fun, Mes, Val>(

@@ -6,9 +6,8 @@ use super::{
 use iced::{
     mouse::Cursor,
     widget::{canvas, Column, Container, Row, Text},
-    Element, Length, Rectangle, Renderer, Sandbox, Theme,
+    Element, Length, Rectangle, Renderer,  Theme,
 };
-use iced_aw::Modal;
 use simple_si_units::base::Time;
 
 pub(super) const PADDING: f32 = 10.0;
@@ -22,8 +21,7 @@ pub(crate) enum GuiViewMode {
     Table,
 }
 
-impl Sandbox for Gui {
-    type Message = GuiMessage;
+impl Gui {
 
     fn new() -> Self {
         Gui {
@@ -45,13 +43,13 @@ impl Sandbox for Gui {
         String::from("Elenath - Imaginary Skies")
     }
 
-    fn update(&mut self, message: Self::Message) {
+    fn update(&mut self, message: GuiMessage) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
         }
     }
 
-    fn view(&self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, GuiMessage> {
         Modal::new(
             self.main_view(),
             self.dialog.as_ref().map(|d| d.to_element()),

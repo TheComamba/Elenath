@@ -258,7 +258,7 @@ impl StarDialog {
         col.push(submit_button)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 
@@ -395,7 +395,7 @@ impl StarDialog {
             .push(current_latitude)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 

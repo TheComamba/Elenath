@@ -278,7 +278,7 @@ impl PlanetDialog {
             .push(submit_button)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 
@@ -355,7 +355,7 @@ impl PlanetDialog {
 
         col.spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 }
