@@ -6,6 +6,7 @@ use iced::{
 use iced_aw::{style, Card};
 use load_real_stars::RealStarsEvent;
 use new_system::NewSystemDialogEvent;
+use planet::PlanetDialogEvent;
 
 pub(crate) mod error;
 pub(crate) mod load_real_planets;
@@ -68,6 +69,7 @@ pub(crate) trait Dialog {
 pub(crate) enum DialogUpdate {
     LoadRealStarsUpdated(RealStarsEvent),
     NewSystemUpdated(NewSystemDialogEvent),
+    PlanetUpdated(PlanetDialogEvent),
     Submit,
     Close,
 }

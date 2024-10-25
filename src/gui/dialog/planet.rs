@@ -16,7 +16,7 @@ use astro_utils::{
     },
 };
 use iced::{
-    widget::{component, text::Shaping, Button, Column, Component, Row, Text},
+    widget::{text::Shaping, Button, Column, Row, Text},
     Alignment, Element, Length,
 };
 use simple_si_units::{
@@ -29,7 +29,7 @@ use crate::{
     gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit},
 };
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 
 #[derive(Debug, Clone)]
 pub(crate) struct PlanetDialog {
@@ -162,7 +162,7 @@ impl PlanetDialog {
         Ok(())
     }
 
-    fn edit_column(&self) -> Element<'_, PlanetDialogEvent> {
+    fn edit_column(&self) -> Element<'_, GuiMessage> {
         let randomize_button =
             Button::new(Text::new("Randomize")).on_press(PlanetDialogEvent::Randomize);
 
@@ -282,7 +282,7 @@ impl PlanetDialog {
             .into()
     }
 
-    fn additional_info_column(&self) -> Element<'_, PlanetDialogEvent> {
+    fn additional_info_column(&self) -> Element<'_, GuiMessage> {
         let derived_data = DerivedPlanetData::new(
             &self.planet,
             &self.central_body,
@@ -369,7 +369,120 @@ impl Dialog for PlanetDialog {
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
+        Row::new()
+            .push(self.edit_column())
+            .push(self.additional_info_column())
+            .into()
+    }
+
+    fn update(&mut self, event: DialogUpdate) {
+        if let DialogUpdate::PlanetUpdated(event) = event {
+            match event {
+                PlanetDialogEvent::NameChanged(name) => {
+                    self.planet.set_name(name);
+                }
+                PlanetDialogEvent::MassChanged(mass_string) => {
+                    if let Ok(mass) = mass_string.parse::<f64>() {
+                        self.planet.set_mass(mass * EARTH_MASS);
+                        self.mass_string = mass_string;
+                    }
+                }
+                PlanetDialogEvent::RadiusChanged(radius_string) => {
+                    if let Ok(radius) = radius_string.parse::<f64>() {
+                        self.planet.set_radius(radius * EARTH_RADIUS);
+                        self.radius_string = radius_string;
+                    }
+                }
+                PlanetDialogEvent::ColorChanged(color_string) => {
+                    if let Ok(color) = serde_json::from_str::<sRGBColor>(&color_string) {
+                        self.planet.set_color(color);
+                    }
+                    self.color_string = color_string;
+                }
+                PlanetDialogEvent::GeometricAlbedoChanged(geometric_albedo_string) => {
+                    if let Ok(geometric_albedo) = geometric_albedo_string.parse::<f64>() {
+                        self.planet.set_geometric_albedo(geometric_albedo);
+                        self.geometric_albedo_string = geometric_albedo_string;
+                    }
+                }
+                PlanetDialogEvent::SemiMajorAxisChanged(semi_major_axis_string) => {
+                    if let Ok(semi_major_axis) = semi_major_axis_string.parse::<f64>() {
+                        self.planet
+                            .set_semi_major_axis(Distance::from_au(semi_major_axis));
+                        self.semi_major_axis_string = semi_major_axis_string;
+                    }
+                }
+                PlanetDialogEvent::EccentricityChanged(eccentricity_string) => {
+                    if let Ok(eccentricity) = eccentricity_string.parse::<f64>() {
+                        self.planet.set_eccentricity(eccentricity);
+                        self.eccentricity_string = eccentricity_string;
+                    }
+                }
+                PlanetDialogEvent::InclinationChanged(inclination_string) => {
+                    if let Ok(inclination) = inclination_string.parse::<f64>() {
+                        self.planet
+                            .set_inclination(Angle::from_degrees(inclination));
+                        self.inclination_string = inclination_string;
+                    }
+                }
+                PlanetDialogEvent::LongitudeOfAscendingNodeChanged(
+                    longitude_of_ascending_node_string,
+                ) => {
+                    if let Ok(longitude_of_ascending_node) =
+                        longitude_of_ascending_node_string.parse::<f64>()
+                    {
+                        self.planet
+                            .set_longitude_of_ascending_node(Angle::from_degrees(
+                                longitude_of_ascending_node,
+                            ));
+                        self.longitude_of_ascending_node_string =
+                            longitude_of_ascending_node_string;
+                    }
+                }
+                PlanetDialogEvent::ArgumentOfPeriapsisChanged(argument_of_periapsis_string) => {
+                    if let Ok(argument_of_periapsis) = argument_of_periapsis_string.parse::<f64>() {
+                        self.planet
+                            .set_argument_of_periapsis(Angle::from_degrees(argument_of_periapsis));
+                        self.argument_of_periapsis_string = argument_of_periapsis_string;
+                    }
+                }
+                PlanetDialogEvent::SiderialRotationPeriodChanged(
+                    siderial_rotation_period_string,
+                ) => {
+                    if let Ok(siderial_rotation_period) =
+                        siderial_rotation_period_string.parse::<f64>()
+                    {
+                        self.planet
+                            .set_sideral_rotation_period(Time::from_days(siderial_rotation_period));
+                        self.siderial_rotation_period_string = siderial_rotation_period_string;
+                    }
+                }
+                PlanetDialogEvent::RotationAxisChanged(rotation_axis_string) => {
+                    if let Ok(axis) = serde_json::from_str::<Direction>(&rotation_axis_string) {
+                        if let Ok(rotation_axis) = Direction::new(axis.x(), axis.y(), axis.z()) {
+                            self.planet.set_rotation_axis(rotation_axis);
+                        }
+                    }
+                    self.rotation_axis_string = rotation_axis_string;
+                }
+                PlanetDialogEvent::Randomize => {
+                    let name = self.planet.get_name().clone();
+                    self.planet = generate_random_planet();
+                    self.planet.set_name(name);
+                    if let Err(e) = self.fill_string_members() {
+                        return Some(GuiMessage::ErrorEncountered(e));
+                    };
+                }
+                PlanetDialogEvent::Submit => match self.planet_index {
+                    Some(index) => {
+                        return Some(GuiMessage::PlanetEdited(index, self.planet.clone()));
+                    }
+                    None => {
+                        return Some(GuiMessage::NewPlanet(self.planet.clone()));
+                    }
+                },
+            }
+        }
     }
 }
 
@@ -389,122 +502,4 @@ pub(crate) enum PlanetDialogEvent {
     RotationAxisChanged(String),
     Randomize,
     Submit,
-}
-
-impl Component<GuiMessage> for PlanetDialog {
-    type State = ();
-
-    type Event = PlanetDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            PlanetDialogEvent::NameChanged(name) => {
-                self.planet.set_name(name);
-            }
-            PlanetDialogEvent::MassChanged(mass_string) => {
-                if let Ok(mass) = mass_string.parse::<f64>() {
-                    self.planet.set_mass(mass * EARTH_MASS);
-                    self.mass_string = mass_string;
-                }
-            }
-            PlanetDialogEvent::RadiusChanged(radius_string) => {
-                if let Ok(radius) = radius_string.parse::<f64>() {
-                    self.planet.set_radius(radius * EARTH_RADIUS);
-                    self.radius_string = radius_string;
-                }
-            }
-            PlanetDialogEvent::ColorChanged(color_string) => {
-                if let Ok(color) = serde_json::from_str::<sRGBColor>(&color_string) {
-                    self.planet.set_color(color);
-                }
-                self.color_string = color_string;
-            }
-            PlanetDialogEvent::GeometricAlbedoChanged(geometric_albedo_string) => {
-                if let Ok(geometric_albedo) = geometric_albedo_string.parse::<f64>() {
-                    self.planet.set_geometric_albedo(geometric_albedo);
-                    self.geometric_albedo_string = geometric_albedo_string;
-                }
-            }
-            PlanetDialogEvent::SemiMajorAxisChanged(semi_major_axis_string) => {
-                if let Ok(semi_major_axis) = semi_major_axis_string.parse::<f64>() {
-                    self.planet
-                        .set_semi_major_axis(Distance::from_au(semi_major_axis));
-                    self.semi_major_axis_string = semi_major_axis_string;
-                }
-            }
-            PlanetDialogEvent::EccentricityChanged(eccentricity_string) => {
-                if let Ok(eccentricity) = eccentricity_string.parse::<f64>() {
-                    self.planet.set_eccentricity(eccentricity);
-                    self.eccentricity_string = eccentricity_string;
-                }
-            }
-            PlanetDialogEvent::InclinationChanged(inclination_string) => {
-                if let Ok(inclination) = inclination_string.parse::<f64>() {
-                    self.planet
-                        .set_inclination(Angle::from_degrees(inclination));
-                    self.inclination_string = inclination_string;
-                }
-            }
-            PlanetDialogEvent::LongitudeOfAscendingNodeChanged(
-                longitude_of_ascending_node_string,
-            ) => {
-                if let Ok(longitude_of_ascending_node) =
-                    longitude_of_ascending_node_string.parse::<f64>()
-                {
-                    self.planet
-                        .set_longitude_of_ascending_node(Angle::from_degrees(
-                            longitude_of_ascending_node,
-                        ));
-                    self.longitude_of_ascending_node_string = longitude_of_ascending_node_string;
-                }
-            }
-            PlanetDialogEvent::ArgumentOfPeriapsisChanged(argument_of_periapsis_string) => {
-                if let Ok(argument_of_periapsis) = argument_of_periapsis_string.parse::<f64>() {
-                    self.planet
-                        .set_argument_of_periapsis(Angle::from_degrees(argument_of_periapsis));
-                    self.argument_of_periapsis_string = argument_of_periapsis_string;
-                }
-            }
-            PlanetDialogEvent::SiderialRotationPeriodChanged(siderial_rotation_period_string) => {
-                if let Ok(siderial_rotation_period) = siderial_rotation_period_string.parse::<f64>()
-                {
-                    self.planet
-                        .set_sideral_rotation_period(Time::from_days(siderial_rotation_period));
-                    self.siderial_rotation_period_string = siderial_rotation_period_string;
-                }
-            }
-            PlanetDialogEvent::RotationAxisChanged(rotation_axis_string) => {
-                if let Ok(axis) = serde_json::from_str::<Direction>(&rotation_axis_string) {
-                    if let Ok(rotation_axis) = Direction::new(axis.x(), axis.y(), axis.z()) {
-                        self.planet.set_rotation_axis(rotation_axis);
-                    }
-                }
-                self.rotation_axis_string = rotation_axis_string;
-            }
-            PlanetDialogEvent::Randomize => {
-                let name = self.planet.get_name().clone();
-                self.planet = generate_random_planet();
-                self.planet.set_name(name);
-                if let Err(e) = self.fill_string_members() {
-                    return Some(GuiMessage::ErrorEncountered(e));
-                };
-            }
-            PlanetDialogEvent::Submit => match self.planet_index {
-                Some(index) => {
-                    return Some(GuiMessage::PlanetEdited(index, self.planet.clone()));
-                }
-                None => {
-                    return Some(GuiMessage::NewPlanet(self.planet.clone()));
-                }
-            },
-        }
-        None
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        Row::new()
-            .push(self.edit_column())
-            .push(self.additional_info_column())
-            .into()
-    }
 }
