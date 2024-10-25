@@ -5,7 +5,7 @@ use iced::{
     widget::{component, Button, Column, Component, Text},
     Element,
 };
-use iced_aw::style::CardStyles;
+use iced_aw::style::card;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ErrorDialog {
@@ -21,8 +21,8 @@ impl ErrorDialog {
 }
 
 impl Dialog for ErrorDialog {
-    fn card_style(&self) -> CardStyles {
-        CardStyles::Danger
+    fn card_style(&self) -> card::Style {
+        card::Style::Danger
     }
 
     fn header(&self) -> String {

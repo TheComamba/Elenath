@@ -3,7 +3,7 @@ use iced::{
     widget::{Container, Scrollable, Text},
     Element,
 };
-use iced_aw::{style::CardStyles, Card};
+use iced_aw::{style::card, Card};
 
 pub(crate) mod error;
 pub(crate) mod load_real_planets;
@@ -28,8 +28,8 @@ pub(crate) enum DialogType {
 }
 
 pub(crate) trait Dialog {
-    fn card_style(&self) -> CardStyles {
-        CardStyles::Primary
+    fn card_style(&self) -> card::Style {
+        card::Style::Primary
     }
 
     fn header(&self) -> String;
