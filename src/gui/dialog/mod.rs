@@ -3,7 +3,7 @@ use iced::{
     widget::{Container, Scrollable, Text},
     Element,
 };
-use iced_aw::{style::card, Card};
+use iced_aw::{card, style, Card};
 
 pub(crate) mod error;
 pub(crate) mod load_real_planets;
@@ -27,9 +27,15 @@ pub(crate) enum DialogType {
     RandomizeStars,
 }
 
+pub(crate) enum CardStyle {
+    Primary,
+    Warning,
+    Error,
+}
+
 pub(crate) trait Dialog {
-    fn card_style(&self) -> card::Style {
-        card::Style::Primary
+    fn card_style(&self) -> CardStyle {
+        CardStyle::Primary
     }
 
     fn header(&self) -> String;
@@ -40,9 +46,14 @@ pub(crate) trait Dialog {
         let header: Text<'a> = Text::new(self.header());
         let body = self.body();
         let card =
-            Card::new::<Element<'a, GuiMessage>, Element<'a, GuiMessage>>(header.into(), body)
-                .style(self.card_style())
-                .on_close(GuiMessage::DialogClosed);
+        Card::new::<Element<'a, GuiMessage>, Element<'a, GuiMessage>>(header.into(), body)
+            .on_close(GuiMessage::DialogClosed);
+
+                let card = match self.card_style() {
+                    CardStyle::Primary => card.style(style::card::primary),
+                    CardStyle::Warning => card.style(style::card::warning),
+                    CardStyle::Error => card.style(style::card::danger),
+                };
         Container::new(Scrollable::new(card)).padding(100).into()
     }
 }

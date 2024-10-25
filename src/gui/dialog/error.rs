@@ -1,11 +1,10 @@
-use super::Dialog;
+use super::{CardStyle, Dialog};
 use crate::error::ElenathError;
 use crate::gui::message::GuiMessage;
 use iced::{
     widget::{component, Button, Column, Component, Text},
     Element,
 };
-use iced_aw::style::card;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ErrorDialog {
@@ -21,8 +20,8 @@ impl ErrorDialog {
 }
 
 impl Dialog for ErrorDialog {
-    fn card_style(&self) -> card::Style {
-        card::Style::Danger
+    fn card_style(&self) -> CardStyle {
+        CardStyle::Error
     }
 
     fn header(&self) -> String {
