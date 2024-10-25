@@ -1,7 +1,7 @@
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 use crate::gui::{gui_widget::PADDING, message::GuiMessage};
 use iced::{
-    widget::{component, Button, Column, Component, Text},
+    widget::{Button, Column, Text},
     Alignment, Element, Length,
 };
 
@@ -20,29 +20,8 @@ impl Dialog for LoadRealPlanetsDialog {
     }
 
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum NewSystemDialogEvent {
-    Submit,
-}
-
-impl Component<GuiMessage> for LoadRealPlanetsDialog {
-    type State = ();
-
-    type Event = NewSystemDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            NewSystemDialogEvent::Submit => Some(GuiMessage::LoadRealPlanets),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let warning = Text::new("This will overwrite all planets in the current system.");
-        let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(warning)
             .push(submit_button)
@@ -51,5 +30,11 @@ impl Component<GuiMessage> for LoadRealPlanetsDialog {
             .width(Length::Fill)
             .align_x(Alignment::Center)
             .into()
+    }
+
+    fn update(&mut self, _event: DialogUpdate) {}
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::LoadRealPlanets
     }
 }

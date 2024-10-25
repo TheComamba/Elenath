@@ -6,7 +6,7 @@ use super::{
 use iced::{
     mouse::Cursor,
     widget::{canvas, Column, Container, Row, Text},
-    Element, Length, Rectangle, Renderer,  Theme,
+    Element, Length, Rectangle, Renderer, Theme,
 };
 use simple_si_units::base::Time;
 
@@ -22,7 +22,6 @@ pub(crate) enum GuiViewMode {
 }
 
 impl Gui {
-
     fn new() -> Self {
         Gui {
             opened_file: None,

@@ -25,24 +25,25 @@ impl Dialog for RandomizePlanetsDialog {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum NewSystemDialogEvent {
+pub(crate) enum RandomizePlanetsDialogEvent {
     Submit,
 }
 
 impl Component<GuiMessage> for RandomizePlanetsDialog {
     type State = ();
 
-    type Event = NewSystemDialogEvent;
+    type Event = RandomizePlanetsDialogEvent;
 
     fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
         match event {
-            NewSystemDialogEvent::Submit => Some(GuiMessage::RandomizePlanets),
+            RandomizePlanetsDialogEvent::Submit => Some(GuiMessage::RandomizePlanets),
         }
     }
 
     fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let warning = Text::new("This will overwrite all planets in the current system.");
-        let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
+        let submit_button =
+            Button::new(Text::new("Submit")).on_press(RandomizePlanetsDialogEvent::Submit);
         Column::new()
             .push(warning)
             .push(submit_button)

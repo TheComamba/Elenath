@@ -4,7 +4,7 @@ use super::dialog::planet::PlanetDialog;
 use super::dialog::randomize_planets::RandomizePlanetsDialog;
 use super::dialog::randomize_stars::RandomizeStarsDialog;
 use super::dialog::star::StarDialog;
-use super::dialog::DialogType;
+use super::dialog::{DialogType, DialogUpdate};
 use super::gui_widget::GuiViewMode;
 use super::table_view::col_data::TableDataType;
 use super::Gui;
@@ -44,6 +44,8 @@ pub(crate) enum GuiMessage {
     RandomizeStars(bool, Distance<f64>),
     LoadStars(StarDataType),
     OpenDialog(DialogType),
+    DialogUpdate(DialogUpdate),
+    DialogSubmit,
     DialogClosed,
     ErrorEncountered(ElenathError),
 }
@@ -203,6 +205,8 @@ impl Gui {
             GuiMessage::ErrorEncountered(error) => {
                 return Err(error);
             }
+            GuiMessage::DialogUpdate(update) => self.update_dialog(update),
+            GuiMessage::DialogSubmit => self.dialog_submit()?,
         }
         self.redraw();
         Ok(())

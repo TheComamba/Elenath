@@ -1,8 +1,8 @@
-use super::{CardStyle, Dialog};
+use super::{CardStyle, Dialog, DialogUpdate};
 use crate::error::ElenathError;
 use crate::gui::message::GuiMessage;
 use iced::{
-    widget::{component, Button, Column, Component, Text},
+    widget::{Button, Column, Text},
     Element,
 };
 
@@ -28,24 +28,16 @@ impl Dialog for ErrorDialog {
         "Error".to_string()
     }
 
+    fn update(&mut self, _event: DialogUpdate) {}
+
     fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
-
-impl Component<GuiMessage> for ErrorDialog {
-    type State = ();
-
-    type Event = ErrorDialogMes;
-
-    fn update(&mut self, _state: &mut Self::State, _event: Self::Event) -> Option<GuiMessage> {
-        Some(GuiMessage::DialogClosed)
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
         let text = Text::new(self.error_text.clone());
-        let button = Button::new(Text::new("Ok")).on_press(ErrorDialogMes::Close);
+        let button = Button::new(Text::new("Ok")).on_press(GuiMessage::DialogClosed);
         Column::new().push(text).push(button).into()
+    }
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::DialogClosed
     }
 }
 
