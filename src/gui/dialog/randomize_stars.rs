@@ -127,7 +127,7 @@ impl Dialog for RandomizeStarsDialog {
         }
     }
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         let max_distance = max_generation_distance(self.generation_distance);
         GuiMessage::RandomizeStars(self.keep_central_body, max_distance)
     }

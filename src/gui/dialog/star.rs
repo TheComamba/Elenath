@@ -523,7 +523,7 @@ impl Dialog for StarDialog {
         }
     }
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         match self.star_dialog_type {
             StarDialogType::Edit => {
                 let mut star = self.star.clone();

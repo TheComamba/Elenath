@@ -51,7 +51,7 @@ pub(crate) trait Dialog {
 
     fn update(&mut self, message: DialogUpdate);
 
-    fn submit(&self) -> GuiMessage;
+    fn on_submit(&self) -> GuiMessage;
 
     fn get_error(&self) -> Option<ElenathError>;
 

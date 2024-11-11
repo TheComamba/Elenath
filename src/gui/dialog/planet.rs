@@ -485,7 +485,7 @@ impl Dialog for PlanetDialog {
         }
     }
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         match self.planet_index {
             Some(index) => GuiMessage::PlanetEdited(index, self.planet.clone()),
             None => GuiMessage::NewPlanet(self.planet.clone()),

@@ -36,7 +36,7 @@ impl Dialog for ErrorDialog {
         Column::new().push(text).push(button).into()
     }
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         GuiMessage::DialogClosed
     }
 

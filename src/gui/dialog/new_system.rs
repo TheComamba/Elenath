@@ -34,7 +34,7 @@ impl Dialog for NewSystemDialog {
 
     fn update(&mut self, _message: super::DialogUpdate) {}
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         GuiMessage::NewSystem
     }
 

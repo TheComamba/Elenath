@@ -34,7 +34,7 @@ impl Dialog for RandomizePlanetsDialog {
 
     fn update(&mut self, _message: super::DialogUpdate) {}
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         GuiMessage::RandomizePlanets
     }
 

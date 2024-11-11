@@ -96,7 +96,7 @@ impl Dialog for LoadRealStarsDialog {
         }
     }
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         GuiMessage::LoadStars(self.data_type)
     }
 

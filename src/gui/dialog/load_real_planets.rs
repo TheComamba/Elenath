@@ -34,7 +34,7 @@ impl Dialog for LoadRealPlanetsDialog {
 
     fn update(&mut self, _event: DialogUpdate) {}
 
-    fn submit(&self) -> GuiMessage {
+    fn on_submit(&self) -> GuiMessage {
         GuiMessage::LoadRealPlanets
     }
 

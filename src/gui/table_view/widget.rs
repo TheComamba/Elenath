@@ -10,9 +10,8 @@ use crate::{
 };
 use iced::{
     widget::{
-        scrollable::{Direction, Properties},
-        text::Shaping,
-        Button, Column, Container, Row, Rule, Scrollable, Text,
+        scrollable::Direction, text::Shaping, Button, Column, Container, Row, Rule, Scrollable,
+        Text,
     },
     Alignment, Element, Length,
 };

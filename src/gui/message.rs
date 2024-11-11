@@ -210,8 +210,16 @@ impl Gui {
             GuiMessage::ErrorEncountered(error) => {
                 return Err(error);
             }
-            GuiMessage::DialogUpdate(update) => self.update_dialog(update),
-            GuiMessage::DialogSubmit => self.dialog_submit()?,
+            GuiMessage::DialogUpdate(update) => {
+                if let Some(dialog) = &mut self.dialog {
+                    dialog.update(update);
+                }
+            }
+            GuiMessage::DialogSubmit => {
+                if let Some(dialog) = &self.dialog {
+                    self.handle_message(dialog.on_submit());
+                }
+            }
         }
         self.redraw();
         Ok(())
