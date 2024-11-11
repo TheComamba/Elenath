@@ -54,12 +54,14 @@ impl Dialog for RandomizeStarsDialog {
     fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite all stars in the current system.");
 
-        let keep_central_body_toggler = Toggler::new(
-            Some("Keep Central Body".to_string()),
-            self.keep_central_body,
-            RandomizeStarsDialogEvent::KeepCentralBodySelected,
-        )
-        .width(2. * SMALL_COLUMN_WIDTH);
+        let keep_central_body_toggler = Toggler::new(self.keep_central_body)
+            .label("Keep Central Body")
+            .on_toggle(|b| {
+                GuiMessage::DialogUpdate(DialogUpdate::RandmoizeStarsUpdated(
+                    RandomizeStarsDialogEvent::KeepCentralBodySelected(b),
+                ))
+            })
+            .width(2. * SMALL_COLUMN_WIDTH);
 
         let decent_distance_radio = Radio::new(
             format!(
