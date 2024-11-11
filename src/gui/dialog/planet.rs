@@ -481,14 +481,6 @@ impl Dialog for PlanetDialog {
                         self.error = Some(e);
                     };
                 }
-                PlanetDialogEvent::Submit => match self.planet_index {
-                    Some(index) => {
-                        return Some(GuiMessage::PlanetEdited(index, self.planet.clone()));
-                    }
-                    None => {
-                        return Some(GuiMessage::NewPlanet(self.planet.clone()));
-                    }
-                },
             }
         }
     }
@@ -520,7 +512,6 @@ pub(crate) enum PlanetDialogEvent {
     SiderialRotationPeriodChanged(String),
     RotationAxisChanged(String),
     Randomize,
-    Submit,
 }
 
 impl From<PlanetDialogEvent> for GuiMessage {
