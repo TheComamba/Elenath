@@ -65,8 +65,8 @@ pub(crate) fn std_button(
 ) -> Button<'_, GuiMessage> {
     let mut button = Button::new(
         Text::new(text)
-            .horizontal_alignment(Horizontal::Center)
-            .vertical_alignment(Vertical::Center),
+            .align_x(Horizontal::Center)
+            .align_y(Vertical::Center),
     );
     if is_enabled {
         button = button.on_press(message);
@@ -80,8 +80,8 @@ pub(super) fn planet_picker<'a>(
 ) -> Element<'a, GuiMessage> {
     let text = Text::new("Focused body:")
         .width(SMALL_COLUMN_WIDTH)
-        .horizontal_alignment(Horizontal::Right)
-        .vertical_alignment(Vertical::Center);
+        .align_x(Horizontal::Right)
+        .align_y(Vertical::Center);
     let mut planet_names = vec![String::new()];
     for name in planets.iter().map(|p| p.get_name()) {
         planet_names.push(name.clone());
@@ -164,8 +164,8 @@ where
     M: Into<GuiMessage>,
 {
     let label = Text::new(label)
-        .vertical_alignment(Vertical::Center)
-        .horizontal_alignment(Horizontal::Right)
+        .align_y(Vertical::Center)
+        .align_x(Horizontal::Right)
         .width(Length::Fixed(SMALL_COLUMN_WIDTH));
     let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
         .align_x(Horizontal::Center)
@@ -173,7 +173,7 @@ where
     let value = Text::new(value)
         .shaping(Shaping::Advanced)
         .width(Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
-        .horizontal_alignment(Horizontal::Center);
+        .align_x(Horizontal::Center);
     let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
         .align_x(Horizontal::Center)
         .width(Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
@@ -205,7 +205,7 @@ where
     };
     let description = Text::new(description)
         .width(SMALL_COLUMN_WIDTH)
-        .horizontal_alignment(Horizontal::Right);
+        .align_x(Horizontal::Right);
     let data = TextInput::new("", data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
