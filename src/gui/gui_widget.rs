@@ -21,8 +21,8 @@ pub(crate) enum GuiViewMode {
     Table,
 }
 
-impl Gui {
-    fn new() -> Self {
+impl Default for Gui {
+    fn default() -> Self {
         Gui {
             opened_file: None,
             mode: GuiViewMode::Surface,
@@ -37,18 +37,20 @@ impl Gui {
             dialog: None,
         }
     }
+}
 
+impl Gui {
     fn title(&self) -> String {
         String::from("Elenath - Imaginary Skies")
     }
 
-    fn update(&mut self, message: GuiMessage) {
+    pub(crate) fn update(&mut self, message: GuiMessage) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
         }
     }
 
-    fn view(&self) -> Element<'_, GuiMessage> {
+    pub(crate) fn view(&self) -> Element<'_, GuiMessage> {
         Modal::new(
             self.main_view(),
             self.dialog.as_ref().map(|d| d.to_element()),

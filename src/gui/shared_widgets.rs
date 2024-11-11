@@ -128,18 +128,18 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
 
     let planet_picker = planet_picker(planets, selected_planet);
 
-    let display_names_toggle = Container::new(Toggler::new(
-        Some("Display Names".to_string()),
-        display_names,
-        GuiMessage::SetDisplayNames,
-    ))
+    let display_names_toggle = Container::new(
+        Toggler::new(display_names)
+            .label("Display Names")
+            .on_toggle(GuiMessage::SetDisplayNames),
+    )
     .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
-    let diplay_constellations_toggle = Container::new(Toggler::new(
-        Some("Display Constellations".to_string()),
-        display_constellations,
-        GuiMessage::SetDisplayConstellations,
-    ))
+    let diplay_constellations_toggle = Container::new(
+        Toggler::new(display_constellations)
+            .label("Display Constellations")
+            .on_toggle(GuiMessage::SetDisplayConstellations),
+    )
     .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
     Column::new()
