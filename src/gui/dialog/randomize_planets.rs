@@ -1,7 +1,7 @@
 use super::Dialog;
 use crate::gui::{gui_widget::PADDING, message::GuiMessage};
 use iced::{
-    widget::{component, Button, Column, Component, Text},
+    widget::{Button, Column, Text},
     Alignment, Element, Length,
 };
 
@@ -19,31 +19,9 @@ impl Dialog for RandomizePlanetsDialog {
         "Randomize Planets".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum RandomizePlanetsDialogEvent {
-    Submit,
-}
-
-impl Component<GuiMessage> for RandomizePlanetsDialog {
-    type State = ();
-
-    type Event = RandomizePlanetsDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            RandomizePlanetsDialogEvent::Submit => Some(GuiMessage::RandomizePlanets),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite all planets in the current system.");
-        let submit_button =
-            Button::new(Text::new("Submit")).on_press(RandomizePlanetsDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(warning)
             .push(submit_button)
@@ -53,4 +31,19 @@ impl Component<GuiMessage> for RandomizePlanetsDialog {
             .align_x(Alignment::Center)
             .into()
     }
+
+    fn update(&mut self, _message: super::DialogUpdate) {}
+
+    fn submit(&self) -> GuiMessage {
+        GuiMessage::RandomizePlanets
+    }
+
+    fn get_error(&self) -> Option<super::ElenathError> {
+        None
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum RandomizePlanetsDialogEvent {
+    Submit,
 }
