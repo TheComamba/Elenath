@@ -9,6 +9,7 @@ use iced_aw::{style, Card};
 use load_real_stars::RealStarsEvent;
 use new_system::NewSystemDialogEvent;
 use planet::PlanetDialogEvent;
+use randomize_stars::RandomizeStarsDialogEvent;
 
 pub(crate) mod error;
 pub(crate) mod load_real_planets;
@@ -74,6 +75,7 @@ pub(crate) enum DialogUpdate {
     LoadRealStarsUpdated(RealStarsEvent),
     NewSystemUpdated(NewSystemDialogEvent),
     PlanetUpdated(PlanetDialogEvent),
+    RandmoizeStarsUpdated(RandomizeStarsDialogEvent),
     Submit,
     Close,
 }

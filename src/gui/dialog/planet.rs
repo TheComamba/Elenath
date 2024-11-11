@@ -51,7 +51,7 @@ pub(crate) struct PlanetDialog {
     error: Option<ElenathError>,
 }
 
-fn planet_message<F: Fn(String) -> PlanetDialogEvent>(event: F) -> impl Fn(String) -> GuiMessage {
+fn message<F: Fn(String) -> PlanetDialogEvent>(event: F) -> impl Fn(String) -> GuiMessage {
     move |m| GuiMessage::DialogUpdate(DialogUpdate::PlanetUpdated(event(m)))
 }
 
@@ -178,63 +178,63 @@ impl PlanetDialog {
             "Name",
             self.planet.get_name(),
             "",
-            planet_message(PlanetDialogEvent::NameChanged),
+            message(PlanetDialogEvent::NameChanged),
             &Some(self.planet.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
             "Earth Masses",
-            planet_message(PlanetDialogEvent::MassChanged),
+            message(PlanetDialogEvent::MassChanged),
             &Some(self.planet.get_mass()),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
             "Earth Radii",
-            planet_message(PlanetDialogEvent::RadiusChanged),
+            message(PlanetDialogEvent::RadiusChanged),
             &Some(self.planet.get_radius()),
         );
         let color = edit(
             "Color",
             &self.color_string,
             "",
-            planet_message(PlanetDialogEvent::ColorChanged),
+            message(PlanetDialogEvent::ColorChanged),
             &Some(self.planet.get_color()),
         );
         let geometric_albedo = edit(
             "Geometric Albedo",
             &self.geometric_albedo_string,
             "",
-            planet_message(PlanetDialogEvent::GeometricAlbedoChanged),
+            message(PlanetDialogEvent::GeometricAlbedoChanged),
             &Some(self.planet.get_geometric_albedo()),
         );
         let semi_major_axis = edit(
             "Semi-major Axis",
             &self.semi_major_axis_string,
             "AU",
-            planet_message(PlanetDialogEvent::SemiMajorAxisChanged),
+            message(PlanetDialogEvent::SemiMajorAxisChanged),
             &Some(self.planet.get_orbital_parameters().get_semi_major_axis()),
         );
         let eccentricity = edit(
             "Eccentricity",
             &self.eccentricity_string,
             "",
-            planet_message(PlanetDialogEvent::EccentricityChanged),
+            message(PlanetDialogEvent::EccentricityChanged),
             &Some(self.planet.get_orbital_parameters().get_eccentricity()),
         );
         let inclination = edit(
             "Inclination",
             &self.inclination_string,
             "°",
-            planet_message(PlanetDialogEvent::InclinationChanged),
+            message(PlanetDialogEvent::InclinationChanged),
             &Some(self.planet.get_orbital_parameters().get_inclination()),
         );
         let longitude_of_ascending_node = edit(
             "Ascending Node",
             &self.longitude_of_ascending_node_string,
             "°",
-            planet_message(PlanetDialogEvent::LongitudeOfAscendingNodeChanged),
+            message(PlanetDialogEvent::LongitudeOfAscendingNodeChanged),
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -245,7 +245,7 @@ impl PlanetDialog {
             "Arg. of Periapsis",
             &self.argument_of_periapsis_string,
             "°",
-            planet_message(PlanetDialogEvent::ArgumentOfPeriapsisChanged),
+            message(PlanetDialogEvent::ArgumentOfPeriapsisChanged),
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -256,14 +256,14 @@ impl PlanetDialog {
             "Siderial Day",
             &self.siderial_rotation_period_string,
             "Earth Days",
-            planet_message(PlanetDialogEvent::SiderialRotationPeriodChanged),
+            message(PlanetDialogEvent::SiderialRotationPeriodChanged),
             &Some(self.planet.get_sideral_rotation_period()),
         );
         let rotation_axis = edit(
             "Rotation Axis",
             &self.rotation_axis_string,
             "",
-            planet_message(PlanetDialogEvent::RotationAxisChanged),
+            message(PlanetDialogEvent::RotationAxisChanged),
             &Some(self.planet.get_rotation_axis()),
         );
 

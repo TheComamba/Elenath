@@ -1,11 +1,11 @@
-use super::Dialog;
+use super::{Dialog, DialogUpdate};
 use crate::gui::{
     gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
     message::GuiMessage,
 };
 use astro_utils::astro_display::AstroDisplay;
 use iced::{
-    widget::{component, Button, Column, Component, Radio, Row, Text, Toggler},
+    widget::{Button, Column, Radio, Row, Text, Toggler},
     Alignment, Element, Length,
 };
 use simple_si_units::base::Distance;
@@ -40,48 +40,18 @@ fn max_generation_distance(distance: GenerationDistance) -> Distance<f64> {
     }
 }
 
+fn message<F: Fn(GenerationDistance) -> RandomizeStarsDialogEvent>(
+    event: F,
+) -> impl Fn(GenerationDistance) -> GuiMessage {
+    move |m| GuiMessage::DialogUpdate(DialogUpdate::RandmoizeStarsUpdated(event(m)))
+}
+
 impl Dialog for RandomizeStarsDialog {
     fn header(&self) -> String {
         "Generate Random Stars".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum RandomizeStarsDialogEvent {
-    KeepCentralBodySelected(bool),
-    MaxGenerationDistanceChanged(GenerationDistance),
-    Submit,
-}
-
-impl Component<GuiMessage> for RandomizeStarsDialog {
-    type State = ();
-
-    type Event = RandomizeStarsDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            RandomizeStarsDialogEvent::KeepCentralBodySelected(keep_central_body) => {
-                self.keep_central_body = keep_central_body;
-            }
-            RandomizeStarsDialogEvent::MaxGenerationDistanceChanged(generation_distance) => {
-                self.generation_distance = generation_distance;
-            }
-            RandomizeStarsDialogEvent::Submit => {
-                let max_distance = max_generation_distance(self.generation_distance);
-                return Some(GuiMessage::RandomizeStars(
-                    self.keep_central_body,
-                    max_distance,
-                ));
-            }
-        }
-        None
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite all stars in the current system.");
 
         let keep_central_body_toggler = Toggler::new(
@@ -98,7 +68,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             ),
             GenerationDistance::Decent,
             Some(self.generation_distance),
-            RandomizeStarsDialogEvent::MaxGenerationDistanceChanged,
+            message(RandomizeStarsDialogEvent::MaxGenerationDistanceChanged),
         )
         .width(SMALL_COLUMN_WIDTH);
         let realistic_distance_radio = Radio::new(
@@ -108,7 +78,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             ),
             GenerationDistance::Realistic,
             Some(self.generation_distance),
-            RandomizeStarsDialogEvent::MaxGenerationDistanceChanged,
+            message(RandomizeStarsDialogEvent::MaxGenerationDistanceChanged),
         )
         .width(SMALL_COLUMN_WIDTH);
         let very_far_distance_radio = Radio::new(
@@ -118,7 +88,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             ),
             GenerationDistance::VeryFar,
             Some(self.generation_distance),
-            RandomizeStarsDialogEvent::MaxGenerationDistanceChanged,
+            message(RandomizeStarsDialogEvent::MaxGenerationDistanceChanged),
         )
         .width(SMALL_COLUMN_WIDTH);
         let generation_distance_row = Row::new()
@@ -127,8 +97,7 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             .push(very_far_distance_radio)
             .padding(PADDING)
             .spacing(PADDING);
-        let submit_button =
-            Button::new(Text::new("Submit")).on_press(RandomizeStarsDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
 
         Column::new()
             .push(warning)
@@ -142,4 +111,32 @@ impl Component<GuiMessage> for RandomizeStarsDialog {
             .align_x(Alignment::Center)
             .into()
     }
+
+    fn update(&mut self, message: super::DialogUpdate) {
+        if let DialogUpdate::RandmoizeStarsUpdated(event) = message {
+            match event {
+                RandomizeStarsDialogEvent::KeepCentralBodySelected(keep_central_body) => {
+                    self.keep_central_body = keep_central_body;
+                }
+                RandomizeStarsDialogEvent::MaxGenerationDistanceChanged(generation_distance) => {
+                    self.generation_distance = generation_distance;
+                }
+            }
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        let max_distance = max_generation_distance(self.generation_distance);
+        GuiMessage::RandomizeStars(self.keep_central_body, max_distance)
+    }
+
+    fn get_error(&self) -> Option<super::ElenathError> {
+        None
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum RandomizeStarsDialogEvent {
+    KeepCentralBodySelected(bool),
+    MaxGenerationDistanceChanged(GenerationDistance),
 }
