@@ -1,4 +1,4 @@
-use super::{Dialog, DialogUpdate};
+use super::{Dialog, DialogUpdate, ElenathError};
 use crate::gui::{gui_widget::PADDING, message::GuiMessage};
 use iced::{
     widget::{Button, Column, Text},
@@ -36,5 +36,9 @@ impl Dialog for LoadRealPlanetsDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::LoadRealPlanets
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
     }
 }

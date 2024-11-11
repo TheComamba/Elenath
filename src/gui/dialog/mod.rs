@@ -1,3 +1,5 @@
+use crate::error::ElenathError;
+
 use super::message::GuiMessage;
 use iced::{
     widget::{Container, Scrollable, Text},
@@ -48,6 +50,8 @@ pub(crate) trait Dialog {
     fn update(&mut self, message: DialogUpdate);
 
     fn submit(&self) -> GuiMessage;
+
+    fn get_error(&self) -> Option<ElenathError>;
 
     fn to_element<'a>(&'a self) -> Element<'a, GuiMessage> {
         let header: Text<'a> = Text::new(self.header());

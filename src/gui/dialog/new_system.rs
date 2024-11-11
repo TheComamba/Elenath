@@ -1,4 +1,4 @@
-use super::Dialog;
+use super::{Dialog, ElenathError};
 use crate::gui::{gui_widget::PADDING, message::GuiMessage};
 use iced::{
     widget::{Button, Column, Text},
@@ -36,6 +36,10 @@ impl Dialog for NewSystemDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::NewSystem
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
     }
 }
 

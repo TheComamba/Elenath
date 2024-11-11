@@ -39,6 +39,10 @@ impl Dialog for ErrorDialog {
     fn submit(&self) -> GuiMessage {
         GuiMessage::DialogClosed
     }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
+    }
 }
 
 #[derive(Debug, Clone)]

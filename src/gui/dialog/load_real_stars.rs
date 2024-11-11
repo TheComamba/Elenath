@@ -1,4 +1,4 @@
-use super::{Dialog, DialogUpdate};
+use super::{Dialog, DialogUpdate, ElenathError};
 use crate::{
     gui::{
         gui_widget::{PADDING, SMALL_COLUMN_WIDTH},
@@ -98,6 +98,10 @@ impl Dialog for LoadRealStarsDialog {
 
     fn submit(&self) -> GuiMessage {
         GuiMessage::LoadStars(self.data_type)
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
     }
 }
 

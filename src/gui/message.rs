@@ -111,6 +111,11 @@ impl Gui {
     }
 
     pub(crate) fn handle_message(&mut self, message: GuiMessage) -> Result<(), ElenathError> {
+        if let Some(dialog) = &mut self.dialog {
+            if let Some(e) = dialog.get_error() {
+                return Err(e);
+            }
+        }
         match message {
             GuiMessage::UpdateSurfaceView(message) => {
                 self.surface_view_state.update(message);

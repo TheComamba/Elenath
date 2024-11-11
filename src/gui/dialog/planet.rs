@@ -48,6 +48,7 @@ pub(crate) struct PlanetDialog {
     argument_of_periapsis_string: String,
     siderial_rotation_period_string: String,
     rotation_axis_string: String,
+    error: Option<ElenathError>,
 }
 
 fn planet_message<F: Fn(String) -> PlanetDialogEvent>(event: F) -> impl Fn(String) -> GuiMessage {
@@ -77,6 +78,7 @@ impl PlanetDialog {
             argument_of_periapsis_string: String::new(),
             siderial_rotation_period_string: String::new(),
             rotation_axis_string: String::new(),
+            error: None,
         };
         dialog.fill_string_members()?;
         Ok(dialog)
@@ -110,6 +112,7 @@ impl PlanetDialog {
             argument_of_periapsis_string: String::new(),
             siderial_rotation_period_string: String::new(),
             rotation_axis_string: String::new(),
+            error: None,
         };
         dialog.fill_string_members()?;
         Ok(dialog)
@@ -475,7 +478,7 @@ impl Dialog for PlanetDialog {
                     self.planet = generate_random_planet();
                     self.planet.set_name(name);
                     if let Err(e) = self.fill_string_members() {
-                        return Some(GuiMessage::ErrorEncountered(e));
+                        self.error = Some(e);
                     };
                 }
                 PlanetDialogEvent::Submit => match self.planet_index {
@@ -495,6 +498,10 @@ impl Dialog for PlanetDialog {
             Some(index) => GuiMessage::PlanetEdited(index, self.planet.clone()),
             None => GuiMessage::NewPlanet(self.planet.clone()),
         }
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        self.error.clone()
     }
 }
 
