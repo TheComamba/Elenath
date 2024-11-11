@@ -16,7 +16,7 @@ use astro_utils::{
     },
 };
 use iced::{
-    widget::{component, text::Shaping, Button, Column, Component, Row, Text},
+    widget::{text::Shaping, Button, Column, Row, Text},
     Alignment, Element, Length,
 };
 use simple_si_units::{
@@ -26,7 +26,7 @@ use simple_si_units::{
 
 use crate::gui::{gui_widget::PADDING, message::GuiMessage, shared_widgets::edit};
 
-use super::Dialog;
+use super::{Dialog, DialogUpdate, ElenathError};
 
 #[derive(Debug, Clone)]
 pub(crate) struct StarDialog {
@@ -42,6 +42,7 @@ pub(crate) struct StarDialog {
     distance_string: String,
     longitude_string: String,
     latitude_string: String,
+    error: Option<ElenathError>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -77,6 +78,7 @@ impl StarDialog {
             distance_string: String::new(),
             longitude_string: String::new(),
             latitude_string: String::new(),
+            error: None,
         };
         dialog.fill_string_members();
         dialog
@@ -100,6 +102,7 @@ impl StarDialog {
             distance_string: String::new(),
             longitude_string: String::new(),
             latitude_string: String::new(),
+            error: None,
         };
         dialog.fill_string_members();
         dialog
@@ -149,64 +152,65 @@ impl StarDialog {
         );
     }
 
-    fn edit_column(&self) -> Element<'_, StarDialogEvent> {
-        let randomize_button =
-            Button::new(Text::new("Randomize")).on_press(StarDialogEvent::Randomize);
+    fn edit_column(&self) -> Element<'_, GuiMessage> {
+        let rand_event =
+            GuiMessage::DialogUpdate(DialogUpdate::StarUpdated(StarDialogEvent::Randomize));
+        let randomize_button = Button::new(Text::new("Randomize")).on_press(rand_event);
 
         let name = edit(
             "Name",
             self.star.get_name(),
             "",
-            StarDialogEvent::NameChanged,
+            message(StarDialogEvent::NameChanged),
             &Some(self.star.get_name()),
         );
         let mass = edit(
             "Mass at epoch",
             &self.mass_string,
             "Solar Masses",
-            StarDialogEvent::MassChanged,
+            message(StarDialogEvent::MassChanged),
             &self.star.get_mass_at_epoch(),
         );
         let radius = edit(
             "Radius at epoch",
             &self.radius_string,
             "Solar Radii",
-            StarDialogEvent::RadiusChanged,
+            message(StarDialogEvent::RadiusChanged),
             &self.star.get_radius_at_epoch(),
         );
         let luminosity = edit(
             "Luminosity at epoch",
             &self.luminosity_string,
             "mag",
-            StarDialogEvent::LuminosityChanged,
+            message(StarDialogEvent::LuminosityChanged),
             &Some(self.star.get_luminous_intensity_at_epoch()),
         );
         let temperature = edit(
             "Temperature at epoch",
             &self.temperature_string,
             "K",
-            StarDialogEvent::TemperatureChanged,
+            message(StarDialogEvent::TemperatureChanged),
             &Some(self.star.get_temperature_at_epoch()),
         );
         let age = edit(
             "Age at epoch",
             &self.age_string,
             "Gyr",
-            StarDialogEvent::AgeChanged,
+            message(StarDialogEvent::AgeChanged),
             &self.star.get_age_at_epoch(),
         );
         let distance = edit(
             "Distance at epoch",
             &self.distance_string,
             "ly",
-            StarDialogEvent::DistanceChanged,
+            message(StarDialogEvent::DistanceChanged),
             &Some(self.star.get_distance_at_epoch()),
         );
         let longitude = edit(
             "Longitude at epoch",
             &self.longitude_string,
             "°",
-            StarDialogEvent::LongitudeChanged,
+            message(StarDialogEvent::LongitudeChanged),
             &Some(
                 self.star
                     .get_pos_at_epoch()
@@ -220,7 +224,7 @@ impl StarDialog {
             "Latitude at epoch",
             &self.latitude_string,
             "°",
-            StarDialogEvent::LatitudeChanged,
+            message(StarDialogEvent::LatitudeChanged),
             &Some(
                 self.star
                     .get_pos_at_epoch()
@@ -234,11 +238,11 @@ impl StarDialog {
             "Constellation",
             &self.star.get_constellation().clone().unwrap_or_default(),
             "",
-            StarDialogEvent::ConstellationChanged,
+            message(StarDialogEvent::ConstellationChanged),
             self.star.get_constellation(),
         );
 
-        let submit_button = Button::new(Text::new("Submit")).on_press(StarDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
 
         let mut col = Column::new()
             .push(randomize_button)
@@ -262,7 +266,7 @@ impl StarDialog {
             .into()
     }
 
-    fn additional_info_column(&self) -> Element<'_, StarDialogEvent> {
+    fn additional_info_column(&self) -> Element<'_, GuiMessage> {
         let appearance = self.star.to_star_appearance(self.time_since_epoch);
 
         let illuminance =
@@ -412,8 +416,128 @@ impl Dialog for StarDialog {
         }
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
+        Row::new()
+            .push(self.edit_column())
+            .push(self.additional_info_column())
+            .into()
+    }
+
+    fn update(&mut self, message: super::DialogUpdate) {
+        if let DialogUpdate::StarUpdated(event) = message {
+            match event {
+                StarDialogEvent::NameChanged(name) => {
+                    self.star.set_name(name);
+                }
+                StarDialogEvent::MassChanged(mass_string) => {
+                    if let Ok(mass) = mass_string.parse::<f64>() {
+                        self.star.set_mass_at_epoch(Some(mass * SOLAR_MASS));
+                    }
+                    self.mass_string = mass_string;
+                }
+                StarDialogEvent::RadiusChanged(radius_string) => {
+                    if let Ok(radius) = radius_string.parse::<f64>() {
+                        self.star.set_radius_at_epoch(Some(radius * SOLAR_RADIUS));
+                    }
+                    self.radius_string = radius_string;
+                }
+                StarDialogEvent::LuminosityChanged(luminosity_string) => {
+                    if let Ok(luminosity) = luminosity_string.parse::<f64>() {
+                        self.star.set_luminous_intensity_at_epoch(
+                            absolute_magnitude_to_luminous_intensity(luminosity),
+                        );
+                    }
+                    self.luminosity_string = luminosity_string;
+                }
+                StarDialogEvent::TemperatureChanged(temperature_string) => {
+                    if let Ok(temperature) = temperature_string.parse::<f64>() {
+                        self.star
+                            .set_temperature_at_epoch(Temperature::from_K(temperature));
+                    }
+                    self.temperature_string = temperature_string;
+                }
+                StarDialogEvent::AgeChanged(age_string) => {
+                    if let Ok(age) = age_string.parse::<f64>() {
+                        self.star.set_age_at_epoch(Some(Time::from_Gyr(age)));
+                    }
+                    self.age_string = age_string;
+                }
+                StarDialogEvent::DistanceChanged(distance_string) => {
+                    if let Ok(distance) = distance_string.parse::<f64>() {
+                        self.star
+                            .set_distance_at_epoch(Distance::from_lyr(distance));
+                    }
+                    self.distance_string = distance_string;
+                }
+                StarDialogEvent::LongitudeChanged(longitude_string) => {
+                    if let Ok(longitude) = longitude_string.parse::<f64>() {
+                        let mut pos = self
+                            .star
+                            .get_pos_at_epoch()
+                            .to_ecliptic()
+                            .unwrap_or(DEFAULT_ECLIPTIC);
+                        pos.spherical.longitude = Angle::from_degrees(longitude);
+                        let pos = pos
+                            .to_direction()
+                            .to_cartesian(self.star.get_distance_at_epoch());
+                        self.star.set_pos_at_epoch(pos);
+                    }
+                    self.longitude_string = longitude_string;
+                }
+                StarDialogEvent::LatitudeChanged(latitude_string) => {
+                    if let Ok(latitude) = latitude_string.parse::<f64>() {
+                        let mut pos = self
+                            .star
+                            .get_pos_at_epoch()
+                            .to_ecliptic()
+                            .unwrap_or(DEFAULT_ECLIPTIC);
+                        pos.spherical.latitude = Angle::from_degrees(latitude);
+                        let pos = pos
+                            .to_direction()
+                            .to_cartesian(self.star.get_distance_at_epoch());
+                        self.star.set_pos_at_epoch(pos);
+                    }
+                    self.latitude_string = latitude_string;
+                }
+                StarDialogEvent::ConstellationChanged(constellation) => {
+                    if constellation.is_empty() {
+                        self.star.set_constellation(None);
+                    } else {
+                        self.star.set_constellation(Some(constellation));
+                    }
+                }
+                StarDialogEvent::Randomize => {
+                    let max_distance = Distance::from_lyr(2000.);
+                    let name = self.star.get_name().clone();
+                    self.star = match generate_random_star(Some(max_distance)) {
+                        Ok(star) => star,
+                        Err(e) => {
+                            self.error = Some(e.into());
+                            return;
+                        }
+                    };
+                    self.star.set_name(name);
+                    self.fill_string_members();
+                }
+            }
+        }
+    }
+
+    fn submit(&self) -> GuiMessage {
+        match self.star_dialog_type {
+            StarDialogType::Edit => {
+                let mut star = self.star.clone();
+                if self.is_central_body() {
+                    star.set_distance_at_epoch(DISTANCE_ZERO);
+                }
+                return GuiMessage::StarEdited(self.star_index, star);
+            }
+            StarDialogType::New => return GuiMessage::NewStar(self.star.clone()),
+        }
+    }
+
+    fn get_error(&self) -> Option<super::ElenathError> {
+        todo!()
     }
 }
 
@@ -430,126 +554,8 @@ pub(crate) enum StarDialogEvent {
     LatitudeChanged(String),
     ConstellationChanged(String),
     Randomize,
-    Submit,
 }
 
-impl Component<GuiMessage> for StarDialog {
-    type State = ();
-
-    type Event = StarDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            StarDialogEvent::NameChanged(name) => {
-                self.star.set_name(name);
-            }
-            StarDialogEvent::MassChanged(mass_string) => {
-                if let Ok(mass) = mass_string.parse::<f64>() {
-                    self.star.set_mass_at_epoch(Some(mass * SOLAR_MASS));
-                }
-                self.mass_string = mass_string;
-            }
-            StarDialogEvent::RadiusChanged(radius_string) => {
-                if let Ok(radius) = radius_string.parse::<f64>() {
-                    self.star.set_radius_at_epoch(Some(radius * SOLAR_RADIUS));
-                }
-                self.radius_string = radius_string;
-            }
-            StarDialogEvent::LuminosityChanged(luminosity_string) => {
-                if let Ok(luminosity) = luminosity_string.parse::<f64>() {
-                    self.star.set_luminous_intensity_at_epoch(
-                        absolute_magnitude_to_luminous_intensity(luminosity),
-                    );
-                }
-                self.luminosity_string = luminosity_string;
-            }
-            StarDialogEvent::TemperatureChanged(temperature_string) => {
-                if let Ok(temperature) = temperature_string.parse::<f64>() {
-                    self.star
-                        .set_temperature_at_epoch(Temperature::from_K(temperature));
-                }
-                self.temperature_string = temperature_string;
-            }
-            StarDialogEvent::AgeChanged(age_string) => {
-                if let Ok(age) = age_string.parse::<f64>() {
-                    self.star.set_age_at_epoch(Some(Time::from_Gyr(age)));
-                }
-                self.age_string = age_string;
-            }
-            StarDialogEvent::DistanceChanged(distance_string) => {
-                if let Ok(distance) = distance_string.parse::<f64>() {
-                    self.star
-                        .set_distance_at_epoch(Distance::from_lyr(distance));
-                }
-                self.distance_string = distance_string;
-            }
-            StarDialogEvent::LongitudeChanged(longitude_string) => {
-                if let Ok(longitude) = longitude_string.parse::<f64>() {
-                    let mut pos = self
-                        .star
-                        .get_pos_at_epoch()
-                        .to_ecliptic()
-                        .unwrap_or(DEFAULT_ECLIPTIC);
-                    pos.spherical.longitude = Angle::from_degrees(longitude);
-                    let pos = pos
-                        .to_direction()
-                        .to_cartesian(self.star.get_distance_at_epoch());
-                    self.star.set_pos_at_epoch(pos);
-                }
-                self.longitude_string = longitude_string;
-            }
-            StarDialogEvent::LatitudeChanged(latitude_string) => {
-                if let Ok(latitude) = latitude_string.parse::<f64>() {
-                    let mut pos = self
-                        .star
-                        .get_pos_at_epoch()
-                        .to_ecliptic()
-                        .unwrap_or(DEFAULT_ECLIPTIC);
-                    pos.spherical.latitude = Angle::from_degrees(latitude);
-                    let pos = pos
-                        .to_direction()
-                        .to_cartesian(self.star.get_distance_at_epoch());
-                    self.star.set_pos_at_epoch(pos);
-                }
-                self.latitude_string = latitude_string;
-            }
-            StarDialogEvent::ConstellationChanged(constellation) => {
-                if constellation.is_empty() {
-                    self.star.set_constellation(None);
-                } else {
-                    self.star.set_constellation(Some(constellation));
-                }
-            }
-            StarDialogEvent::Randomize => {
-                let max_distance = Distance::from_lyr(2000.);
-                let name = self.star.get_name().clone();
-                self.star = match generate_random_star(Some(max_distance)) {
-                    Ok(star) => star,
-                    Err(e) => {
-                        return Some(GuiMessage::ErrorEncountered(e.into()));
-                    }
-                };
-                self.star.set_name(name);
-                self.fill_string_members();
-            }
-            StarDialogEvent::Submit => match self.star_dialog_type {
-                StarDialogType::Edit => {
-                    let mut star = self.star.clone();
-                    if self.is_central_body() {
-                        star.set_distance_at_epoch(DISTANCE_ZERO);
-                    }
-                    return Some(GuiMessage::StarEdited(self.star_index, star));
-                }
-                StarDialogType::New => return Some(GuiMessage::NewStar(self.star.clone())),
-            },
-        }
-        None
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
-        Row::new()
-            .push(self.edit_column())
-            .push(self.additional_info_column())
-            .into()
-    }
+fn message<F: Fn(String) -> StarDialogEvent>(event: F) -> impl Fn(String) -> GuiMessage {
+    move |m| GuiMessage::DialogUpdate(DialogUpdate::StarUpdated(event(m)))
 }
