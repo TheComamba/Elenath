@@ -43,13 +43,13 @@ pub(crate) trait Dialog {
 
     fn header(&self) -> String;
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage>;
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage>;
 
     fn update(&mut self, message: DialogUpdate);
 
     fn submit(&self) -> GuiMessage;
 
-    fn to_element<'a>(&self) -> Element<'a, GuiMessage> {
+    fn to_element<'a>(&'a self) -> Element<'a, GuiMessage> {
         let header: Text<'a> = Text::new(self.header());
         let body = self.body();
         let card =

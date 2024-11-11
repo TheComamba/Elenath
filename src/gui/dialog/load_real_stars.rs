@@ -29,7 +29,7 @@ impl Dialog for LoadRealStarsDialog {
         "Load Real Stars".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite all stars in the current system.");
 
         let on_change = |data_type| {

@@ -50,6 +50,10 @@ pub(crate) struct PlanetDialog {
     rotation_axis_string: String,
 }
 
+fn message<F: FnOnce(String) -> PlanetDialogEvent>(event: F) -> impl Fn(String) -> GuiMessage {
+    message(DialogUpdate::PlanetUpdated(event(m)))
+}
+
 impl PlanetDialog {
     pub(crate) fn edit(
         planet: PlanetData,
@@ -155,7 +159,7 @@ impl PlanetDialog {
         self.rotation_axis_string = serde_json::to_string(self.planet.get_rotation_axis())
             .map_err(|e| {
                 ElenathError::Generic(format!(
-                    "Converting planet rotation axis to json failed: {:?}",
+                    "Converting planet rotation axPlanetUpdatedis to json failed: {:?}",
                     e
                 ))
             })?;
@@ -164,69 +168,69 @@ impl PlanetDialog {
 
     fn edit_column(&self) -> Element<'_, GuiMessage> {
         let randomize_button =
-            Button::new(Text::new("Randomize")).on_press(PlanetDialogEvent::Randomize);
+            Button::new(Text::new("Randomize")).on_press(message(PlanetDialogEvent::Randomize));
 
         let name = edit(
             "Name",
             self.planet.get_name(),
             "",
-            PlanetDialogEvent::NameChanged,
+            message(PlanetDialogEvent::NameChanged),
             &Some(self.planet.get_name()),
         );
         let mass = edit(
             "Mass",
             &self.mass_string,
             "Earth Masses",
-            PlanetDialogEvent::MassChanged,
+            message(PlanetDialogEvent::MassChanged),
             &Some(self.planet.get_mass()),
         );
         let radius = edit(
             "Radius",
             &self.radius_string,
             "Earth Radii",
-            PlanetDialogEvent::RadiusChanged,
+            message(PlanetDialogEvent::RadiusChanged),
             &Some(self.planet.get_radius()),
         );
         let color = edit(
             "Color",
             &self.color_string,
             "",
-            PlanetDialogEvent::ColorChanged,
+            message(PlanetDialogEvent::ColorChanged),
             &Some(self.planet.get_color()),
         );
         let geometric_albedo = edit(
             "Geometric Albedo",
             &self.geometric_albedo_string,
             "",
-            PlanetDialogEvent::GeometricAlbedoChanged,
+            message(PlanetDialogEvent::GeometricAlbedoChanged),
             &Some(self.planet.get_geometric_albedo()),
         );
         let semi_major_axis = edit(
             "Semi-major Axis",
             &self.semi_major_axis_string,
             "AU",
-            PlanetDialogEvent::SemiMajorAxisChanged,
+            message(PlanetDialogEvent::SemiMajorAxisChanged),
             &Some(self.planet.get_orbital_parameters().get_semi_major_axis()),
         );
         let eccentricity = edit(
             "Eccentricity",
             &self.eccentricity_string,
             "",
-            PlanetDialogEvent::EccentricityChanged,
+            message(PlanetDialogEvent::EccentricityChanged),
             &Some(self.planet.get_orbital_parameters().get_eccentricity()),
         );
         let inclination = edit(
             "Inclination",
             &self.inclination_string,
             "°",
-            PlanetDialogEvent::InclinationChanged,
+            message(PlanetDialogEvent::InclinationChanged),
             &Some(self.planet.get_orbital_parameters().get_inclination()),
         );
         let longitude_of_ascending_node = edit(
             "Ascending Node",
             &self.longitude_of_ascending_node_string,
             "°",
-            PlanetDialogEvent::LongitudeOfAscendingNodeChanged,
+            message(PlanetDialogEvent::LongitudeOfAscendingNodeChanged),
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -237,7 +241,7 @@ impl PlanetDialog {
             "Arg. of Periapsis",
             &self.argument_of_periapsis_string,
             "°",
-            PlanetDialogEvent::ArgumentOfPeriapsisChanged,
+            message(PlanetDialogEvent::ArgumentOfPeriapsisChanged),
             &Some(
                 self.planet
                     .get_orbital_parameters()
@@ -248,18 +252,18 @@ impl PlanetDialog {
             "Siderial Day",
             &self.siderial_rotation_period_string,
             "Earth Days",
-            PlanetDialogEvent::SiderialRotationPeriodChanged,
+            message(PlanetDialogEvent::SiderialRotationPeriodChanged),
             &Some(self.planet.get_sideral_rotation_period()),
         );
         let rotation_axis = edit(
             "Rotation Axis",
             &self.rotation_axis_string,
             "",
-            PlanetDialogEvent::RotationAxisChanged,
+            message(PlanetDialogEvent::RotationAxisChanged),
             &Some(self.planet.get_rotation_axis()),
         );
 
-        let submit_button = Button::new(Text::new("Submit")).on_press(PlanetDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
 
         Column::new()
             .push(randomize_button)
@@ -368,7 +372,7 @@ impl Dialog for PlanetDialog {
         }
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         Row::new()
             .push(self.edit_column())
             .push(self.additional_info_column())
@@ -484,6 +488,13 @@ impl Dialog for PlanetDialog {
             }
         }
     }
+
+    fn submit(&self) -> GuiMessage {
+        match self.planet_index {
+            Some(index) => GuiMessage::PlanetEdited(index, self.planet.clone()),
+            None => GuiMessage::NewPlanet(self.planet.clone()),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -502,4 +513,10 @@ pub(crate) enum PlanetDialogEvent {
     RotationAxisChanged(String),
     Randomize,
     Submit,
+}
+
+impl From<PlanetDialogEvent> for GuiMessage {
+    fn from(event: PlanetDialogEvent) -> Self {
+        GuiMessage::DialogUpdate(DialogUpdate::PlanetUpdated(event))
+    }
 }

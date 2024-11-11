@@ -30,7 +30,7 @@ impl Dialog for ErrorDialog {
 
     fn update(&mut self, _event: DialogUpdate) {}
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let text = Text::new(self.error_text.clone());
         let button = Button::new(Text::new("Ok")).on_press(GuiMessage::DialogClosed);
         Column::new().push(text).push(button).into()

@@ -19,7 +19,7 @@ impl Dialog for LoadRealPlanetsDialog {
         "Load Real Planets".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite all planets in the current system.");
         let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
         Column::new()
