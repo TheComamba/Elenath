@@ -5,10 +5,9 @@ use super::{
 };
 use iced::{
     mouse::Cursor,
-    widget::{canvas, Column, Container, Row, Text},
-    Element, Length, Rectangle, Renderer, Sandbox, Theme,
+    widget::{canvas, opaque, stack, Column, Container, Row, Text},
+    Element, Length, Rectangle, Renderer, Theme,
 };
-use iced_aw::Modal;
 use simple_si_units::base::Time;
 
 pub(super) const PADDING: f32 = 10.0;
@@ -22,10 +21,8 @@ pub(crate) enum GuiViewMode {
     Table,
 }
 
-impl Sandbox for Gui {
-    type Message = GuiMessage;
-
-    fn new() -> Self {
+impl Default for Gui {
+    fn default() -> Self {
         Gui {
             opened_file: None,
             mode: GuiViewMode::Surface,
@@ -40,24 +37,25 @@ impl Sandbox for Gui {
             dialog: None,
         }
     }
+}
 
+impl Gui {
     fn title(&self) -> String {
         String::from("Elenath - Imaginary Skies")
     }
 
-    fn update(&mut self, message: Self::Message) {
+    pub(crate) fn update(&mut self, message: GuiMessage) {
         if let Err(e) = self.handle_message(message) {
             self.dialog = Some(Box::new(ErrorDialog::new(e)));
         }
     }
 
-    fn view(&self) -> Element<'_, Self::Message> {
-        Modal::new(
-            self.main_view(),
-            self.dialog.as_ref().map(|d| d.to_element()),
-        )
-        .on_esc(GuiMessage::DialogClosed)
-        .into()
+    pub(crate) fn view(&self) -> Element<'_, GuiMessage> {
+        if let Some(dialog) = self.dialog.as_ref() {
+            stack!(self.main_view(), opaque(dialog.to_element())).into()
+        } else {
+            self.main_view()
+        }
     }
 
     fn theme(&self) -> Theme {

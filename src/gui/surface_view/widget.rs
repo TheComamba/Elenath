@@ -146,7 +146,7 @@ impl SurfaceViewState {
             .push(view_latitude_control_field)
             .push(viewport_angle_control_field)
             .width(Length::Fixed(BIG_COLUMN_WIDTH))
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .spacing(PADDING)
             .into()
     }

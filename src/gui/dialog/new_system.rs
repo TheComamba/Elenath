@@ -1,7 +1,7 @@
-use super::Dialog;
+use super::{Dialog, ElenathError};
 use crate::gui::{gui_widget::PADDING, message::GuiMessage};
 use iced::{
-    widget::{component, Button, Column, Component, Text},
+    widget::{Button, Column, Text},
     Alignment, Element, Length,
 };
 
@@ -19,37 +19,31 @@ impl Dialog for NewSystemDialog {
         "Create new Celestial System".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
-
-#[derive(Debug, Clone)]
-pub(crate) enum NewSystemDialogEvent {
-    Submit,
-}
-
-impl Component<GuiMessage> for NewSystemDialog {
-    type State = ();
-
-    type Event = NewSystemDialogEvent;
-
-    fn update(&mut self, _state: &mut Self::State, event: Self::Event) -> Option<GuiMessage> {
-        match event {
-            NewSystemDialogEvent::Submit => Some(GuiMessage::NewSystem),
-        }
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let warning = Text::new("This will overwrite the current celestial system.");
-        let submit_button = Button::new(Text::new("Submit")).on_press(NewSystemDialogEvent::Submit);
+        let submit_button = Button::new(Text::new("Submit")).on_press(GuiMessage::DialogSubmit);
         Column::new()
             .push(warning)
             .push(submit_button)
             .padding(PADDING)
             .spacing(PADDING)
             .width(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
+
+    fn update(&mut self, _message: super::DialogUpdate) {}
+
+    fn on_submit(&self) -> GuiMessage {
+        GuiMessage::NewSystem
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum NewSystemDialogEvent {
+    Submit,
 }

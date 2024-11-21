@@ -1,11 +1,10 @@
-use super::Dialog;
+use super::{CardStyle, Dialog, DialogUpdate};
 use crate::error::ElenathError;
 use crate::gui::message::GuiMessage;
 use iced::{
-    widget::{component, Button, Column, Component, Text},
+    widget::{Button, Column, Text},
     Element,
 };
-use iced_aw::style::CardStyles;
 
 #[derive(Debug, Clone)]
 pub(crate) struct ErrorDialog {
@@ -21,32 +20,28 @@ impl ErrorDialog {
 }
 
 impl Dialog for ErrorDialog {
-    fn card_style(&self) -> CardStyles {
-        CardStyles::Danger
+    fn card_style(&self) -> CardStyle {
+        CardStyle::Error
     }
 
     fn header(&self) -> String {
         "Error".to_string()
     }
 
-    fn body<'a>(&self) -> Element<'a, GuiMessage> {
-        component(self.clone())
-    }
-}
+    fn update(&mut self, _event: DialogUpdate) {}
 
-impl Component<GuiMessage> for ErrorDialog {
-    type State = ();
-
-    type Event = ErrorDialogMes;
-
-    fn update(&mut self, _state: &mut Self::State, _event: Self::Event) -> Option<GuiMessage> {
-        Some(GuiMessage::DialogClosed)
-    }
-
-    fn view(&self, _state: &Self::State) -> Element<'_, Self::Event> {
+    fn body<'a>(&'a self) -> Element<'a, GuiMessage> {
         let text = Text::new(self.error_text.clone());
-        let button = Button::new(Text::new("Ok")).on_press(ErrorDialogMes::Close);
+        let button = Button::new(Text::new("Ok")).on_press(GuiMessage::DialogClosed);
         Column::new().push(text).push(button).into()
+    }
+
+    fn on_submit(&self) -> GuiMessage {
+        GuiMessage::DialogClosed
+    }
+
+    fn get_error(&self) -> Option<ElenathError> {
+        None
     }
 }
 

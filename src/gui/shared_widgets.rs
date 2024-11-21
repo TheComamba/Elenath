@@ -31,7 +31,7 @@ impl Gui {
             .push(local_view_button)
             .push(top_view_button)
             .push(table_view_button)
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
@@ -52,7 +52,7 @@ impl Gui {
             .push(save_to_file_button)
             .push(save_to_new_file_button)
             .push(open_file_button)
-            .align_items(Alignment::Center)
+            .align_y(Alignment::Center)
             .spacing(PADDING)
             .into()
     }
@@ -65,8 +65,8 @@ pub(crate) fn std_button(
 ) -> Button<'_, GuiMessage> {
     let mut button = Button::new(
         Text::new(text)
-            .horizontal_alignment(Horizontal::Center)
-            .vertical_alignment(Vertical::Center),
+            .align_x(Horizontal::Center)
+            .align_y(Vertical::Center),
     );
     if is_enabled {
         button = button.on_press(message);
@@ -80,8 +80,8 @@ pub(super) fn planet_picker<'a>(
 ) -> Element<'a, GuiMessage> {
     let text = Text::new("Focused body:")
         .width(SMALL_COLUMN_WIDTH)
-        .horizontal_alignment(Horizontal::Right)
-        .vertical_alignment(Vertical::Center);
+        .align_x(Horizontal::Right)
+        .align_y(Vertical::Center);
     let mut planet_names = vec![String::new()];
     for name in planets.iter().map(|p| p.get_name()) {
         planet_names.push(name.clone());
@@ -100,7 +100,7 @@ pub(super) fn planet_picker<'a>(
         .push(text)
         .push(pick_list)
         .spacing(PADDING)
-        .align_items(Alignment::Center)
+        .align_y(Alignment::Center)
         .into()
 }
 
@@ -128,18 +128,18 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
 
     let planet_picker = planet_picker(planets, selected_planet);
 
-    let display_names_toggle = Container::new(Toggler::new(
-        Some("Display Names".to_string()),
-        display_names,
-        GuiMessage::SetDisplayNames,
-    ))
+    let display_names_toggle = Container::new(
+        Toggler::new(display_names)
+            .label("Display Names")
+            .on_toggle(GuiMessage::SetDisplayNames),
+    )
     .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
-    let diplay_constellations_toggle = Container::new(Toggler::new(
-        Some("Display Constellations".to_string()),
-        display_constellations,
-        GuiMessage::SetDisplayConstellations,
-    ))
+    let diplay_constellations_toggle = Container::new(
+        Toggler::new(display_constellations)
+            .label("Display Constellations")
+            .on_toggle(GuiMessage::SetDisplayConstellations),
+    )
     .width(Length::Fixed(1.5 * SMALL_COLUMN_WIDTH));
 
     Column::new()
@@ -149,7 +149,7 @@ pub(super) fn surface_and_top_view_shared_control<'a>(
         .push(display_names_toggle)
         .push(diplay_constellations_toggle)
         .width(Length::Fixed(BIG_COLUMN_WIDTH))
-        .align_items(Alignment::Center)
+        .align_x(Alignment::Center)
         .spacing(PADDING)
         .into()
 }
@@ -164,8 +164,8 @@ where
     M: Into<GuiMessage>,
 {
     let label = Text::new(label)
-        .vertical_alignment(Vertical::Center)
-        .horizontal_alignment(Horizontal::Right)
+        .align_y(Vertical::Center)
+        .align_x(Horizontal::Right)
         .width(Length::Fixed(SMALL_COLUMN_WIDTH));
     let decrease_button = Container::new(Button::new(Text::new("<<")).on_press(decrease.into()))
         .align_x(Horizontal::Center)
@@ -173,7 +173,7 @@ where
     let value = Text::new(value)
         .shaping(Shaping::Advanced)
         .width(Length::Fixed(0.75 * SMALL_COLUMN_WIDTH))
-        .horizontal_alignment(Horizontal::Center);
+        .align_x(Horizontal::Center);
     let increase_button = Container::new(Button::new(Text::new(">>")).on_press(increase.into()))
         .align_x(Horizontal::Center)
         .width(Length::Fixed(0.25 * SMALL_COLUMN_WIDTH));
@@ -183,7 +183,7 @@ where
         .push(value)
         .push(increase_button)
         .spacing(PADDING)
-        .align_items(Alignment::Center)
+        .align_y(Alignment::Center)
 }
 
 pub(crate) fn edit<'a, Fun, Mes, Val>(
@@ -205,7 +205,7 @@ where
     };
     let description = Text::new(description)
         .width(SMALL_COLUMN_WIDTH)
-        .horizontal_alignment(Horizontal::Right);
+        .align_x(Horizontal::Right);
     let data = TextInput::new("", data)
         .on_input(message)
         .width(SMALL_COLUMN_WIDTH);
