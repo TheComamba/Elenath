@@ -5,7 +5,7 @@ use super::{
 };
 use iced::{
     mouse::Cursor,
-    widget::{canvas, Column, Container, Row, Text},
+    widget::{canvas, opaque, stack, Column, Container, Row, Text},
     Element, Length, Rectangle, Renderer, Theme,
 };
 use simple_si_units::base::Time;
@@ -51,12 +51,11 @@ impl Gui {
     }
 
     pub(crate) fn view(&self) -> Element<'_, GuiMessage> {
-        Modal::new(
-            self.main_view(),
-            self.dialog.as_ref().map(|d| d.to_element()),
-        )
-        .on_esc(GuiMessage::DialogClosed)
-        .into()
+        if let Some(dialog) = self.dialog.as_ref() {
+            stack!(self.main_view(), opaque(dialog.to_element())).into()
+        } else {
+            self.main_view()
+        }
     }
 
     fn theme(&self) -> Theme {

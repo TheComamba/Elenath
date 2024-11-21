@@ -10,8 +10,9 @@ use crate::{
 };
 use iced::{
     widget::{
-        scrollable::Direction, text::Shaping, Button, Column, Container, Row, Rule, Scrollable,
-        Text,
+        scrollable::{Direction, Scrollbar},
+        text::Shaping,
+        Button, Column, Container, Row, Rule, Scrollable, Text,
     },
     Alignment, Element, Length,
 };
@@ -123,13 +124,14 @@ where
     T: PartOfCelestialSystem,
 {
     let width = table_width(&col_data);
+    let scrollbar = Scrollbar::new();
     Scrollable::new(
         Column::new()
             .push(table_header(new_message, &col_data))
             .push(Container::new(Rule::horizontal(10)).width(width))
             .push(table_contents(bodies, col_data)),
     )
-    .direction(Direction::Horizontal(Properties::default()))
+    .direction(Direction::Horizontal(scrollbar))
     .width(Length::Fill)
     .height(Length::Fill)
 }
@@ -179,8 +181,9 @@ where
     if length > MAX_ROWS {
         col = col.push(Text::new(format!("... and {} more", length - MAX_ROWS)));
     }
+    let scrollbar = Scrollbar::new();
     Scrollable::new(col)
-        .direction(Direction::Vertical(Properties::default()))
+        .direction(Direction::Vertical(scrollbar))
         .height(Length::Fill)
         .into()
 }
