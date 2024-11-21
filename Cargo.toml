@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 astro_coords = { git = "https://github.com/TheComamba/AstroCoords.git", branch="main" }
 astro_utils = { git = "https://github.com/TheComamba/AstroUtils.git", branch="main" }
-iced = { version = "0.13.0", default-features = false, features=["canvas", "lazy"] }
+iced = { version = "0.13.0", default-features = false, features=["wgpu", "canvas", "lazy"] }
 iced_aw = { version = "0.11.0", default-features = false, features = ["card"] }
 rfd = "0.15.0" # file dialogs (all default features are needed)
 serde = { version = "1.0", default-features = false, features = ["derive"] }
