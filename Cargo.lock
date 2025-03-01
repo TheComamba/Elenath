@@ -164,7 +164,7 @@ dependencies = [
 [[package]]
 name = "astro_utils"
 version = "0.1.0"
-source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#9ae4c208f2839533c8158a4744f14fe1bfa5aa39"
+source = "git+https://github.com/TheComamba/AstroUtils.git?branch=main#203a7aaf513f0697d176f2680c9291a4d3ea4bcb"
 dependencies = [
  "astro_coords",
  "directories",
